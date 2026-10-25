@@ -4,7 +4,7 @@ Item {
     id: root
 
     property color color: "#a8c7fa"
-    property string shape: "blossom" // "blossom", "scallop", "circle", "squircle"
+    property string shape: "blossom" // "blossom", "scallop", "pebble", "flower12", "squircle", "circle"
     property real rotationAngle: 0
     property real scaleFactor: 1.0
     property real morphProgress: shape === "circle" ? 0.0 : 1.0
@@ -13,8 +13,8 @@ Item {
         NumberAnimation { duration: 250; easing.type: Easing.OutCubic }
     }
 
-    implicitWidth: 38
-    implicitHeight: 38
+    implicitWidth: 48
+    implicitHeight: 48
 
     Canvas {
         id: shapeCanvas
@@ -40,9 +40,18 @@ Item {
 
             if (root.shape === "circle" && root.morphProgress <= 0.001) {
                 ctx.arc(cx, cy, rMax, 0, 2 * Math.PI)
-            } else if (root.shape === "blossom" || (root.shape === "circle" && root.morphProgress > 0)) {
-                // Material You Expressive 12-lobe organic blossom ("круг оброс шипами, но не слишком много, малый вылет")
-                let rMin = rMax * 0.88
+            } else if (root.shape === "pebble") {
+                // Organic Material You Pebble / Potato shape (Android 14/15 weather widget)
+                let rx = (w / 2) * 0.92 * root.scaleFactor
+                let ry = (h / 2) * 0.92 * root.scaleFactor
+                ctx.beginPath()
+                ctx.moveTo(cx - rx * 0.7, cy - ry)
+                ctx.bezierCurveTo(cx + rx * 0.5, cy - ry * 1.05, cx + rx * 1.05, cy - ry * 0.4, cx + rx, cy + ry * 0.2)
+                ctx.bezierCurveTo(cx + rx * 0.95, cy + ry * 0.9, cx + rx * 0.2, cy + ry * 1.05, cx - rx * 0.4, cy + ry * 0.95)
+                ctx.bezierCurveTo(cx - rx * 1.05, cy + ry * 0.8, cx - rx * 1.05, cy - ry * 0.3, cx - rx * 0.7, cy - ry)
+            } else if (root.shape === "blossom" || root.shape === "flower12") {
+                // Material You Expressive 12-lobe organic flower (Pixel Clock)
+                let rMin = rMax * 0.86
                 let amplitude = ((rMax - rMin) / 2) * root.morphProgress
                 let baseR = rMax - amplitude
                 let steps = 144
@@ -56,7 +65,7 @@ Item {
                 }
             } else if (root.shape === "scallop") {
                 // Material You 8-lobe scalloped flower
-                let rMin = rMax * 0.85
+                let rMin = rMax * 0.82
                 let amplitude = ((rMax - rMin) / 2) * root.morphProgress
                 let baseR = rMax - amplitude
                 let steps = 128

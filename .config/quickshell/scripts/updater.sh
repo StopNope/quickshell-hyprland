@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  DOTFILE-HYPRLAND + QUICKSHELL AUTO-UPDATER
-#  GitHub: https://github.com/StopNope/dotfile-Hyprland
+#  QUICKSHELL MATERIAL YOU AUTO-UPDATER
+#  GitHub: https://github.com/StopNope/quickshell-hyprland
 # =============================================================================
 set -e
+
+REPO_URL="https://github.com/StopNope/quickshell-hyprland.git"
 
 C_RESET="\033[0m"
 C_BOLD="\033[1m"
@@ -29,20 +31,20 @@ notify() {
     fi
 }
 
-# 1. Поиск локального репозитория dotfiles
+# 1. Поиск локального репозитория quickshell
 REPO_DIR=""
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 if [[ -d "${SCRIPT_DIR}/.git" ]]; then
     REPO_DIR="${SCRIPT_DIR}"
-elif [[ -d "$HOME/dotfile-Hyprland/.git" ]]; then
-    REPO_DIR="$HOME/dotfile-Hyprland"
-elif [[ -d "$HOME/.dotfiles/.git" ]]; then
-    REPO_DIR="$HOME/.dotfiles"
+elif [[ -d "$HOME/quickshell-hyprland/.git" ]]; then
+    REPO_DIR="$HOME/quickshell-hyprland"
+elif [[ -d "$HOME/.quickshell-repo/.git" ]]; then
+    REPO_DIR="$HOME/.quickshell-repo"
 else
-    REPO_DIR="$HOME/dotfile-Hyprland"
+    REPO_DIR="$HOME/.quickshell-repo"
     log "Клонирование репозитория в ${REPO_DIR}..."
-    git clone https://github.com/StopNope/dotfile-Hyprland.git "${REPO_DIR}"
+    git clone "${REPO_URL}" "${REPO_DIR}"
 fi
 
 cd "${REPO_DIR}"
@@ -58,7 +60,7 @@ if [[ "${1:-}" == "--force" || "${1:-}" == "-f" ]]; then
 fi
 
 if [[ "$LOCAL_HASH" == "$REMOTE_HASH" && $FORCE_UPDATE -eq 0 ]]; then
-    ok "У вас уже установлена самая последняя версия dotfile-Hyprland!"
+    ok "У вас уже установлена самая последняя версия Quickshell!"
     notify "Quickshell" "Конфигурация актуальна (обновлений нет)"
     exit 0
 fi
@@ -76,20 +78,11 @@ if [[ -d "${REPO_DIR}/.config/quickshell/fonts" ]]; then
     ok "Шрифты обновлены."
 fi
 
-# 3. Обновление обоев
-if [[ -d "${REPO_DIR}/wallpaper" ]]; then
-    log "Подтягивание новых обоев из репозитория..."
-    mkdir -p "$HOME/wallpaper"
-    # Копируем только отсутствующие или более новые файлы обоев
-    cp -rn "${REPO_DIR}/wallpaper/"* "$HOME/wallpaper/" 2>/dev/null || true
-    ok "Обои синхронизированы в ~/wallpaper."
-fi
-
-# 4. Обновление Quickshell (с сохранением пользовательского config.json)
+# 3. Обновление Quickshell (с сохранением пользовательского config.json)
 log "Обновление модулей и скриптов Quickshell..."
 mkdir -p "$HOME/.config/quickshell"
 
-# Если config.json уже существует, сохраняем его резервную копию
+# Сохраняем пользовательский config.json
 if [[ -f "$HOME/.config/quickshell/config.json" ]]; then
     cp "$HOME/.config/quickshell/config.json" "$HOME/.config/quickshell/config.json.user_bak"
 fi
@@ -119,15 +112,14 @@ if [[ -f "${REPO_DIR}/.local/bin/screenshot.sh" ]]; then
     chmod +x "$HOME/.local/bin/screenshot.sh"
 fi
 
-# 5. Обновление интеграции кейбиндов в Hyprland
+# 4. Обновление интеграции кейбиндов в Hyprland
 HYPR_LUA="$HOME/.config/hypr/hyprland.lua"
 if [[ -f "$HYPR_LUA" && -f "${REPO_DIR}/install.sh" ]]; then
     log "Проверка блока интеграции в hyprland.lua..."
-    # Вызываем функцию инъекции блока из install.sh
     bash "${REPO_DIR}/install.sh" --hypr-only || true
 fi
 
-# 6. Перезапуск Quickshell
+# 5. Перезапуск Quickshell
 log "Перезапуск Quickshell с новыми модулями..."
 killall quickshell 2>/dev/null || true
 sleep 1

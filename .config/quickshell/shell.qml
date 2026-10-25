@@ -164,6 +164,8 @@ ShellRoot {
                     else sideWindow.openPanel()
                 } else if (cmd === "lock") {
                     appConfig.isLocked = true
+                } else if (cmd === "unlock") {
+                    appConfig.isLocked = false
                 } else if (cmd === "switcher_next") {
                     switcherOverlay.openNext()
                 } else if (cmd === "switcher_prev") {
@@ -642,34 +644,22 @@ ShellRoot {
     }
 
     // ==========================================
-    // 8. ЭКРАН БЛОКИРОВКИ НА ВСЕ МОНИТОРЫ (С БЛЮРОМ)
+    // 8. ЭКРАН БЛОКИРОВКИ (WAYLAND EXT-SESSION-LOCK-V1)
     // ==========================================
-    Variants {
-        model: Quickshell.screens
+    WlSessionLock {
+        id: sessionLock
+        locked: appConfig.isLocked
 
-        PanelWindow {
-            id: lockWin
-            required property var modelData
-            screen: modelData
-
-            color: "transparent"
-            visible: appConfig.isLocked
-            WlrLayershell.namespace: "lockscreen"
-
-            anchors { top: true; bottom: true; left: true; right: true }
-
-            exclusionMode: ExclusionMode.Ignore
-            WlrLayershell.layer: WlrLayer.Overlay
-            WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-
-            onVisibleChanged: {
-                if (visible) lockView.forceActiveFocus()
-            }
+        WlSessionLockSurface {
+            id: lockSurface
+            color: "#121316"
 
             LockScreen {
                 id: lockView
                 anchors.fill: parent
                 cfg: appConfig
+                isPrimaryScreen: lockSurface.screen === Quickshell.screens[0]
+                onUnlockRequested: appConfig.isLocked = false
             }
         }
     }
