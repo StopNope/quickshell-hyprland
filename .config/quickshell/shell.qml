@@ -1,8 +1,10 @@
+//@ pragma UseQApplication
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Services.SystemTray
 import Quickshell.Services.Notifications
 import "./modules"
 
@@ -229,6 +231,14 @@ ShellRoot {
                 } else if (cmd === "toggle_powersave") {
                     appConfig.powerSaveMode = !appConfig.powerSaveMode
                     appConfig.save()
+                } else if (cmd.startsWith("open_tray")) {
+                    let parts = cmd.split(":")
+                    let idx = parts.length > 1 ? parseInt(parts[1]) : 0
+                    if (SystemTray.items.values && SystemTray.items.values.length > idx) {
+                        trayMenuWindow.open(SystemTray.items.values[idx], 1680, 50)
+                    }
+                } else if (cmd === "close_tray") {
+                    trayMenuWindow.close()
                 } else if (cmd.startsWith("osd:")) {
                     let p = cmd.split(":")
                     if (p.length >= 4) {
@@ -296,6 +306,7 @@ ShellRoot {
                 else sideWindow.openPanel()
             }
             onTriggerOsd: (type, icon, title, val) => osdPopup.trigger(type, icon, title, val)
+            onOpenTrayMenu: (item, gx, gy) => trayMenuWindow.open(item, gx, gy)
         }
     }
 
@@ -444,6 +455,67 @@ ShellRoot {
         active: menuWindow.visible
         windows: [menuWindow]
         onCleared: menuWindow.closeMenu()
+    }
+
+    // ==========================================
+    // 4.1 МЕНЮ ТРЕЯ (TrayMenu)
+    // ==========================================
+    PanelWindow {
+        id: trayMenuWindow
+
+        color: "transparent"
+        visible: false
+        WlrLayershell.namespace: "traymenu"
+        WlrLayershell.layer: WlrLayer.Overlay
+        exclusionMode: ExclusionMode.Ignore
+
+        anchors {
+            top: true
+            bottom: true
+            left: true
+            right: true
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: trayMenuWindow.close()
+        }
+
+        function open(item, gx, gy) {
+            trayMenu.targetItem = item
+            trayMenu.targetX = gx
+            trayMenu.targetY = gy
+            visible = true
+            trayMenu.isOpen = true
+        }
+
+        function close() {
+            trayMenu.isOpen = false
+            trayCloseTimer.start()
+        }
+
+        Timer {
+            id: trayCloseTimer
+            interval: 160
+            onTriggered: trayMenuWindow.visible = false
+        }
+
+        TrayMenu {
+            id: trayMenu
+            cfg: appConfig
+            x: Math.max(16, Math.min(parent.width - width - 16, targetX - width / 2))
+            y: (appConfig.barPosition === "bottom")
+               ? (parent.height - appConfig.barHeight - height - 12)
+               : (appConfig.barHeight + 12)
+            onCloseRequested: trayMenuWindow.close()
+        }
+    }
+
+    // Клик мимо меню трея автоматически закрывает его
+    HyprlandFocusGrab {
+        active: trayMenuWindow.visible
+        windows: [trayMenuWindow]
+        onCleared: trayMenuWindow.close()
     }
 
     // ==========================================

@@ -13,6 +13,7 @@ Item {
     signal toggleMenu(string tab)
     signal toggleSidePanel()
     signal triggerOsd(string type, string icon, string title, int val)
+    signal openTrayMenu(var item, real globalX, real globalY)
 
     // ================= ДИНАМИЧЕСКИЙ СПИСОК ВОРКСПЕЙСОВ =================
     // Храним стабильный currentWorkspaceId, чтобы пилюля не исчезала при переходе на пустые столы
@@ -507,13 +508,6 @@ Item {
                     width: root.iconSize + 6
                     height: root.iconSize + 6
 
-                    QsMenuAnchor {
-                        id: trayMenuAnchor
-                        menu: modelData.menu
-                        anchor.window: (typeof barWindow !== "undefined" && barWindow) ? barWindow : trayItemRoot.QsWindow.window
-                        anchor.item: trayItemRoot
-                    }
-
                     Rectangle {
                         anchors.fill: parent
                         radius: 6
@@ -541,20 +535,18 @@ Item {
                             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                             cursorShape: Qt.PointingHandCursor
                             onClicked: mouse => {
+                                let pos = trayItemRoot.mapToItem(null, 0, 0)
+                                let cx = pos.x + trayItemRoot.width / 2
                                 if (mouse.button === Qt.RightButton) {
-                                    if (modelData.hasMenu && trayMenuAnchor.menu) {
-                                        trayMenuAnchor.open()
-                                    } else {
-                                        modelData.secondaryActivate()
-                                    }
+                                    root.openTrayMenu(modelData, cx, pos.y)
                                 } else if (mouse.button === Qt.LeftButton) {
-                                    if (modelData.onlyMenu && trayMenuAnchor.menu) {
-                                        trayMenuAnchor.open()
+                                    if (modelData.onlyMenu) {
+                                        root.openTrayMenu(modelData, cx, pos.y)
                                     } else {
-                                        modelData.activate()
+                                        modelData.activate(0, 0)
                                     }
                                 } else if (mouse.button === Qt.MiddleButton) {
-                                    modelData.secondaryActivate()
+                                    modelData.secondaryActivate(0, 0)
                                 }
                             }
                             onWheel: wheel => {
@@ -799,13 +791,6 @@ Item {
                     width: root.iconSize + 4
                     height: width
 
-                    QsMenuAnchor {
-                        id: vTrayMenuAnchor
-                        menu: modelData.menu
-                        anchor.window: (typeof barWindow !== "undefined" && barWindow) ? barWindow : vTrayItemRoot.QsWindow.window
-                        anchor.item: vTrayItemRoot
-                    }
-
                     Rectangle {
                         anchors.fill: parent
                         radius: 4
@@ -823,14 +808,18 @@ Item {
                             acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                             cursorShape: Qt.PointingHandCursor
                             onClicked: mouse => {
+                                let pos = vTrayItemRoot.mapToItem(null, 0, 0)
+                                let cx = pos.x + vTrayItemRoot.width / 2
                                 if (mouse.button === Qt.RightButton) {
-                                    if (modelData.hasMenu && vTrayMenuAnchor.menu) vTrayMenuAnchor.open()
-                                    else modelData.secondaryActivate()
+                                    root.openTrayMenu(modelData, cx, pos.y)
                                 } else if (mouse.button === Qt.LeftButton) {
-                                    if (modelData.onlyMenu && vTrayMenuAnchor.menu) vTrayMenuAnchor.open()
-                                    else modelData.activate()
+                                    if (modelData.onlyMenu) {
+                                        root.openTrayMenu(modelData, cx, pos.y)
+                                    } else {
+                                        modelData.activate(0, 0)
+                                    }
                                 } else if (mouse.button === Qt.MiddleButton) {
-                                    modelData.secondaryActivate()
+                                    modelData.secondaryActivate(0, 0)
                                 }
                             }
                             onWheel: wheel => modelData.scroll(wheel.angleDelta.y, true)
