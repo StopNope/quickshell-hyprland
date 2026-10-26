@@ -41,6 +41,48 @@ Rectangle {
     border.width: 1
     clip: true
 
+    // ==========================================
+    // ВАРИАНТ 0: PIXEL SQUIRCLE DAY (ИЗ РЕФЕРЕНСА ANDROID 14/15 'Tue 02')
+    // ==========================================
+    Item {
+        id: squircleDayItem
+        anchors.fill: parent
+        visible: root.variant === "glance_day" || root.variant === "squircle"
+
+        Rectangle {
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.94
+            height: width
+            radius: width * 0.35
+            color: root.cfg.surfaceContainerHigh
+            border.color: root.cfg.outlineVariant
+            border.width: 1
+
+            ColumnLayout {
+                anchors.centerIn: parent
+                spacing: 0
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: Qt.formatDateTime(root.now, "ddd")
+                    color: root.cfg.onSurfaceVariant
+                    font.pixelSize: Math.round(parent.parent.width * 0.22)
+                    font.bold: true
+                    font.family: root.cfg.fontFamily
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: Qt.formatDateTime(root.now, "dd")
+                    color: root.cfg.textPrimary
+                    font.pixelSize: Math.round(parent.parent.width * 0.36)
+                    font.bold: true
+                    font.family: "Fredoka"
+                }
+            }
+        }
+    }
+
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
@@ -168,7 +210,7 @@ Rectangle {
                             anchors.centerIn: parent
                             text: dayCell.displayDay
                             color: {
-                                if (dayCell.isToday) return "#1a1c22"
+                                if (dayCell.isToday) return root.cfg.accentText || "#1a1c22"
                                 if (!dayCell.isCurrentMonthDay) return Qt.rgba(root.cfg.onSurfaceVariant.r, root.cfg.onSurfaceVariant.g, root.cfg.onSurfaceVariant.b, 0.28)
                                 if (dayCell.isWeekend) return root.cfg.danger
                                 return root.cfg.textPrimary

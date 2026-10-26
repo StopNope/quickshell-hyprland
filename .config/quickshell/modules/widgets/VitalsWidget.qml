@@ -343,67 +343,169 @@ Rectangle {
     RowLayout {
         anchors.fill: parent
         anchors.margins: 12
-        spacing: 8
+        spacing: 10
         visible: root.variant === "pills_grid"
 
-        Repeater {
-            model: [
-                { name: "CPU", icon: "󰍛", val: root.cfg.cpuVal },
-                { name: "RAM", icon: "󰘚", val: root.cfg.ramVal },
-                { name: "GPU", icon: "󰢮", val: root.cfg.gpuVal }
-            ]
+        // 1. CPU Card
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            radius: 24
+            color: root.cfg.surfaceContainerHigh
+            border.color: root.cfg.outlineVariant
+            border.width: 1
 
-            Rectangle {
-                required property var modelData
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: 18
-                color: root.cfg.surfaceContainerHigh
-                border.color: root.cfg.outlineVariant
-                border.width: 1
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 6
 
-                ColumnLayout {
-                    anchors.centerIn: parent
-                    spacing: 4
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    Rectangle {
+                        width: 26; height: 26; radius: 13
+                        color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
+                        Text { anchors.centerIn: parent; text: "󰍛"; color: root.cfg.accent; font.pixelSize: 13 }
+                    }
+                    Text { text: "CPU"; color: root.cfg.onSurfaceVariant; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
+                    Item { Layout.fillWidth: true }
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: root.cfg.cpuVal + "%"
+                    color: root.cfg.cpuVal > 80 ? root.cfg.danger : root.cfg.textPrimary
+                    font.pixelSize: root.size === "S" ? 18 : 24
+                    font.bold: true
+                    font.family: "Fredoka"
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 12
+                    radius: 6
+                    color: root.cfg.surfaceContainerLowest || "#181920"
+                    clip: true
 
                     Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        height: 24
-                        implicitWidth: pBadge.implicitWidth + 12
-                        radius: 12
-                        color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.14)
-                        RowLayout {
-                            id: pBadge
-                            anchors.centerIn: parent
-                            spacing: 4
-                            Text { text: modelData.icon; color: root.cfg.accent; font.pixelSize: 11 }
-                            Text { text: modelData.name; color: root.cfg.accent; font.pixelSize: 10; font.bold: true }
-                        }
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height
+                        width: Math.max(12, parent.width * Math.min(1, Math.max(0, root.cfg.cpuVal / 100)))
+                        radius: 6
+                        color: root.cfg.cpuVal > 80 ? root.cfg.danger : root.cfg.accent
+                        Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
                     }
+                }
+            }
+        }
 
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: modelData.val + "%"
-                        color: modelData.val > 80 ? root.cfg.danger : root.cfg.textPrimary
-                        font.pixelSize: root.size === "S" ? 16 : 22
-                        font.bold: true
-                        font.family: root.cfg.fontFamily
+        // 2. RAM Card
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            radius: 24
+            color: root.cfg.surfaceContainerHigh
+            border.color: root.cfg.outlineVariant
+            border.width: 1
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 6
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    Rectangle {
+                        width: 26; height: 26; radius: 13
+                        color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
+                        Text { anchors.centerIn: parent; text: "󰘚"; color: root.cfg.accent; font.pixelSize: 13 }
                     }
+                    Text { text: "RAM"; color: root.cfg.onSurfaceVariant; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
+                    Item { Layout.fillWidth: true }
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: root.cfg.ramVal + "%"
+                    color: root.cfg.ramVal > 85 ? root.cfg.danger : root.cfg.textPrimary
+                    font.pixelSize: root.size === "S" ? 18 : 24
+                    font.bold: true
+                    font.family: "Fredoka"
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 12
+                    radius: 6
+                    color: root.cfg.surfaceContainerLowest || "#181920"
+                    clip: true
 
                     Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        width: Math.min(parent.width - 16, 60)
-                        height: 6
-                        radius: 3
-                        color: "#333742"
-                        Rectangle {
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-                            anchors.bottom: parent.bottom
-                            width: Math.max(6, parent.width * Math.min(1, modelData.val / 100))
-                            radius: 3
-                            color: modelData.val > 80 ? root.cfg.danger : root.cfg.accent
-                        }
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height
+                        width: Math.max(12, parent.width * Math.min(1, Math.max(0, root.cfg.ramVal / 100)))
+                        radius: 6
+                        color: root.cfg.ramVal > 85 ? root.cfg.danger : root.cfg.accent
+                        Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
+                    }
+                }
+            }
+        }
+
+        // 3. GPU Card
+        Rectangle {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            radius: 24
+            color: root.cfg.surfaceContainerHigh
+            border.color: root.cfg.outlineVariant
+            border.width: 1
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 12
+                spacing: 6
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+                    Rectangle {
+                        width: 26; height: 26; radius: 13
+                        color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
+                        Text { anchors.centerIn: parent; text: "󰢮"; color: root.cfg.accent; font.pixelSize: 13 }
+                    }
+                    Text { text: "GPU"; color: root.cfg.onSurfaceVariant; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
+                    Item { Layout.fillWidth: true }
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: root.cfg.gpuVal + "%"
+                    color: root.cfg.gpuVal > 80 ? root.cfg.danger : root.cfg.textPrimary
+                    font.pixelSize: root.size === "S" ? 18 : 24
+                    font.bold: true
+                    font.family: "Fredoka"
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 12
+                    radius: 6
+                    color: root.cfg.surfaceContainerLowest || "#181920"
+                    clip: true
+
+                    Rectangle {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: parent.height
+                        width: Math.max(12, parent.width * Math.min(1, Math.max(0, root.cfg.gpuVal / 100)))
+                        radius: 6
+                        color: root.cfg.gpuVal > 80 ? root.cfg.danger : root.cfg.accent
+                        Behavior on width { NumberAnimation { duration: 350; easing.type: Easing.OutCubic } }
                     }
                 }
             }

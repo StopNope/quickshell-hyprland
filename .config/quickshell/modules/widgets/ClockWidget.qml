@@ -34,12 +34,12 @@ Rectangle {
     readonly property int clockFontSize: Math.max(32, Math.min(Math.round(root.height * 0.48), Math.round(root.width * 0.46)))
 
     // ================= 4. ВЫБОР ЦВЕТА ЧАСОВ (MATERIAL YOU & PASTEL PRESETS) =================
-    readonly property string colorPreset: (widgetData && widgetData.clockColor) ? widgetData.clockColor : "lavender"
+    readonly property string colorPreset: (widgetData && widgetData.clockColor) ? widgetData.clockColor : "monet"
 
     readonly property color resolvedPrimaryColor: {
         switch (colorPreset) {
-            case "lavender": return "#ede8f5"
             case "monet": return root.cfg.textPrimary
+            case "lavender": return "#ede8f5"
             case "white": return "#ffffff"
             case "mint": return "#d1fae5"
             case "cyan": return "#e0f2fe"
@@ -49,14 +49,14 @@ Rectangle {
             case "gold": return "#fef08a"
             default:
                 if (colorPreset.startsWith("#")) return colorPreset
-                return "#ede8f5"
+                return root.cfg.textPrimary
         }
     }
 
     readonly property color resolvedSecondaryColor: {
         switch (colorPreset) {
-            case "lavender": return "#e0d7f5"
             case "monet": return root.cfg.accent
+            case "lavender": return "#e0d7f5"
             case "white": return "#d1d5db"
             case "mint": return "#6ee7b7"
             case "cyan": return "#38bdf8"
@@ -66,23 +66,570 @@ Rectangle {
             case "gold": return "#eab308"
             default:
                 if (colorPreset.startsWith("#")) return colorPreset
-                return "#e0d7f5"
+                return root.cfg.accent
         }
     }
 
     radius: (widgetData && widgetData.radius !== undefined) ? widgetData.radius : (root.cfg.widgetRadius || 28)
-    color: isTransparent ? "transparent" : root.cfg.surfaceContainer
-    border.color: isTransparent ? "transparent" : root.cfg.outlineVariant
-    border.width: isTransparent ? 0 : 1
+    readonly property bool isDialShape: root.variant === "scallop" || root.variant === "flower" || root.variant === "numeral" || root.variant === "clover" || root.variant === "circle"
+    color: isTransparent || isDialShape ? "transparent" : root.cfg.surfaceContainer
+    border.color: isTransparent || isDialShape ? "transparent" : root.cfg.outlineVariant
+    border.width: isTransparent || isDialShape ? 0 : 1
     clip: false
 
     property date currentTime: new Date()
+    property int currentSeconds: 0
+    property int currentMinutes: 0
+    property int currentHours: 0
 
     Timer {
-        interval: 1000
+        interval: 250
         running: true
         repeat: true
-        onTriggered: root.currentTime = new Date()
+        triggeredOnStart: true
+        onTriggered: {
+            let d = new Date()
+            root.currentTime = d
+            root.currentSeconds = d.getSeconds()
+            root.currentMinutes = d.getMinutes()
+            root.currentHours = d.getHours()
+        }
+    }
+
+    // ==========================================
+    // ВАРИАНТ 0: PIXEL FLOWER / SCALLOP (ИЗ РЕФЕРЕНСОВ GOOGLE PIXEL & CAELESTIA)
+    // ==========================================
+    property bool scallopAnalog: (widgetData && widgetData.scallopMode !== undefined) ? (widgetData.scallopMode === "analog") : true
+
+    Item {
+        id: scallopVariantItem
+        anchors.fill: parent
+        visible: root.variant === "scallop" || root.variant === "flower"
+
+        // 12-лепестковая форма Pixel Flower со стрелками и изогнутой датой
+        Canvas {
+            id: scallopCanvas
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.94
+            height: width
+
+            property int hours: root.currentHours
+            property int minutes: root.currentMinutes
+            property int seconds: root.currentSeconds
+            property string dateStr: Qt.formatDateTime(root.currentTime, "ddd d")
+            property bool isAnalog: root.scallopAnalog
+
+            onHoursChanged: requestPaint()
+            onMinutesChanged: requestPaint()
+            onSecondsChanged: requestPaint()
+            onDateStrChanged: requestPaint()
+            onIsAnalogChanged: requestPaint()
+
+            onPaint: {
+                let ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+
+                let cx = width / 2
+                let cy = height / 2
+                let rMax = Math.min(cx, cy) * 0.96
+                let rMin = rMax * 0.86
+                let amplitude = (rMax - rMin) / 2
+                let baseR = rMax - amplitude
+
+                // 1. 12-лепестковая форма печенья Pixel Flower
+                ctx.fillStyle = root.colorPreset === "lavender" ? "#3d173d" : (root.cfg.accentContainer || Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.22))
+                ctx.beginPath()
+                let steps = 144
+                for (let i = 0; i <= steps; i++) {
+                    let theta = i * 2 * Math.PI / steps
+                    let r = baseR + amplitude * Math.cos(12 * theta)
+                    let px = cx + r * Math.cos(theta)
+                    let py = cy + r * Math.sin(theta)
+                    if (i === 0) ctx.moveTo(px, py)
+                    else ctx.lineTo(px, py)
+                }
+                ctx.closePath()
+                ctx.fill()
+
+                if (!isAnalog) return // В цифровом режиме рисуется QML ColumnLayout
+
+                // 2. Изогнутая дата вдоль верхних лепестков ("Tue 19" / "Вт 26")
+                ctx.save()
+                ctx.font = "bold 13px Fredoka, sans-serif"
+                ctx.fillStyle = root.colorPreset === "lavender" ? "#f5dcf5" : root.cfg.accent
+                let txt = dateStr
+                let arc_r = baseR * 0.73
+                let start_angle = -Math.PI * 0.38
+                for (let i = 0; i < txt.length; i++) {
+                    let ang = start_angle + i * 0.14
+                    let tx = cx + arc_r * Math.cos(ang)
+                    let ty = cy + arc_r * Math.sin(ang)
+                    ctx.save()
+                    ctx.translate(tx, ty)
+                    ctx.rotate(ang + Math.PI / 2)
+                    ctx.fillText(txt[i], -3, 0)
+                    ctx.restore()
+                }
+                ctx.restore()
+
+                // 3. Стрелки часов
+                let hrAngle = (((hours % 12) + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2
+                let minAngle = ((minutes + seconds / 60) / 60) * 2 * Math.PI - Math.PI / 2
+                let secAngle = (seconds / 60) * 2 * Math.PI - Math.PI / 2
+
+                // Часовая стрелка
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(hrAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(baseR * 0.44, 0)
+                ctx.strokeStyle = root.colorPreset === "lavender" ? "#e8b0e8" : root.cfg.accent
+                ctx.lineWidth = 7.5
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Минутная стрелка
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(minAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(baseR * 0.64, 0)
+                ctx.strokeStyle = root.colorPreset === "lavender" ? "#faeff8" : root.cfg.textPrimary
+                ctx.lineWidth = 6.0
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Круглая центральная ось
+                ctx.beginPath()
+                ctx.arc(cx, cy, 4.5, 0, 2 * Math.PI)
+                ctx.fillStyle = root.resolvedSecondaryColor
+                ctx.fill()
+
+                // 4. Секундная орбитальная точка Google Pixel (вращается по окружности секунда в секунду)
+                let dotR = baseR * 0.58
+                ctx.beginPath()
+                ctx.arc(cx + dotR * Math.cos(secAngle), cy + dotR * Math.sin(secAngle), 5.5, 0, 2 * Math.PI)
+                ctx.fillStyle = root.resolvedSecondaryColor
+                ctx.fill()
+            }
+        }
+
+        // Переключение между аналоговым и цифровым видом по клику
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.scallopAnalog = !root.scallopAnalog
+        }
+
+        // Альтернативный цифровой вид (если scallopAnalog === false)
+        ColumnLayout {
+            anchors.centerIn: parent
+            visible: !root.scallopAnalog
+            spacing: -Math.round(root.clockFontSize * 0.22)
+
+            // ЧАСЫ (HH)
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: Qt.formatDateTime(root.currentTime, "hh")
+                color: root.resolvedPrimaryColor
+                font.pixelSize: Math.round(Math.min(parent.parent.width, parent.parent.height) * 0.32)
+                font.bold: true
+                font.family: root.clockFont
+                font.letterSpacing: -1.0
+            }
+
+            // МИНУТЫ (MM)
+            RowLayout {
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 4
+
+                Text {
+                    text: Qt.formatDateTime(root.currentTime, "mm")
+                    color: root.resolvedSecondaryColor
+                    font.pixelSize: Math.round(Math.min(parent.parent.parent.width, parent.parent.parent.height) * 0.32)
+                    font.bold: true
+                    font.family: root.clockFont
+                    font.letterSpacing: -1.0
+                }
+
+                // Секундный чип
+                Rectangle {
+                    height: 20
+                    width: secScallopTxt.implicitWidth + 10
+                    radius: 10
+                    color: Qt.rgba(255, 255, 255, 0.20)
+
+                    Text {
+                        id: secScallopTxt
+                        anchors.centerIn: parent
+                        text: Qt.formatDateTime(root.currentTime, "ss")
+                        color: root.resolvedPrimaryColor
+                        font.pixelSize: 9
+                        font.bold: true
+                        font.family: root.clockFont
+                    }
+                }
+            }
+        }
+    }
+
+    // ==========================================
+    // ВАРИАНТ 0.2: PIXEL NUMERAL (КРУГЛЫЙ ЦИФЕРБЛАТ С КРУПНЫМИ 12, 3, 6, 9)
+    // ==========================================
+    Item {
+        id: numeralClockItem
+        anchors.fill: parent
+        visible: root.variant === "numeral"
+
+        Canvas {
+            id: numeralCanvas
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.94
+            height: width
+
+            property int hours: root.currentHours
+            property int minutes: root.currentMinutes
+            property int seconds: root.currentSeconds
+
+            onHoursChanged: requestPaint()
+            onMinutesChanged: requestPaint()
+            onSecondsChanged: requestPaint()
+
+            onPaint: {
+                let ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                let cx = width / 2
+                let cy = height / 2
+                let r = Math.min(cx, cy) * 0.96
+
+                // 1. Подложка диска
+                ctx.fillStyle = root.colorPreset === "monet"
+                    ? (root.cfg.surfaceContainerHigh || Qt.rgba(255, 255, 255, 0.08))
+                    : Qt.rgba(root.resolvedSecondaryColor.r, root.resolvedSecondaryColor.g, root.resolvedSecondaryColor.b, 0.22)
+                ctx.beginPath()
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+                ctx.fill()
+
+                // 2. Крупные цифры 12, 3, 6, 9
+                ctx.fillStyle = root.resolvedSecondaryColor
+                ctx.font = "bold " + Math.round(r * 0.42) + "px Fredoka, sans-serif"
+                ctx.textAlign = "center"
+                ctx.textBaseline = "middle"
+
+                ctx.fillText("12", cx, cy - r * 0.58)
+                ctx.fillText("3", cx + r * 0.62, cy)
+                ctx.fillText("6", cx, cy + r * 0.60)
+                ctx.fillText("9", cx - r * 0.62, cy)
+
+                // 3. Стрелки
+                let hrAngle = (((hours % 12) + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2
+                let minAngle = ((minutes + seconds / 60) / 60) * 2 * Math.PI - Math.PI / 2
+                let secAngle = (seconds / 60) * 2 * Math.PI - Math.PI / 2
+
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(hrAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(r * 0.46, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 7.5
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(minAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(r * 0.72, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 4.5
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Секундная стрелка (Google Pixel тонкая игла с противовесом)
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(secAngle)
+                ctx.beginPath()
+                ctx.moveTo(-r * 0.18, 0)
+                ctx.lineTo(r * 0.80, 0)
+                ctx.strokeStyle = root.resolvedSecondaryColor
+                ctx.lineWidth = 1.8
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                ctx.beginPath()
+                ctx.arc(cx, cy, 4.5, 0, 2 * Math.PI)
+                ctx.fillStyle = root.resolvedSecondaryColor
+                ctx.fill()
+            }
+        }
+    }
+
+    // ==========================================
+    // ВАРИАНТ 0.3: PIXEL CLOVER (4-ЛЕПЕСТКОВЫЙ КЛЕВЕР GOOGLE PIXEL)
+    // ==========================================
+    Item {
+        id: cloverClockItem
+        anchors.fill: parent
+        visible: root.variant === "clover"
+
+        Canvas {
+            id: cloverCanvas
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.94
+            height: width
+
+            property int hours: root.currentHours
+            property int minutes: root.currentMinutes
+            property int seconds: root.currentSeconds
+
+            onHoursChanged: requestPaint()
+            onMinutesChanged: requestPaint()
+            onSecondsChanged: requestPaint()
+
+            onPaint: {
+                let ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                let cx = width / 2
+                let cy = height / 2
+                let rMax = Math.min(cx, cy) * 0.96
+                let rMin = rMax * 0.78
+                let amp = (rMax - rMin) / 2
+                let baseR = rMax - amp
+
+                ctx.fillStyle = root.colorPreset === "monet"
+                    ? (root.cfg.accentContainer || Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.25))
+                    : Qt.rgba(root.resolvedSecondaryColor.r, root.resolvedSecondaryColor.g, root.resolvedSecondaryColor.b, 0.25)
+                ctx.beginPath()
+                let steps = 96
+                for (let i = 0; i <= steps; i++) {
+                    let theta = i * 2 * Math.PI / steps
+                    let r = baseR + amp * Math.cos(4 * theta)
+                    let px = cx + r * Math.cos(theta)
+                    let py = cy + r * Math.sin(theta)
+                    if (i === 0) ctx.moveTo(px, py)
+                    else ctx.lineTo(px, py)
+                }
+                ctx.closePath()
+                ctx.fill()
+
+                let hrAngle = (((hours % 12) + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2
+                let minAngle = ((minutes + seconds / 60) / 60) * 2 * Math.PI - Math.PI / 2
+                let secAngle = (seconds / 60) * 2 * Math.PI - Math.PI / 2
+
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(hrAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(baseR * 0.48, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 7.5
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(minAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(baseR * 0.72, 0)
+                ctx.strokeStyle = root.resolvedSecondaryColor
+                ctx.lineWidth = 4.0
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Секундная стрелка
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(secAngle)
+                ctx.beginPath()
+                ctx.moveTo(-baseR * 0.18, 0)
+                ctx.lineTo(baseR * 0.80, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 1.8
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                ctx.beginPath()
+                ctx.arc(cx, cy, 4.5, 0, 2 * Math.PI)
+                ctx.fillStyle = root.resolvedPrimaryColor
+                ctx.fill()
+            }
+        }
+    }
+
+    // ==========================================
+    // ВАРИАНТ 0.4: PIXEL CIRCLE (МИНИМАЛИСТИЧНЫЙ КРУГ С ПИЛЮЛЕЙ ДАТЫ)
+    // ==========================================
+    Item {
+        id: circleClockItem
+        anchors.fill: parent
+        visible: root.variant === "circle"
+
+        Canvas {
+            id: circleCanvas
+            anchors.centerIn: parent
+            width: Math.min(parent.width, parent.height) * 0.94
+            height: width
+
+            property int hours: root.currentHours
+            property int minutes: root.currentMinutes
+            property int seconds: root.currentSeconds
+
+            onHoursChanged: requestPaint()
+            onMinutesChanged: requestPaint()
+            onSecondsChanged: requestPaint()
+
+            onPaint: {
+                let ctx = getContext("2d")
+                ctx.clearRect(0, 0, width, height)
+                let cx = width / 2
+                let cy = height / 2
+                let r = Math.min(cx, cy) * 0.96
+
+                ctx.fillStyle = root.colorPreset === "monet"
+                    ? (root.cfg.surfaceContainerHigh || Qt.rgba(255, 255, 255, 0.08))
+                    : Qt.rgba(root.resolvedSecondaryColor.r, root.resolvedSecondaryColor.g, root.resolvedSecondaryColor.b, 0.20)
+                ctx.beginPath()
+                ctx.arc(cx, cy, r, 0, 2 * Math.PI)
+                ctx.fill()
+
+                let hrAngle = (((hours % 12) + minutes / 60) / 12) * 2 * Math.PI - Math.PI / 2
+                let minAngle = ((minutes + seconds / 60) / 60) * 2 * Math.PI - Math.PI / 2
+                let secAngle = (seconds / 60) * 2 * Math.PI - Math.PI / 2
+
+                // Контурная часовая стрелка (Google Pixel loop hand)
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(hrAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(r * 0.46, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 9.0
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.beginPath()
+                ctx.moveTo(3, 0)
+                ctx.lineTo(r * 0.44, 0)
+                ctx.strokeStyle = ctx.fillStyle
+                ctx.lineWidth = 3.5
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Минутная стрелка
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(minAngle)
+                ctx.beginPath()
+                ctx.moveTo(0, 0)
+                ctx.lineTo(r * 0.72, 0)
+                ctx.strokeStyle = root.resolvedSecondaryColor
+                ctx.lineWidth = 4.0
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                // Секундная стрелка
+                ctx.save()
+                ctx.translate(cx, cy)
+                ctx.rotate(secAngle)
+                ctx.beginPath()
+                ctx.moveTo(-r * 0.18, 0)
+                ctx.lineTo(r * 0.80, 0)
+                ctx.strokeStyle = root.resolvedPrimaryColor
+                ctx.lineWidth = 1.8
+                ctx.lineCap = "round"
+                ctx.stroke()
+                ctx.restore()
+
+                ctx.beginPath()
+                ctx.arc(cx, cy, 4.5, 0, 2 * Math.PI)
+                ctx.fillStyle = root.resolvedPrimaryColor
+                ctx.fill()
+            }
+        }
+
+        // Дата-пилюля в отметке 3 часа
+        Rectangle {
+            anchors.right: parent.right
+            anchors.rightMargin: Math.round(parent.width * 0.14)
+            anchors.verticalCenter: parent.verticalCenter
+            width: 30
+            height: 20
+            radius: 10
+            color: root.resolvedSecondaryColor
+
+            Text {
+                anchors.centerIn: parent
+                text: Qt.formatDateTime(root.currentTime, "d")
+                color: root.colorPreset === "monet" ? root.cfg.accentText : "#ffffff"
+                font.pixelSize: 11
+                font.bold: true
+                font.family: root.clockFont
+            }
+        }
+    }
+
+    // ==========================================
+    // ВАРИАНТ 0.5: PIXEL TALL DIGITAL (ИЗ РЕФЕРЕНСОВ POCKET-LINT)
+    // ==========================================
+    Item {
+        id: tallDigitalCardItem
+        anchors.fill: parent
+        anchors.margins: 16
+        visible: root.variant === "tall_digital"
+
+        RowLayout {
+            anchors.centerIn: parent
+            spacing: 12
+
+            Text {
+                text: Qt.formatDateTime(root.currentTime, "hh")
+                color: root.resolvedSecondaryColor
+                font.pixelSize: Math.max(38, Math.min(Math.round(root.height * 0.65), 78))
+                font.bold: true
+                font.family: root.clockFont
+                font.letterSpacing: -1.0
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            ColumnLayout {
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 2
+
+                Text {
+                    text: Qt.formatDateTime(root.currentTime, "mm")
+                    color: root.resolvedSecondaryColor
+                    font.pixelSize: Math.max(22, Math.min(Math.round(root.height * 0.34), 38))
+                    font.bold: true
+                    font.family: root.clockFont
+                }
+
+                Text {
+                    text: Qt.formatDateTime(root.currentTime, "AP")
+                    color: root.cfg.onSurfaceVariant || root.cfg.textMuted
+                    font.pixelSize: 11
+                    font.bold: true
+                    font.family: root.clockFont
+                }
+            }
+        }
     }
 
     // ==========================================

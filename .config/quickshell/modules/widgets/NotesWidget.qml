@@ -8,14 +8,142 @@ Rectangle {
     required property var cfg
     property var widgetData: ({})
 
-    readonly property string variant: (widgetData && widgetData.variant) ? widgetData.variant : "classic"
+    readonly property string variant: (widgetData && widgetData.variant) ? widgetData.variant : "checklist"
     readonly property string size: (widgetData && widgetData.size) ? widgetData.size : "M"
+    readonly property bool isPastel: (widgetData && widgetData.pastelTheme !== undefined) ? widgetData.pastelTheme : true
+
+    property var tasks: [
+        { text: "Собрать вещи", done: true },
+        { text: "Проверить dotfiles", done: false },
+        { text: "Настроить Material You", done: false }
+    ]
 
     radius: (widgetData && widgetData.radius !== undefined) ? widgetData.radius : (root.cfg.widgetRadius || 28)
-    color: root.cfg.surfaceContainer
-    border.color: root.cfg.outlineVariant
-    border.width: 1
+    color: isPastel ? "#faeff6" : root.cfg.surfaceContainer
+    border.color: isPastel ? "transparent" : root.cfg.outlineVariant
+    border.width: isPastel ? 0 : 1
     clip: true
+
+    // ==========================================
+    // ВАРИАНТ 0: GOOGLE KEEP CHECKLIST (ИЗ РЕФЕРЕНСА MATERIAL YOU 'Vacay Packing')
+    // ==========================================
+    ColumnLayout {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 10
+        visible: root.variant === "checklist" || root.variant === "keep"
+
+        // Заголовок карточки + кнопка добавления
+        RowLayout {
+            Layout.fillWidth: true
+
+            ColumnLayout {
+                spacing: 1
+                Text {
+                    text: (widgetData && widgetData.noteTitle) ? widgetData.noteTitle : "Задачи\nKeep"
+                    color: root.isPastel ? "#3a143a" : root.cfg.textPrimary
+                    font.pixelSize: 13
+                    font.bold: true
+                    font.family: root.cfg.fontFamily
+                    lineHeight: 0.95
+                }
+            }
+
+            Item { Layout.fillWidth: true }
+
+            // Мягкая кнопка '+' (Material Squircle FAB)
+            Rectangle {
+                width: 32
+                height: 32
+                radius: 11
+                color: root.isPastel ? "#d98cd9" : root.cfg.accent
+
+                Text {
+                    anchors.centerIn: parent
+                    text: "+"
+                    color: root.isPastel ? "#3a143a" : root.cfg.accentText
+                    font.pixelSize: 18
+                    font.bold: true
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        let list = root.tasks.slice()
+                        list.push({ text: "Новая задача " + (list.length + 1), done: false })
+                        root.tasks = list
+                    }
+                }
+            }
+        }
+
+        // Чек-лист интерактивный
+        ColumnLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            spacing: 8
+
+            Repeater {
+                model: root.tasks
+
+                Rectangle {
+                    required property var modelData
+                    required property int index
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 26
+                    color: "transparent"
+
+                    RowLayout {
+                        anchors.fill: parent
+                        spacing: 10
+
+                        // Круглый чекбокс (Material You)
+                        Rectangle {
+                            width: 22
+                            height: 22
+                            radius: 11
+                            color: modelData.done ? "#9ab8f0" : "transparent"
+                            border.color: modelData.done ? "#9ab8f0" : (root.isPastel ? "#3a143a" : root.cfg.outlineVariant)
+                            border.width: modelData.done ? 0 : 2
+
+                            Text {
+                                anchors.centerIn: parent
+                                visible: modelData.done
+                                text: "✓"
+                                color: "#1e293b"
+                                font.pixelSize: 12
+                                font.bold: true
+                            }
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            text: modelData.text
+                            color: modelData.done ? (root.isPastel ? "#886588" : root.cfg.onSurfaceVariant) : (root.isPastel ? "#3a143a" : root.cfg.textPrimary)
+                            font.pixelSize: 12
+                            font.weight: modelData.done ? Font.Normal : Font.DemiBold
+                            font.strikeout: modelData.done
+                            font.family: root.cfg.fontFamily
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: {
+                            let list = root.tasks.slice()
+                            list[index] = { text: list[index].text, done: !list[index].done }
+                            root.tasks = list
+                        }
+                    }
+                }
+            }
+
+            Item { Layout.fillHeight: true }
+        }
+    }
 
     // ==========================================
     // ВАРИАНТ 1: CLASSIC (ТЕКСТОВЫЙ БЛОКНОТ)

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import QtQuick.Effects
 import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Services.Pam
 import "."
@@ -10,50 +11,50 @@ Item {
     id: root
 
     required property var cfg
+    property var targetScreen: null
     property bool isPrimaryScreen: true
     signal unlockRequested()
 
     property bool wrongPass: false
     property bool isAuthenticating: false
     property string authMessage: ""
-    property string lockWallpaperPath: ""
 
-    Process {
-        id: wpReader
-        command: ["sh", "-c", "grep -E '^wallpaper\\s*=' ~/.config/waypaper/config.ini 2>/dev/null | head -n1 | cut -d'=' -f2 | xargs -I{} echo -n {}"]
-        stdout: (data) => {
-            let p = data.trim()
-            if (p.startsWith('~')) p = (Quickshell.env('HOME') || '/home/stopnope') + p.slice(1)
-            if (p.length > 0) root.lockWallpaperPath = 'file://' + p
-            else root.lockWallpaperPath = 'file://' + (Quickshell.env('HOME') || '/home/stopnope') + '/wallpaper/default.jpg'
-        }
-    }
-
-    // Размытый фон текущих обоев в стиле Pixel & Caelestia
+    // Размытый фон открытых окон и рабочего стола (Snapshot реального экрана + MultiEffect Blur)
     Item {
         anchors.fill: parent
 
+        // Подложка обоев (если захват еще не готов)
         Image {
             id: bgWallpaper
             anchors.fill: parent
-            source: root.lockWallpaperPath
+            source: (root.cfg.currentWallpaper && root.cfg.currentWallpaper !== "") ? ("file://" + root.cfg.currentWallpaper) : ""
             fillMode: Image.PreserveAspectCrop
-            visible: status === Image.Ready
-            layer.enabled: true
-            layer.effect: MultiEffect {
-                blurEnabled: true
-                blur: 0.85
-                blurMax: 64
-                brightness: -0.22
-                saturation: 0.25
-            }
         }
 
-        // Тональный акцентный слой поверх обоев
-        Rectangle {
+        // Захват реального экрана со всеми открытыми окнами
+        Image {
+            id: bgSnapshot
             anchors.fill: parent
-            color: Qt.rgba(root.cfg.bgPrimary.r, root.cfg.bgPrimary.g, root.cfg.bgPrimary.b, bgWallpaper.visible ? 0.74 : 0.92)
+            source: "file:///tmp/lock_" + (root.targetScreen ? root.targetScreen.name : "HDMI-A-1") + ".jpg?t=" + root.cfg.lockTimestamp
+            fillMode: Image.PreserveAspectCrop
+            cache: false
+            visible: status === Image.Ready
         }
+
+        layer.enabled: true
+        layer.effect: MultiEffect {
+            blurEnabled: true
+            blur: 0.85
+            blurMax: 64
+            brightness: -0.18
+            saturation: 0.25
+        }
+    }
+
+    // Мягкий полупрозрачный тональный акцентный слой поверх размытых окон
+    Rectangle {
+        anchors.fill: parent
+        color: Qt.rgba(root.cfg.bgPrimary.r, root.cfg.bgPrimary.g, root.cfg.bgPrimary.b, 0.45)
     }
 
     // ================= PAM СИСТЕМНАЯ АУТЕНТИФИКАЦИЯ =================
@@ -99,7 +100,7 @@ Item {
 
     Component.onCompleted: {
         grabInputFocus()
-        wpReader.running = true
+        if (root.cfg.wpDetector) root.cfg.wpDetector.running = true
         if (root.cfg.isLocked) pam.start()
     }
 
@@ -107,7 +108,7 @@ Item {
         target: root.cfg
         function onIsLockedChanged() {
             if (root.cfg.isLocked) {
-                wpReader.running = true
+                if (root.cfg.wpDetector) root.cfg.wpDetector.running = true
                 pinInput.text = ""
                 root.wrongPass = false
                 root.isAuthenticating = false

@@ -260,6 +260,13 @@ if [[ -f "${SOURCE_DIR}/.local/bin/screenshot.sh" ]]; then
     ok "Скрипт скриншотов установлен в ~/.local/bin/screenshot.sh."
 fi
 
+# 6.1 Установка шейдеров Hyprland (ночной свет)
+if [[ -d "${SOURCE_DIR}/.config/hypr/shaders" ]]; then
+    mkdir -p "$HOME/.config/hypr/shaders"
+    cp -r "${SOURCE_DIR}/.config/hypr/shaders/"* "$HOME/.config/hypr/shaders/" 2>/dev/null || true
+    ok "Шейдеры экрана Hyprland (ночной свет) установлены в ~/.config/hypr/shaders."
+fi
+
 # 7. Установка скрипта автообновления
 log "Настройка утилиты автообновления..."
 cp -f "${SOURCE_DIR}/update.sh" "$HOME/.config/quickshell/scripts/updater.sh"

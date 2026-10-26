@@ -164,7 +164,7 @@ Rectangle {
             Layout.fillWidth: true
             height: 14
             radius: 7
-            color: "#333742"
+            color: root.cfg.surfaceContainerLowest || "#181920"
             clip: true
 
             Rectangle {

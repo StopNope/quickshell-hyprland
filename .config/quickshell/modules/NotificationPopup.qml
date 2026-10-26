@@ -26,6 +26,15 @@ Item {
         }
     }
 
+    Connections {
+        target: root.cfg
+        function onDndModeChanged() {
+            if (root.cfg.dndMode) {
+                toastsModel.clear()
+            }
+        }
+    }
+
     function handleNotification(notif) {
         if (!notif) return
 
@@ -37,6 +46,9 @@ Item {
 
         // 1. Сохраняем в историю боковой панели (SidePanel)
         root.cfg.pushNotification(sum, bod, app, icon)
+
+        // 2. Если включен режим «Не беспокоить», всплывающие окна не показываем
+        if (root.cfg.dndMode) return
 
         // 2. Проверяем, существует ли уже тост с таким ID (обновление)
         for (let i = 0; i < toastsModel.count; i++) {

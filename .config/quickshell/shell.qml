@@ -163,7 +163,7 @@ ShellRoot {
                     if (sideWindow.visible) sideWindow.closePanel()
                     else sideWindow.openPanel()
                 } else if (cmd === "lock") {
-                    appConfig.isLocked = true
+                    appConfig.lock()
                 } else if (cmd === "unlock") {
                     appConfig.isLocked = false
                 } else if (cmd === "switcher_next") {
@@ -220,6 +220,15 @@ ShellRoot {
                     vxwmProc.running = true
                 } else if (cmd === "toggle_vxwm_clamp") {
                     vxwmClampProc.running = true
+                } else if (cmd === "toggle_dnd") {
+                    appConfig.dndMode = !appConfig.dndMode
+                    appConfig.save()
+                } else if (cmd === "toggle_nightlight") {
+                    appConfig.nightLight = !appConfig.nightLight
+                    appConfig.save()
+                } else if (cmd === "toggle_powersave") {
+                    appConfig.powerSaveMode = !appConfig.powerSaveMode
+                    appConfig.save()
                 } else if (cmd.startsWith("osd:")) {
                     let p = cmd.split(":")
                     if (p.length >= 4) {
@@ -643,6 +652,16 @@ ShellRoot {
         }
     }
 
+    // Прогрев Screencopy бэкенда для мгновенного захвата окон на локскрине
+    Loader {
+        asynchronous: true
+        active: true
+        onLoaded: active = false
+        sourceComponent: ScreencopyView {
+            captureSource: Quickshell.screens[0]
+        }
+    }
+
     // ==========================================
     // 8. ЭКРАН БЛОКИРОВКИ (WAYLAND EXT-SESSION-LOCK-V1)
     // ==========================================
@@ -658,6 +677,7 @@ ShellRoot {
                 id: lockView
                 anchors.fill: parent
                 cfg: appConfig
+                targetScreen: lockSurface.screen
                 isPrimaryScreen: lockSurface.screen === Quickshell.screens[0]
                 onUnlockRequested: appConfig.isLocked = false
             }

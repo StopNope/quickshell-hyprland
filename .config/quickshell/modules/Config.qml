@@ -433,20 +433,20 @@ QtObject {
                 let t = item.type
                 let cur = item.variant || "default"
                 if (t === "clock") {
-                    let variants = ["stacked_duotone", "stacked_mono", "stacked_expressive", "bento", "analog", "pill_horizontal"]
+                    let variants = ["stacked_duotone", "tall_digital", "numeral", "clover", "circle", "scallop", "stacked_mono", "stacked_expressive", "bento", "pill_horizontal"]
                     let idx = variants.indexOf(cur)
                     if (idx === -1) {
                         if (cur === "minimal") idx = 0
-                        else idx = 3 // bento
+                        else idx = 0
                     }
                     item.variant = variants[(idx + 1) % variants.length]
                 } else if (t === "weather") {
-                    let variants = ["forecast", "compact", "detailed", "pill_strip"]
+                    let variants = ["forecast", "pebble", "pill", "compact", "detailed", "pill_strip"]
                     let idx = variants.indexOf(cur)
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
                 } else if (t === "vitals") {
-                    let variants = ["bars", "gauges", "pills_grid"]
+                    let variants = ["pills_grid", "bars", "gauges"]
                     let idx = variants.indexOf(cur)
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
@@ -456,7 +456,7 @@ QtObject {
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
                 } else if (t === "calendar") {
-                    let variants = ["month", "week_strip", "minimal_pill"]
+                    let variants = ["squircle", "month", "week_strip", "minimal_pill"]
                     let idx = variants.indexOf(cur)
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
@@ -466,7 +466,7 @@ QtObject {
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
                 } else if (t === "notes") {
-                    let variants = ["classic", "bullet_journal", "sticky_card"]
+                    let variants = ["checklist", "classic", "bullet_journal", "sticky_card"]
                     let idx = variants.indexOf(cur)
                     if (idx === -1) idx = 0
                     item.variant = variants[(idx + 1) % variants.length]
@@ -564,6 +564,8 @@ QtObject {
     property color success: "#a6e3a1"
 
     // ================= 4.1 MATERIAL 3 MONET СИСТЕМНЫЕ ТОКЕНЫ =================
+    property color surfaceContainerLowest: Qt.darker(bgPrimary, 1.15)
+    property color surfaceContainerLow: Qt.darker(bgElevated, 1.12)
     property color surfaceContainer: bgElevated
     property color surfaceContainerHigh: Qt.lighter(bgElevated, 1.15)
     property color surfaceContainerHighest: Qt.lighter(bgElevated, 1.30)
@@ -701,7 +703,9 @@ QtObject {
 
     // ================= 5. ЭКРАН БЛОКИРОВКИ (LOCKSCREEN) =================
     property bool isLocked: false
+    property real lockTimestamp: 0
     property string avatarPath: "/home/stopnope/.face"
+    property string currentWallpaper: homeDir + "/wallpaper/default.jpg"
     property bool lockShowAvatar: true
     property bool lockShowGauges: true
     property bool lockShowWeather: true
@@ -710,7 +714,39 @@ QtObject {
     property string weatherCity: "Тюмень"
     property string weatherDesc: "Ясно"
     property string weatherIcon: "󰖙"
+    property string weatherFeelsLike: "+6°C"
+    property string weatherHumidity: "45%"
+    property string weatherWind: "9 км/ч"
+    property string weatherPrecip: "0%"
     property string lockPin: "1234"
+
+    property Process lockSnapshotProc: Process {
+        id: lockSnapProc
+        command: ["sh", "-c", "grim -o HDMI-A-1 -t jpeg -q 80 /tmp/lock_HDMI-A-1.jpg & grim -o DP-2 -t jpeg -q 80 /tmp/lock_DP-2.jpg & wait"]
+        onExited: {
+            root.lockTimestamp = Date.now()
+            root.isLocked = true
+        }
+    }
+
+    function lock() {
+        if (!lockSnapProc.running) {
+            lockSnapProc.running = true
+        }
+    }
+
+    property Process wpDetector: Process {
+        id: wpDetector
+        running: true
+        command: ["sh", "-c", "wp=$(grep -E '^wallpaper\\s*=' ~/.config/waypaper/config.ini 2>/dev/null | head -n1 | cut -d'=' -f2 | xargs); full=$(eval echo $wp); if [ -f \"$full\" ]; then echo \"$full\"; elif [ -f \"$HOME/wallpaper/default.jpg\" ]; then echo \"$HOME/wallpaper/default.jpg\"; else echo \"$HOME/.config/quickshell/wallpaper/default.jpg\"; fi"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                if (text && text.trim().length > 0) {
+                    root.currentWallpaper = text.trim()
+                }
+            }
+        }
+    }
 
     // ================= 6. OSD И РЕЖИМЫ =================
     property bool osdVolume: true
@@ -720,6 +756,44 @@ QtObject {
     property int osdLeftMargin: 840
     property bool dndMode: false
     property bool nightLight: false
+    property bool powerSaveMode: false
+
+    property Process dndProc: Process { id: dndProc }
+    property Process nightLightProc: Process { id: nightLightProc }
+    property Process powerSaveProc: Process { id: powerSaveProc }
+
+    onDndModeChanged: {
+        if (!root.isConfigLoaded) return
+        if (root.dndMode) {
+            dndProc.exec(["swaync-client", "-dn"])
+            root.pushNotification("Не беспокоить", "Режим «Не беспокоить» включен.", "Уведомления", "󰂛")
+        } else {
+            dndProc.exec(["swaync-client", "-df"])
+            root.pushNotification("Не беспокоить", "Режим «Не беспокоить» выключен.", "Уведомления", "󰂛")
+        }
+    }
+
+    onNightLightChanged: {
+        if (!root.isConfigLoaded) return
+        if (root.nightLight) {
+            nightLightProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { screen_shader = \"/home/stopnope/.config/hypr/shaders/nightlight.frag\" } })'"])
+            root.pushNotification("Ночной свет", "Теплый светофильтр включен.", "Экран", "󰖔")
+        } else {
+            nightLightProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { screen_shader = \"\" } })'"])
+            root.pushNotification("Ночной свет", "Светофильтр отключен.", "Экран", "󰖔")
+        }
+    }
+
+    onPowerSaveModeChanged: {
+        if (!root.isConfigLoaded) return
+        if (root.powerSaveMode) {
+            powerSaveProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { blur = { enabled = false }, shadow = { enabled = false } }, animations = { enabled = false } })'"])
+            root.pushNotification("Режим энергосбережения", "Включен: эффекты размытия и анимации Hyprland отключены.", "Питание", "󰌪")
+        } else {
+            powerSaveProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { blur = { enabled = true }, shadow = { enabled = true } }, animations = { enabled = true } })'"])
+            root.pushNotification("Режим производительности", "Включен: визуальные эффекты и анимации Hyprland восстановлены.", "Питание", "󰌪")
+        }
+    }
 
     // ================= 7. ЖИВЫЕ ДАННЫЕ СИСТЕМЫ =================
     property int cpuVal: 5
@@ -819,6 +893,7 @@ QtObject {
             customThemes: root.customThemes,
             dndMode: root.dndMode,
             nightLight: root.nightLight,
+            powerSaveMode: root.powerSaveMode,
             barModulesLeft: root.barModulesLeft,
             barModulesCenter: root.barModulesCenter,
             barModulesRight: root.barModulesRight,
@@ -895,6 +970,7 @@ QtObject {
         if (d.customThemes !== undefined) root.customThemes = d.customThemes
         if (d.dndMode !== undefined) root.dndMode = d.dndMode
         if (d.nightLight !== undefined) root.nightLight = d.nightLight
+        if (d.powerSaveMode !== undefined) root.powerSaveMode = d.powerSaveMode
         if (d.barModulesLeft !== undefined) root.barModulesLeft = d.barModulesLeft
         if (d.barModulesCenter !== undefined) root.barModulesCenter = d.barModulesCenter
         if (d.barModulesRight !== undefined) root.barModulesRight = d.barModulesRight
@@ -918,6 +994,15 @@ QtObject {
                     console.warn("[Quickshell Config] Error loading config.json:", e)
                 }
                 root.isConfigLoaded = true
+                if (root.nightLight) {
+                    nightLightProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { screen_shader = \"/home/stopnope/.config/hypr/shaders/nightlight.frag\" } })'"])
+                }
+                if (root.powerSaveMode) {
+                    powerSaveProc.exec(["sh", "-c", "hyprctl repl <<< 'hl.config({ decoration = { blur = { enabled = false }, shadow = { enabled = false } }, animations = { enabled = false } })'"])
+                }
+                if (root.dndMode) {
+                    dndProc.exec(["swaync-client", "-dn"])
+                }
             }
         }
     }

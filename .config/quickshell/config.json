@@ -58,6 +58,33 @@
   "widgetRadius": 24,
   "desktopWidgets": [
     {
+      "id": "clock-1",
+      "type": "clock",
+      "x": 800,
+      "y": 60,
+      "w": 320,
+      "h": 240,
+      "visible": true,
+      "variant": "scallop",
+      "size": "custom",
+      "transparentBg": true,
+      "radius": 24,
+      "clockColor": "monet"
+    },
+    {
+      "id": "weather-1",
+      "type": "weather",
+      "x": 40,
+      "y": 330,
+      "w": 240,
+      "h": 240,
+      "size": "custom",
+      "variant": "pebble",
+      "visible": true,
+      "transparentBg": false,
+      "radius": 24
+    },
+    {
       "id": "player-1",
       "type": "player",
       "x": 1520,
@@ -106,5 +133,6 @@
   "osdLeftMargin": 840,
   "customThemes": [],
   "dndMode": false,
-  "nightLight": false
+  "nightLight": false,
+  "powerSaveMode": false
 }

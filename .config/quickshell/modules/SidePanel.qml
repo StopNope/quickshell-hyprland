@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Mpris
+import "./m3"
 
 Rectangle {
     id: root
@@ -284,35 +285,38 @@ Rectangle {
         spacing: 12
         visible: !root.isCustomizing
 
-        // ================= 1. BENTO HERO: ПРОФИЛЬ + ЧАСЫ + ПОГОДА =================
-        Rectangle {
+        // ================= 1. AT-A-GLANCE SHADE HEADER (ANDROID 14 & 15 / MATERIAL YOU) =================
+        ColumnLayout {
             visible: root.cfg.sideShowHero
             Layout.fillWidth: true
-            Layout.preferredHeight: 112
-            Layout.fillHeight: false
-            radius: 24
-            color: root.m3SurfaceContainer
-            border.color: root.cfg.borderCol || "#323540"
-            border.width: 1
+            spacing: 12
+            Layout.topMargin: 4
+            Layout.bottomMargin: 4
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 12
-                spacing: 6
+            // Верхняя строка: Профиль + Круглые кнопки действий
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
 
-                // Верхняя строка: Аватар, ник, кнопки
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 8
+                // Чип профиля пользователя
+                Rectangle {
+                    height: 36
+                    implicitWidth: userRow.implicitWidth + 20
+                    radius: 18
+                    color: root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"
+                    border.width: 1
 
-                    Item {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
+                    RowLayout {
+                        id: userRow
+                        anchors.centerIn: parent
+                        spacing: 8
 
                         Rectangle {
-                            anchors.fill: parent
-                            radius: 16
-                            color: root.m3SurfaceVariant
+                            width: 26
+                            height: 26
+                            radius: 13
+                            color: root.m3SurfaceHighest
                             border.color: root.m3Pastel
                             border.width: 1.5
                             clip: true
@@ -329,130 +333,127 @@ Rectangle {
                                 visible: userAvatar.status !== Image.Ready
                                 text: "󰀉"
                                 color: root.m3Pastel
-                                font.pixelSize: 18
+                                font.pixelSize: 15
                             }
                         }
 
-                        Rectangle {
-                            width: 9
-                            height: 9
-                            radius: 4.5
-                            color: "#4ade80"
-                            border.color: root.m3SurfaceContainer
-                            border.width: 1.5
-                            anchors.bottom: parent.bottom
-                            anchors.right: parent.right
-                        }
-                    }
-
-                    ColumnLayout {
-                        spacing: 0
-                        Layout.fillWidth: true
                         Text {
                             text: (Quickshell.env("USER") || "пользователь").toUpperCase()
                             color: root.cfg.textPrimary
                             font.pixelSize: 11
                             font.bold: true
                             font.family: root.cfg.fontFamily
-                            elide: Text.ElideRight
-                        }
-                        Text {
-                            text: "Gentoo Linux • Hyprland"
-                            color: root.cfg.textMuted
-                            font.pixelSize: 9
-                            font.family: root.cfg.fontFamily
-                        }
-                    }
-
-                    // Кнопка кастомизации (карандаш)
-                    Rectangle {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
-                        radius: 16
-                        color: editBtnM.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
-                        scale: editBtnM.pressed ? 0.92 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        Text { anchors.centerIn: parent; text: "󰏫"; color: root.m3Pastel; font.pixelSize: 14 }
-                        MouseArea {
-                            id: editBtnM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: root.isCustomizing = true
-                        }
-                    }
-
-                    // Кнопка настроек
-                    Rectangle {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
-                        radius: 16
-                        color: sBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
-                        scale: sBtn.pressed ? 0.92 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        Text { anchors.centerIn: parent; text: "󰒓"; color: root.cfg.textPrimary; font.pixelSize: 14 }
-                        MouseArea {
-                            id: sBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.closeRequested(); root.openSettings() }
-                        }
-                    }
-
-                    // Кнопка закрытия
-                    Rectangle {
-                        Layout.preferredWidth: 32
-                        Layout.preferredHeight: 32
-                        radius: 16
-                        color: cBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
-                        scale: cBtn.pressed ? 0.92 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        Text { anchors.centerIn: parent; text: "󰅖"; color: root.cfg.textMuted; font.pixelSize: 14 }
-                        MouseArea {
-                            id: cBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: root.closeRequested()
                         }
                     }
                 }
 
-                // Нижняя строка Hero: Крупные часы + погода
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 12
+                Item { Layout.fillWidth: true }
 
-                    ColumnLayout {
-                        spacing: 0
-                        Layout.fillWidth: true
-                        Text {
-                            text: Qt.formatDateTime(new Date(), "hh:mm")
-                            color: root.cfg.textPrimary
-                            font.pixelSize: 30
-                            font.bold: true
-                            font.family: root.cfg.fontFamily
-                        }
-                        Text {
-                            text: Qt.formatDateTime(new Date(), "d MMMM, dddd")
-                            color: root.cfg.textMuted
-                            font.pixelSize: 10
-                            font.family: root.cfg.fontFamily
-                        }
+                // Круглые кнопки FAB (36x36)
+                // 1. Карандаш (редактирование шторки)
+                Rectangle {
+                    width: 36; height: 36; radius: 18
+                    color: editBtnM.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"; border.width: 1
+                    scale: editBtnM.pressed ? 0.92 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 100 } }
+
+                    Text { anchors.centerIn: parent; text: "󰏫"; color: root.m3Pastel; font.pixelSize: 15 }
+                    MouseArea {
+                        id: editBtnM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: root.isCustomizing = true
                     }
+                }
 
-                    Rectangle {
-                        Layout.preferredHeight: 44
-                        Layout.preferredWidth: weatherBox.implicitWidth + 20
-                        radius: 22
-                        color: root.m3SurfaceVariant
-                        border.color: root.cfg.borderCol || "#323540"
-                        border.width: 1
+                // 2. Настройки
+                Rectangle {
+                    width: 36; height: 36; radius: 18
+                    color: sBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"; border.width: 1
+                    scale: sBtn.pressed ? 0.92 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 100 } }
 
-                        RowLayout {
-                            id: weatherBox
-                            anchors.centerIn: parent
-                            spacing: 8
-                            Text { text: "󰖐"; color: root.m3Pastel; font.pixelSize: 18 }
-                            ColumnLayout {
-                                spacing: 0
-                                Text { text: root.cfg.weatherText; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; font.family: root.cfg.fontFamily }
-                                Text { text: root.cfg.weatherCity; color: root.cfg.textMuted; font.pixelSize: 9; font.family: root.cfg.fontFamily }
+                    Text { anchors.centerIn: parent; text: "󰒓"; color: root.cfg.textPrimary; font.pixelSize: 15 }
+                    MouseArea {
+                        id: sBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: { root.closeRequested(); root.openSettings() }
+                    }
+                }
+
+                // 3. Блокировка
+                Rectangle {
+                    width: 36; height: 36; radius: 18
+                    color: lkBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"; border.width: 1
+                    scale: lkBtn.pressed ? 0.92 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 100 } }
+
+                    Text { anchors.centerIn: parent; text: "󰌾"; color: root.cfg.textPrimary; font.pixelSize: 15 }
+                    MouseArea {
+                        id: lkBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: { root.closeRequested(); root.cfg.lock() }
+                    }
+                }
+
+                // 4. Закрытие
+                Rectangle {
+                    width: 36; height: 36; radius: 18
+                    color: cBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"; border.width: 1
+                    scale: cBtn.pressed ? 0.92 : 1.0
+                    Behavior on scale { NumberAnimation { duration: 100 } }
+
+                    Text { anchors.centerIn: parent; text: "󰅖"; color: root.cfg.textMuted; font.pixelSize: 15 }
+                    MouseArea {
+                        id: cBtn; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                        onClicked: root.closeRequested()
+                    }
+                }
+            }
+
+            // Нижняя строка: Крупнейшие часы Pixel Display Clock + Капсула погоды
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    text: Qt.formatDateTime(new Date(), "hh:mm")
+                    color: root.cfg.textPrimary
+                    font.pixelSize: 42
+                    font.bold: true
+                    font.family: "Fredoka"
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    height: 42
+                    implicitWidth: weatherBox.implicitWidth + 24
+                    radius: 21
+                    color: root.m3SurfaceVariant
+                    border.color: root.cfg.borderCol || "#323540"
+                    border.width: 1
+
+                    RowLayout {
+                        id: weatherBox
+                        anchors.centerIn: parent
+                        spacing: 8
+
+                        Text { text: "󰖐"; color: root.m3Pastel; font.pixelSize: 19 }
+
+                        ColumnLayout {
+                            spacing: 0
+                            Text {
+                                text: (root.cfg.weatherText || "+5°") + " • " + (root.cfg.weatherCity || "Тюмень")
+                                color: root.cfg.textPrimary
+                                font.pixelSize: 11
+                                font.bold: true
+                                font.family: root.cfg.fontFamily
+                            }
+                            Text {
+                                text: Qt.formatDateTime(new Date(), "d MMMM, dddd")
+                                color: root.cfg.textMuted
+                                font.pixelSize: 9
+                                font.family: root.cfg.fontFamily
                             }
                         }
                     }
@@ -498,206 +499,99 @@ Rectangle {
             id: compTiles
             ColumnLayout {
                 Layout.fillWidth: true
-                implicitHeight: 112
                 spacing: 8
 
-                // Верхний ряд: Wi-Fi и Bluetooth (капсулы radius: 22)
+                // Верхний ряд: Wi-Fi и Bluetooth
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 60
-                    Layout.fillHeight: false
                     spacing: 8
 
-                    // Wi-Fi Tile
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 20
-                        color: root.cfg.activeWifiSsid ? root.m3Pastel : (wifiTileM.containsMouse ? Qt.lighter(root.m3SurfaceVariant, 1.15) : root.m3SurfaceVariant)
-                        border.color: root.cfg.activeWifiSsid ? root.m3Pastel : (root.cfg.borderCol || "#323540")
-                        border.width: 1
-                        scale: wifiTileM.pressed ? 0.96 : 1.0
-                        Behavior on color { ColorAnimation { duration: 160 } }
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 10
-
-                            Rectangle {
-                                Layout.preferredWidth: 38
-                                Layout.preferredHeight: 38
-                                radius: 19
-                                color: root.cfg.activeWifiSsid ? Qt.rgba(0, 0, 0, 0.12) : root.m3SurfaceHighest
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "󰤨"
-                                    color: root.cfg.activeWifiSsid ? root.m3OnPastel : root.m3Pastel
-                                    font.pixelSize: 17
-                                }
-                            }
-
-                            ColumnLayout {
-                                spacing: 1
-                                Layout.fillWidth: true
-                                Text {
-                                    text: "Wi-Fi"
-                                    color: root.cfg.activeWifiSsid ? root.m3OnPastel : root.cfg.textPrimary
-                                    font.pixelSize: 12; font.bold: true; font.family: root.cfg.fontFamily
-                                }
-                                Text {
-                                    text: root.cfg.activeWifiSsid || "Выключено"
-                                    color: root.cfg.activeWifiSsid ? Qt.rgba(0.1, 0.11, 0.13, 0.8) : root.cfg.textMuted
-                                    font.pixelSize: 10
-                                    font.family: root.cfg.fontFamily
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            id: wifiTileM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.closeRequested(); root.openNetworkMenu("wifi") }
-                        }
+                    M3Tile {
+                        title: "Wi-Fi"
+                        subtitle: root.cfg.activeWifiSsid ? root.cfg.activeWifiSsid : "Выключено"
+                        icon: "󰤨"
+                        active: !!root.cfg.activeWifiSsid
+                        hasDetails: true
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: { root.closeRequested(); root.openNetworkMenu("wifi") }
+                        onDetailsClicked: { root.closeRequested(); root.openNetworkMenu("wifi") }
                     }
 
-                    // Bluetooth Tile
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 20
-                        color: btTileM.containsMouse ? Qt.lighter(root.m3SurfaceVariant, 1.15) : root.m3SurfaceVariant
-                        border.color: root.cfg.borderCol || "#323540"
-                        border.width: 1
-                        scale: btTileM.pressed ? 0.96 : 1.0
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        RowLayout {
-                            anchors.fill: parent
-                            anchors.margins: 10
-                            spacing: 10
-
-                            Rectangle {
-                                Layout.preferredWidth: 38
-                                Layout.preferredHeight: 38
-                                radius: 19
-                                color: root.m3SurfaceHighest
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: "󰂯"
-                                    color: root.m3Pastel
-                                    font.pixelSize: 17
-                                }
-                            }
-
-                            ColumnLayout {
-                                spacing: 1
-                                Layout.fillWidth: true
-                                Text {
-                                    text: "Bluetooth"
-                                    color: root.cfg.textPrimary
-                                    font.pixelSize: 12; font.bold: true; font.family: root.cfg.fontFamily
-                                }
-                                Text {
-                                    text: "Устройства"
-                                    color: root.cfg.textMuted
-                                    font.pixelSize: 10
-                                    font.family: root.cfg.fontFamily
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-                            }
-                        }
-
-                        MouseArea {
-                            id: btTileM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.closeRequested(); root.openNetworkMenu("bt") }
-                        }
+                    M3Tile {
+                        title: "Bluetooth"
+                        subtitle: "Устройства"
+                        icon: "󰂯"
+                        active: false
+                        hasDetails: true
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: { root.closeRequested(); root.openNetworkMenu("bt") }
+                        onDetailsClicked: { root.closeRequested(); root.openNetworkMenu("bt") }
                     }
                 }
 
-                // Нижний ряд: DND и Ночной свет (капсулы radius: 22)
+                // Второй ряд: DND и Ночной свет
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 44
-                    Layout.fillHeight: false
                     spacing: 8
 
-                    // DND
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 20
-                        color: root.cfg.dndMode ? root.m3Pastel : (dndM.containsMouse ? Qt.lighter(root.m3SurfaceVariant, 1.15) : root.m3SurfaceVariant)
-                        border.color: root.cfg.dndMode ? root.m3Pastel : (root.cfg.borderCol || "#323540")
-                        border.width: 1
-                        scale: dndM.pressed ? 0.96 : 1.0
-                        Behavior on color { ColorAnimation { duration: 150 } }
-                        Behavior on scale { NumberAnimation { duration: 100 } }
-
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: 8
-
-                            Text {
-                                text: "󰂛"
-                                color: root.cfg.dndMode ? root.m3OnPastel : root.cfg.textMuted
-                                font.pixelSize: 15
-                            }
-
-                            Text {
-                                text: root.cfg.dndMode ? "Не беспокоить" : "Обычный"
-                                color: root.cfg.dndMode ? root.m3OnPastel : root.cfg.textPrimary
-                                font.pixelSize: 11
-                                font.bold: true
-                                font.family: root.cfg.fontFamily
-                            }
-                        }
-
-                        MouseArea {
-                            id: dndM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.cfg.dndMode = !root.cfg.dndMode; root.cfg.save() }
-                        }
+                    M3Tile {
+                        title: "Не беспокоить"
+                        subtitle: root.cfg.dndMode ? "Включено" : "Выключено"
+                        icon: "󰂛"
+                        active: root.cfg.dndMode
+                        hasDetails: false
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: { root.cfg.dndMode = !root.cfg.dndMode; root.cfg.save() }
                     }
 
-                    // Ночной свет
-                    Rectangle {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        radius: 20
-                        color: root.cfg.nightLight ? root.m3Pastel : (nlM.containsMouse ? Qt.lighter(root.m3SurfaceVariant, 1.15) : root.m3SurfaceVariant)
-                        border.color: root.cfg.nightLight ? root.m3Pastel : (root.cfg.borderCol || "#323540")
-                        border.width: 1
-                        scale: nlM.pressed ? 0.96 : 1.0
-                        Behavior on color { ColorAnimation { duration: 150 } }
-                        Behavior on scale { NumberAnimation { duration: 100 } }
+                    M3Tile {
+                        title: "Ночной свет"
+                        subtitle: root.cfg.nightLight ? "Включено" : "Выключено"
+                        icon: "󰖔"
+                        active: root.cfg.nightLight
+                        hasDetails: false
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: { root.cfg.nightLight = !root.cfg.nightLight; root.cfg.save() }
+                    }
+                }
 
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: 8
+                // Третий ряд: Энергосбережение и Снимок экрана
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
 
-                            Text {
-                                text: "󰖔"
-                                color: root.cfg.nightLight ? root.m3OnPastel : root.cfg.textMuted
-                                font.pixelSize: 15
-                            }
+                    M3Tile {
+                        title: "Энергосбережение"
+                        subtitle: root.cfg.powerSaveMode ? "Включено" : "Выключено"
+                        icon: "󰌪"
+                        active: root.cfg.powerSaveMode
+                        hasDetails: false
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: { root.cfg.powerSaveMode = !root.cfg.powerSaveMode; root.cfg.save() }
+                    }
 
-                            Text {
-                                text: root.cfg.nightLight ? "Ночной свет" : "Дневной"
-                                color: root.cfg.nightLight ? root.m3OnPastel : root.cfg.textPrimary
-                                font.pixelSize: 11
-                                font.bold: true
-                                font.family: root.cfg.fontFamily
-                            }
-                        }
-
-                        MouseArea {
-                            id: nlM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                            onClicked: { root.cfg.nightLight = !root.cfg.nightLight; root.cfg.save() }
+                    M3Tile {
+                        title: "Снимок экрана"
+                        subtitle: "Область"
+                        icon: "󰄄"
+                        active: false
+                        hasDetails: false
+                        primaryCol: root.m3Pastel
+                        onPrimaryCol: root.m3OnPastel
+                        containerCol: root.m3SurfaceVariant
+                        onToggled: {
+                            root.closeRequested()
+                            sysCmdProc.exec(["sh", "-c", "/home/stopnope/.local/bin/screenshot.sh"])
                         }
                     }
                 }
@@ -709,275 +603,29 @@ Rectangle {
             id: compSliders
             ColumnLayout {
                 Layout.fillWidth: true
-                implicitHeight: 112
                 spacing: 8
 
-                // 1. ГОРИЗОНТАЛЬНЫЙ СЛАЙДЕР ГРОМКОСТИ (высота 52, radius 26)
-                Rectangle {
-                    id: volCapsule
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 52
-                    implicitHeight: 52
-                    radius: 26
-                    color: root.m3SurfaceHighest
-                    clip: true
-
-                    // 1.1 БАЗОВЫЙ СЛОЙ (На темном фоне капсулы)
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 18
-                        anchors.rightMargin: 18
-                        spacing: 12
-
-                        Text {
-                            text: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? "󰝟" : (root.cfg.currentVolume > 50 ? "󰕾" : "󰖀")
-                            color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.m3Pastel
-                            font.pixelSize: 20
-                        }
-
-                        Text {
-                            text: "Звук"
-                            color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.cfg.textPrimary
-                            font.pixelSize: 13
-                            font.bold: true
-                            font.family: root.cfg.fontFamily
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? "MUTE" : (root.cfg.currentVolume + "%")
-                            color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.cfg.textPrimary
-                            font.pixelSize: 13
-                            font.bold: true
-                            font.family: root.cfg.fontFamily
-                        }
-                    }
-
-                    // 1.2 АКТИВНЫЙ СЛОЙ ЗАПОЛНЕНИЯ (С SCISSOR-CLIPPING)
-                    Item {
-                        id: volFillContainer
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        width: Math.max(0, Math.min(parent.width, parent.width * (root.cfg.isMuted ? 0 : root.cfg.currentVolume / 100)))
-                        visible: !root.cfg.isMuted && root.cfg.currentVolume > 0
-                        clip: true
-
-                        Behavior on width { NumberAnimation { duration: 70; easing.type: Easing.OutCubic } }
-
-                        // Подложка активного заполнения: ВСЕГДА полная ширина и радиус 26 (никогда не сминается в яйцо)
-                        Rectangle {
-                            width: volCapsule.width
-                            height: volCapsule.height
-                            radius: 26
-                            color: root.m3Pastel
-                        }
-
-                        Item {
-                            width: volCapsule.width
-                            height: volCapsule.height
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 18
-                                anchors.rightMargin: 18
-                                spacing: 12
-
-                                Text {
-                                    text: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? "󰝟" : (root.cfg.currentVolume > 50 ? "󰕾" : "󰖀")
-                                    color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.m3OnPastel
-                                    font.pixelSize: 20
-                                }
-
-                                Text {
-                                    text: "Звук"
-                                    color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.m3OnPastel
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
-                                    Layout.fillWidth: true
-                                }
-
-                                Text {
-                                    text: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? "MUTE" : (root.cfg.currentVolume + "%")
-                                    color: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? root.cfg.danger : root.m3OnPastel
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
-                                }
-                            }
-                        }
-                    }
-
-                    MouseArea {
-                        id: volMouse
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-
-                        property real startX: 0
-                        property bool isDragging: false
-
-                        function updatePos(mx) {
-                            let ratio = Math.max(0, Math.min(1.0, mx / width))
-                            root.setVolume(Math.round(ratio * 100))
-                        }
-
-                        onPressed: mouse => {
-                            startX = mouse.x
-                            isDragging = false
-                            if (mouse.x >= 44) {
-                                updatePos(mouse.x)
-                            }
-                        }
-
-                        onPositionChanged: mouse => {
-                            if (pressed) {
-                                if (Math.abs(mouse.x - startX) > 4) isDragging = true
-                                updatePos(mouse.x)
-                            }
-                        }
-
-                        onReleased: mouse => {
-                            if (!isDragging && mouse.x < 44) {
-                                root.toggleMute()
-                            }
-                        }
-
-                        onWheel: wheel => root.setVolume(root.cfg.currentVolume + (wheel.angleDelta.y > 0 ? 5 : -5))
-                    }
+                M3Slider {
+                    value: root.cfg.currentVolume
+                    isMuted: root.cfg.isMuted || root.cfg.currentVolume === 0
+                    icon: (root.cfg.isMuted || root.cfg.currentVolume === 0) ? "󰝟" : (root.cfg.currentVolume > 50 ? "󰕾" : "󰖀")
+                    label: "Звук"
+                    activeColor: root.m3Pastel
+                    onActiveColor: root.m3OnPastel
+                    inactiveTrackColor: root.m3SurfaceHighest
+                    onValueModified: newVal => root.setVolume(newVal)
+                    onIconClicked: root.toggleMute()
                 }
 
-                // 2. ГОРИЗОНТАЛЬНЫЙ СЛАЙДЕР ЯРКОСТИ (высота 52, radius 26)
-                Rectangle {
-                    id: briCapsule
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 52
-                    implicitHeight: 52
-                    radius: 26
-                    color: root.m3SurfaceHighest
-                    clip: true
-
-                    // 2.1 БАЗОВЫЙ СЛОЙ
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 18
-                        anchors.rightMargin: 18
-                        spacing: 12
-
-                        Text {
-                            text: root.cfg.currentBrightness === 0 ? "󰃞" : (root.cfg.currentBrightness > 50 ? "󰃠" : "󰃟")
-                            color: root.m3Pastel
-                            font.pixelSize: 20
-                        }
-
-                        Text {
-                            text: "Яркость"
-                            color: root.cfg.textPrimary
-                            font.pixelSize: 13
-                            font.bold: true
-                            font.family: root.cfg.fontFamily
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: root.cfg.currentBrightness + "%"
-                            color: root.cfg.textPrimary
-                            font.pixelSize: 13
-                            font.bold: true
-                            font.family: root.cfg.fontFamily
-                        }
-                    }
-
-                    // 2.2 АКТИВНЫЙ СЛОЙ ЗАПОЛНЕНИЯ (С SCISSOR-CLIPPING)
-                    Item {
-                        id: briFillContainer
-                        anchors.left: parent.left
-                        anchors.top: parent.top
-                        anchors.bottom: parent.bottom
-                        width: Math.max(0, Math.min(parent.width, parent.width * (root.cfg.currentBrightness / 100)))
-                        visible: root.cfg.currentBrightness > 0
-                        clip: true
-
-                        Behavior on width { NumberAnimation { duration: 70; easing.type: Easing.OutCubic } }
-
-                        // Подложка заполнения: ПОЛНАЯ ширина briCapsule, всегда радиус 26!
-                        Rectangle {
-                            width: briCapsule.width
-                            height: briCapsule.height
-                            radius: 26
-                            color: root.m3Pastel
-                        }
-
-                        Item {
-                            width: briCapsule.width
-                            height: briCapsule.height
-                            anchors.left: parent.left
-                            anchors.top: parent.top
-
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 18
-                                anchors.rightMargin: 18
-                                spacing: 12
-
-                                Text {
-                                    text: root.cfg.currentBrightness === 0 ? "󰃞" : (root.cfg.currentBrightness > 50 ? "󰃠" : "󰃟")
-                                    color: root.m3OnPastel
-                                    font.pixelSize: 20
-                                }
-
-                                Text {
-                                    text: "Яркость"
-                                    color: root.m3OnPastel
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
-                                    Layout.fillWidth: true
-                                }
-
-                                Text {
-                                    text: root.cfg.currentBrightness + "%"
-                                    color: root.m3OnPastel
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
-                                }
-                            }
-                        }
-                    }
-
-                    MouseArea {
-                        id: briMouse
-                        anchors.fill: parent
-                        cursorShape: Qt.PointingHandCursor
-                        hoverEnabled: true
-
-                        property real startX: 0
-                        property bool isDragging: false
-
-                        function updatePos(mx) {
-                            let ratio = Math.max(0, Math.min(1.0, mx / width))
-                            root.setBrightness(Math.round(ratio * 100))
-                        }
-
-                        onPressed: mouse => {
-                            startX = mouse.x
-                            isDragging = false
-                            updatePos(mouse.x)
-                        }
-
-                        onPositionChanged: mouse => {
-                            if (pressed) {
-                                if (Math.abs(mouse.x - startX) > 4) isDragging = true
-                                updatePos(mouse.x)
-                            }
-                        }
-
-                        onWheel: wheel => root.setBrightness(root.cfg.currentBrightness + (wheel.angleDelta.y > 0 ? 5 : -5))
-                    }
+                M3Slider {
+                    value: root.cfg.currentBrightness
+                    icon: root.cfg.currentBrightness === 0 ? "󰃞" : (root.cfg.currentBrightness > 50 ? "󰃠" : "󰃟")
+                    label: "Яркость"
+                    activeColor: root.m3Pastel
+                    onActiveColor: root.m3OnPastel
+                    inactiveTrackColor: root.m3SurfaceHighest
+                    onValueModified: newVal => root.setBrightness(newVal)
+                    onIconClicked: root.setBrightness(root.cfg.currentBrightness > 0 ? 0 : 100)
                 }
             }
         }
@@ -1801,7 +1449,7 @@ Rectangle {
                             id: lockBtnM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 root.closeRequested()
-                                root.cfg.isLocked = true
+                                root.cfg.lock()
                             }
                         }
                     }

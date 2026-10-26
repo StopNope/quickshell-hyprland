@@ -180,20 +180,38 @@ Item {
 
     Process {
         id: cpuProc
-        command: ["sh", "-c", "top -bn1 | grep 'Cpu(s)' | awk '{print int($2 + $4)}'"]
-        stdout: SplitParser { onRead: data => root.cfg.cpuVal = parseInt(data.trim()) || 0 }
+        command: ["python3", "-c", "import time; p1=[int(x) for x in open('/proc/stat').readline().split()[1:]]; time.sleep(0.08); p2=[int(x) for x in open('/proc/stat').readline().split()[1:]]; idle=p2[3]-p1[3]; total=sum(p2)-sum(p1); print(max(1, min(100, int(100*(1-idle/total)))))"]
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: data => {
+                let v = data.trim()
+                if (v !== "" && !isNaN(parseInt(v))) root.cfg.cpuVal = parseInt(v)
+            }
+        }
     }
 
     Process {
         id: ramProc
         command: ["sh", "-c", "free | awk '/Mem:/ {printf(\"%.0f\", $3/$2 * 100)}'"]
-        stdout: SplitParser { onRead: data => root.cfg.ramVal = parseInt(data.trim()) || 0 }
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: data => {
+                let v = data.trim()
+                if (v !== "" && !isNaN(parseInt(v))) root.cfg.ramVal = parseInt(v)
+            }
+        }
     }
 
     Process {
         id: gpuProc
         command: ["sh", "-c", "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits 2>/dev/null || echo '2'"]
-        stdout: SplitParser { onRead: data => root.cfg.gpuVal = parseInt(data.trim()) || 2 }
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: data => {
+                let v = data.trim()
+                if (v !== "" && !isNaN(parseInt(v))) root.cfg.gpuVal = parseInt(v)
+            }
+        }
     }
 
     Process {
@@ -212,6 +230,10 @@ Item {
                     if (j.city) root.cfg.weatherCity = j.city
                     if (j.desc) root.cfg.weatherDesc = j.desc
                     if (j.icon) root.cfg.weatherIcon = j.icon
+                    if (j.feels_like) root.cfg.weatherFeelsLike = j.feels_like
+                    if (j.humidity) root.cfg.weatherHumidity = j.humidity
+                    if (j.wind) root.cfg.weatherWind = j.wind
+                    if (j.precip) root.cfg.weatherPrecip = j.precip
                 } catch(e) {}
             }
         }

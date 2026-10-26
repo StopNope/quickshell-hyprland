@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "./m3"
 
 Rectangle {
     id: root
@@ -10,16 +11,57 @@ Rectangle {
     signal closeRequested()
     signal requestWidgetEditor(string mode)
 
-    width: 960
-    height: 640
-    radius: 24
-    color: root.cfg.bgSurface
+    width: 980
+    height: 660
+    radius: 28
+    color: root.cfg.bgPrimary
     border.color: root.cfg.borderCol
     border.width: 1
 
     property string tab: "bar" // "bar", "dock", "widgets", "side", "themes", "osd", "lock", "system"
+    property string navSearchText: ""
     onTabChanged: {
         if (typeof tabFlickable !== "undefined" && tabFlickable) tabFlickable.contentY = 0
+    }
+
+    function getTabTitle(tabId) {
+        switch (tabId) {
+            case "bar": return "Панель задач и модули"
+            case "dock": return "Док-бар приложений"
+            case "widgets": return "Виджеты рабочего стола"
+            case "side": return "Шторка быстрых настроек"
+            case "themes": return "Темы оформления и цвета"
+            case "osd": return "Экранные индикаторы (OSD)"
+            case "lock": return "Экран блокировки"
+            case "system": return "Система и хост"
+            default: return "Настройки"
+        }
+    }
+
+    function getTabSubtitle(tabId) {
+        switch (tabId) {
+            case "bar": return "Управление положением, стилем оформления и активными модулями панели"
+            case "dock": return "Парящий док приложений, автоскрытие и интерактивный запуск"
+            case "widgets": return "Коллекция Material You виджетов, темы и сетка на рабочем столе"
+            case "side": return "Шторка управления, плитки быстрых настроек, медиаплеер и ползунки"
+            case "themes": return "Динамическая цветовая палитра Monet, обои и скругления Material 3"
+            case "osd": return "Экранные оверлеи громкости, яркости и переключения языка ввода"
+            case "lock": return "Парящий экран блокировки, PIN-код и параметры безопасности"
+            case "system": return "Параметры окружения Hyprland, сессии и системная информация"
+            default: return "Персонализация рабочей среды"
+        }
+    }
+
+    Process {
+        id: reloadProc
+        running: false
+        command: ["sh", "-c", "killall quickshell && nohup quickshell -d -p ~/.config/quickshell > /tmp/quickshell_test.log 2>&1 &"]
+    }
+
+    Process {
+        id: lockActionProc
+        running: false
+        command: ["sh", "-c", "echo lock > $XDG_RUNTIME_DIR/qs.pipe"]
     }
 
     function scrollContent(y) {
@@ -50,154 +92,500 @@ Rectangle {
         }
     }
 
-    ColumnLayout {
+    // ОСНОВНОЙ СПЛИТ-ЛЕЙАУТ: НАВИГАЦИЯ СЛЕВА + КОНТЕНТ СПРАВА (ПОЛНАЯ ВЫСОТА ОКНА БЕЗ ЛИШНИХ РАМОК)
+    RowLayout {
         anchors.fill: parent
-        anchors.margins: 16
-        spacing: 12
+        spacing: 0
 
-        // ВЕРХНЯЯ ШАПКА ОКНА НАСТРОЕК
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.leftMargin: 6
-            Layout.rightMargin: 4
-            Layout.topMargin: 2
-            Layout.bottomMargin: 2
-
-            Text {
-                text: "Настройки"
-                color: root.cfg.textPrimary
-                font.pixelSize: 16
-                font.bold: true
-                font.family: root.cfg.fontFamily
-            }
-
-            Item { Layout.fillWidth: true }
-
-            Rectangle {
-                Layout.preferredWidth: 32
-                Layout.preferredHeight: 32
-                radius: 16
-                color: closeBtnMouse.containsMouse ? root.cfg.bgElevated : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "󰅖"
-                    color: closeBtnMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textMuted
-                    font.pixelSize: 14
-                }
-                MouseArea {
-                    id: closeBtnMouse
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: root.closeRequested()
-                }
-            }
-        }
-
-        // ОСНОВНОЙ СПЛИТ-ЛЕЙАУТ: НАВИГАЦИЯ СЛЕВА + КОНТЕНТ СПРАВА
-        RowLayout {
-            Layout.fillWidth: true
+        // ЛЕВАЯ ПАНЕЛЬ НАВИГАЦИИ (Material 3 Navigation Rail)
+        Rectangle {
+            Layout.preferredWidth: 260
             Layout.fillHeight: true
-            spacing: 12
+            color: root.cfg.surfaceContainerLow || Qt.darker(root.cfg.bgElevated, 1.12)
+            radius: 28
 
-            // ЛЕВАЯ ПАНЕЛЬ НАВИГАЦИИ
+            // Прячем правые углы, чтобы была ровная вертикальная граница
             Rectangle {
-                Layout.preferredWidth: 190
-                Layout.fillHeight: true
-                radius: 16
-                color: root.cfg.bgElevated
-                border.color: root.cfg.borderCol
-                border.width: 1
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                width: 28
+                color: parent.color
+            }
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    anchors.margins: 8
-                    spacing: 3
+            // Тонкий вертикальный разделитель M3
+            Rectangle {
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                width: 1
+                color: root.cfg.outlineVariant
+                opacity: 0.45
+            }
 
-                    Repeater {
-                        model: [
-                            { id: "bar", title: "Бар и модули", icon: "󰕮" },
-                            { id: "dock", title: "Док-бар", icon: "󰀻" },
-                            { id: "widgets", title: "Виджеты", icon: "󰕰" },
-                            { id: "side", title: "Шторка", icon: "󰍜" },
-                            { id: "themes", title: "Темы", icon: "󰏘" },
-                            { id: "osd", title: "Индикаторы OSD", icon: "󰂚" },
-                            { id: "lock", title: "Блокировка", icon: "󰌾" },
-                            { id: "system", title: "Система", icon: "󰒋" }
-                        ]
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: 14
+                spacing: 8
 
-                        Rectangle {
-                            required property var modelData
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 38
-                            radius: 10
+                // ШАПКА RAIL: БРЕНДИНГ И ПОИСК
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.topMargin: 4
+                    Layout.bottomMargin: 4
+                    spacing: 10
 
-                            readonly property bool isSelected: root.tab === modelData.id
-                            color: isSelected
-                                   ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.15)
-                                   : (navMouse.containsMouse ? Qt.rgba(255, 255, 255, 0.04) : "transparent")
+                    Rectangle {
+                        width: 38
+                        height: 38
+                        radius: 12
+                        color: root.cfg.accentContainer || Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.22)
 
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰒓"
+                            color: root.cfg.accent
+                            font.pixelSize: 18
+                        }
+                    }
 
-                            RowLayout {
-                                anchors.fill: parent
-                                anchors.leftMargin: 12
-                                anchors.rightMargin: 12
-                                spacing: 10
+                    ColumnLayout {
+                        Layout.fillWidth: true
+                        spacing: 1
+
+                        Text {
+                            text: "Настройки"
+                            color: root.cfg.textPrimary
+                            font.pixelSize: 16
+                            font.bold: true
+                            font.family: root.cfg.fontFamily
+                        }
+
+                        Text {
+                            text: "Material You · M3"
+                            color: root.cfg.textMuted
+                            font.pixelSize: 10
+                            font.family: root.cfg.fontFamily
+                        }
+                    }
+                }
+
+                    // ПОЛЕ БЫСТРОГО ПОИСКА РАЗДЕЛОВ
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 36
+                        radius: 18
+                        color: searchNavInput.activeFocus ? root.cfg.surfaceContainerHigh : Qt.rgba(255, 255, 255, 0.04)
+                        border.color: searchNavInput.activeFocus ? root.cfg.accent : root.cfg.outlineVariant
+                        border.width: 1
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 10
+                            spacing: 8
+
+                            Text {
+                                text: "󰍉"
+                                color: searchNavInput.activeFocus ? root.cfg.accent : root.cfg.textMuted
+                                font.pixelSize: 13
+                            }
+
+                            TextInput {
+                                id: searchNavInput
+                                Layout.fillWidth: true
+                                clip: true
+                                color: root.cfg.textPrimary
+                                font.pixelSize: 11
+                                font.family: root.cfg.fontFamily
+                                selectByMouse: true
+                                onTextChanged: root.navSearchText = text
 
                                 Text {
-                                    text: modelData.icon
-                                    color: isSelected ? root.cfg.accent : (navMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textMuted)
-                                    font.pixelSize: 15
-                                }
-
-                                Text {
-                                    Layout.fillWidth: true
-                                    text: modelData.title
-                                    color: isSelected ? root.cfg.accent : (navMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textPrimary)
-                                    font.pixelSize: 12
-                                    font.bold: isSelected
+                                    anchors.fill: parent
+                                    visible: !searchNavInput.text && !searchNavInput.activeFocus
+                                    text: "Поиск настроек..."
+                                    color: root.cfg.textMuted
+                                    font.pixelSize: 11
                                     font.family: root.cfg.fontFamily
-                                    elide: Text.ElideRight
                                 }
                             }
 
-                            MouseArea {
-                                id: navMouse
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    root.tab = modelData.id
-                                    root.forceActiveFocus()
+                            Text {
+                                visible: !!searchNavInput.text
+                                text: "󰅖"
+                                color: root.cfg.textMuted
+                                font.pixelSize: 11
+                                MouseArea {
+                                    anchors.fill: parent
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: {
+                                        searchNavInput.text = ""
+                                        root.navSearchText = ""
+                                    }
                                 }
                             }
                         }
                     }
 
-                    Item { Layout.fillHeight: true }
+                    // СПИСОК РАЗДЕЛОВ НАВИГАЦИИ (M3 GROUPED PILLS)
+                    Flickable {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        contentWidth: width
+                        contentHeight: navCol.implicitHeight
+                        clip: true
+                        boundsBehavior: Flickable.StopAtBounds
+
+                        ColumnLayout {
+                            id: navCol
+                            width: parent.width
+                            spacing: 2
+
+                            Repeater {
+                                model: [
+                                    { type: "section", title: "ИНТЕРФЕЙС" },
+                                    { id: "bar", title: "Бар и модули", icon: "󰕮" },
+                                    { id: "dock", title: "Док-бар", icon: "󰀻" },
+                                    { id: "widgets", title: "Виджеты", icon: "󰕰" },
+                                    { id: "side", title: "Шторка", icon: "󰍜" },
+                                    { type: "section", title: "ПЕРСОНАЛИЗАЦИЯ" },
+                                    { id: "themes", title: "Темы и цвета", icon: "󰏘" },
+                                    { id: "osd", title: "Индикаторы OSD", icon: "󰂚" },
+                                    { id: "lock", title: "Блокировка", icon: "󰌾" },
+                                    { type: "section", title: "СИСТЕМА" },
+                                    { id: "system", title: "Система и хост", icon: "󰒋" }
+                                ]
+
+                                Item {
+                                    required property var modelData
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: modelData.type === "section" ? 18 : (matchesSearch ? 36 : 0)
+                                    visible: modelData.type === "section" ? (!root.navSearchText || root.navSearchText.length === 0) : matchesSearch
+
+                                    readonly property bool matchesSearch: !root.navSearchText || (modelData.title && modelData.title.toLowerCase().indexOf(root.navSearchText.toLowerCase()) !== -1)
+                                    readonly property bool isSelected: root.tab === modelData.id
+
+                                    // ЗАГОЛОВОК СЕКЦИИ
+                                    Text {
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 12
+                                        anchors.bottom: parent.bottom
+                                        anchors.bottomMargin: 2
+                                        visible: modelData.type === "section"
+                                        text: modelData.title || ""
+                                        color: root.cfg.textMuted
+                                        font.pixelSize: 10
+                                        font.bold: true
+                                        font.family: root.cfg.fontFamily
+                                        font.letterSpacing: 0.8
+                                    }
+
+                                    // ПИЛЮЛЯ НАВИГАЦИИ (M3 NAVIGATION PILL)
+                                    Rectangle {
+                                        anchors.fill: parent
+                                        visible: modelData.type !== "section"
+                                        radius: 18
+                                        color: parent.isSelected
+                                               ? (root.cfg.accentContainer || Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.22))
+                                               : (navMouse.containsMouse ? Qt.rgba(255, 255, 255, 0.05) : "transparent")
+
+                                        Behavior on color { ColorAnimation { duration: 150 } }
+
+                                        RowLayout {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 8
+                                            anchors.rightMargin: 12
+                                            spacing: 10
+
+                                            // Иконка в мягкой круглой подложке
+                                            Rectangle {
+                                                Layout.preferredWidth: 26
+                                                Layout.preferredHeight: 26
+                                                radius: 13
+                                                color: parent.parent.parent.isSelected
+                                                       ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.24)
+                                                       : "transparent"
+
+                                                Text {
+                                                    anchors.centerIn: parent
+                                                    text: modelData.icon || ""
+                                                    color: parent.parent.parent.parent.isSelected
+                                                           ? root.cfg.accent
+                                                           : (navMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textMuted)
+                                                    font.pixelSize: 14
+                                                }
+                                            }
+
+                                            Text {
+                                                Layout.fillWidth: true
+                                                text: modelData.title || ""
+                                                color: parent.parent.isSelected
+                                                       ? (root.cfg.onPrimaryContainer || root.cfg.accent)
+                                                       : (navMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textPrimary)
+                                                font.pixelSize: 12
+                                                font.weight: parent.parent.isSelected ? Font.DemiBold : Font.Normal
+                                                font.family: root.cfg.fontFamily
+                                                elide: Text.ElideRight
+                                            }
+
+                                            // Правый микро-маркер активного состояния
+                                            Rectangle {
+                                                Layout.preferredWidth: 4
+                                                Layout.preferredHeight: 14
+                                                radius: 2
+                                                color: root.cfg.accent
+                                                visible: parent.parent.isSelected
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            id: navMouse
+                                            anchors.fill: parent
+                                            hoverEnabled: true
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                root.tab = modelData.id
+                                                root.forceActiveFocus()
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // КАРТОЧКА ПОЛЬЗОВАТЕЛЯ И СИСТЕМЫ ВНИЗУ RAIL (ЗАПОЛНЯЕТ ПУСТОТУ)
+                    Rectangle {
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 88
+                        radius: 16
+                        color: Qt.rgba(255, 255, 255, 0.03)
+                        border.color: root.cfg.outlineVariant
+                        border.width: 1
+
+                        ColumnLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 8
+
+                            // Верхняя строка: Аватар + Пользователь + Хост
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 10
+
+                                Rectangle {
+                                    width: 32
+                                    height: 32
+                                    radius: 16
+                                    color: root.cfg.accent
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: (root.cfg.userName || "S").charAt(0).toUpperCase()
+                                        color: root.cfg.accentText
+                                        font.pixelSize: 14
+                                        font.bold: true
+                                        font.family: "Fredoka"
+                                    }
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 1
+
+                                    Text {
+                                        text: root.cfg.userName || "stopnope"
+                                        color: root.cfg.textPrimary
+                                        font.pixelSize: 12
+                                        font.bold: true
+                                        font.family: root.cfg.fontFamily
+                                        elide: Text.ElideRight
+                                    }
+
+                                    Text {
+                                        text: "Gentoo Linux · Hyprland"
+                                        color: root.cfg.textMuted
+                                        font.pixelSize: 10
+                                        font.family: root.cfg.fontFamily
+                                        elide: Text.ElideRight
+                                    }
+                                }
+                            }
+
+                            // Нижняя строка: Быстрые действия (Перезагрузка shell, статус)
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    Layout.preferredHeight: 24
+                                    radius: 12
+                                    color: reloadM.containsMouse ? root.cfg.surfaceContainerHigh : Qt.rgba(255, 255, 255, 0.05)
+                                    border.color: root.cfg.outlineVariant
+                                    border.width: 1
+
+                                    RowLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 4
+                                        Text { text: "󰑐"; color: root.cfg.accent; font.pixelSize: 11 }
+                                        Text { text: "Перезагрузить"; color: root.cfg.textPrimary; font.pixelSize: 10; font.family: root.cfg.fontFamily }
+                                    }
+
+                                    MouseArea {
+                                        id: reloadM
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: reloadProc.running = true
+                                    }
+                                }
+
+                                Rectangle {
+                                    Layout.preferredWidth: 26
+                                    Layout.preferredHeight: 24
+                                    radius: 12
+                                    color: lockM.containsMouse ? root.cfg.surfaceContainerHigh : Qt.rgba(255, 255, 255, 0.05)
+                                    border.color: root.cfg.outlineVariant
+                                    border.width: 1
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: "󰌾"
+                                        color: lockM.containsMouse ? root.cfg.accent : root.cfg.textMuted
+                                        font.pixelSize: 11
+                                    }
+
+                                    MouseArea {
+                                        id: lockM
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: {
+                                            root.cfg.save()
+                                            lockActionProc.running = true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
             // ПРАВАЯ РАБОЧАЯ ОБЛАСТЬ
-            Rectangle {
+            Item {
                 id: mainWorkArea
                 Layout.fillWidth: true
                 Layout.fillHeight: true
-                radius: 16
-                color: root.cfg.bgPrimary
-                border.color: root.cfg.borderCol
-                border.width: 1
                 clip: true
 
-                Flickable {
-                    id: tabFlickable
+                ColumnLayout {
                     anchors.fill: parent
-                    contentWidth: width
-                    contentHeight: tabContentItem.implicitHeight + 30
-                    boundsBehavior: Flickable.StopAtBounds
-                    clip: true
+                    anchors.margins: 18
+                    spacing: 8
+
+                    // ВЕРХНЯЯ ШАПКА ПРАВОЙ ПАНЕЛИ: ТЕКУЩИЙ РАЗДЕЛ + ОПИСАНИЕ + ДЕЙСТВИЯ
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Layout.leftMargin: 8
+                        Layout.rightMargin: 6
+                        Layout.topMargin: 2
+                        Layout.bottomMargin: 8
+                        spacing: 12
+
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 2
+
+                            Text {
+                                text: root.getTabTitle(root.tab)
+                                color: root.cfg.textPrimary
+                                font.pixelSize: 20
+                                font.bold: true
+                                font.family: root.cfg.fontFamily
+                            }
+
+                            Text {
+                                text: root.getTabSubtitle(root.tab)
+                                color: root.cfg.onSurfaceVariant || root.cfg.textMuted
+                                font.pixelSize: 11
+                                font.family: root.cfg.fontFamily
+                            }
+                        }
+
+                        // Кнопка быстрого вызова экранного редактора
+                        Rectangle {
+                            visible: root.tab === "bar" || root.tab === "widgets"
+                            height: 32
+                            implicitWidth: topEdTxt.implicitWidth + 24
+                            radius: 16
+                            color: root.cfg.accent
+                            scale: topEdMouse.pressed ? 0.94 : 1.0
+                            Behavior on scale { NumberAnimation { duration: 100 } }
+
+                            RowLayout {
+                                anchors.centerIn: parent
+                                spacing: 5
+                                Text { text: "󰕮"; color: root.cfg.accentText; font.pixelSize: 12 }
+                                Text {
+                                    id: topEdTxt
+                                    text: "Экранный редактор"
+                                    color: root.cfg.accentText
+                                    font.pixelSize: 11
+                                    font.bold: true
+                                    font.family: root.cfg.fontFamily
+                                }
+                            }
+
+                            MouseArea {
+                                id: topEdMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    let mode = root.tab === "bar" ? "bar" : "widgets"
+                                    root.closeRequested()
+                                    root.requestWidgetEditor(mode)
+                                }
+                            }
+                        }
+
+                        // Кнопка закрытия окна
+                        Rectangle {
+                            Layout.preferredWidth: 32
+                            Layout.preferredHeight: 32
+                            radius: 16
+                            color: closeBtnMouse.containsMouse ? root.cfg.surfaceContainerHigh : "transparent"
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: "󰅖"
+                                color: closeBtnMouse.containsMouse ? root.cfg.textPrimary : root.cfg.textMuted
+                                font.pixelSize: 15
+                            }
+                            MouseArea {
+                                id: closeBtnMouse
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.closeRequested()
+                            }
+                        }
+                    }
+
+                    // РАБОЧАЯ ОБЛАСТЬ FLICKABLE
+                    Item {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        clip: true
+
+                        Flickable {
+                            id: tabFlickable
+                            anchors.fill: parent
+                            contentWidth: width
+                            contentHeight: tabContentItem.implicitHeight + 30
+                            boundsBehavior: Flickable.StopAtBounds
+                            clip: true
 
                     MouseArea {
                         anchors.fill: parent
@@ -230,10 +618,12 @@ Rectangle {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            anchors.margins: 16
-                            spacing: 12
+                            anchors.margins: 20
+                            spacing: 16
                             visible: root.tab === "bar"
 
+                            property string currentZone: "left"
+                            
                             function getBarMod(id) {
                                 if (!root.cfg || !root.cfg.allBarModules) return { id: id, name: id, icon: "󰍛" }
                                 if (typeof id === "string" && id.indexOf("+") !== -1) {
@@ -271,933 +661,362 @@ Rectangle {
                                 return root.cfg.allBarModules.filter(m => !used.includes(m.id))
                             }
 
-                            // Верхняя строка с кнопками быстрого действия
-                            RowLayout {
-                                Layout.fillWidth: true
+                            // 1. КАРТОЧКА: ПРЕСЕТЫ И РАСПОЛОЖЕНИЕ (M3 Grouped Card)
+                            M3GroupedCard {
+                                sectionTitle: "Оформление и позиция"
 
-                                Text {
-                                    text: "Панель задач"
-                                    color: root.cfg.textPrimary
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
-                                }
+                                // Пресеты оформления
+                                M3SettingsRow {
+                                    icon: "󰘖"
+                                    title: "Пресеты стиля бара"
+                                    subtitle: "Быстрое переключение компоновки и внешнего вида"
 
-                                Item { Layout.fillWidth: true }
-
-                                Rectangle {
-                                    height: 30
-                                    implicitWidth: openEdTxt.implicitWidth + 24
-                                    radius: 15
-                                    color: root.cfg.accent
-
-                                    RowLayout {
-                                        anchors.centerIn: parent
-                                        spacing: 6
-                                        Text { text: "󰕮"; color: root.cfg.accentText; font.pixelSize: 12 }
-                                        Text {
-                                            id: openEdTxt
-                                            text: "Настроить на экране"
-                                            color: root.cfg.accentText
-                                            font.pixelSize: 11
-                                            font.bold: true
+                                    M3SegmentedButton {
+                                        currentValue: {
+                                            if (root.cfg.barStyle === "monolith") return "monolith"
+                                            if (root.cfg.barModulesCenter.some(m => m.indexOf("+") !== -1)) return "groups"
+                                            return "bubbles"
                                         }
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            root.closeRequested()
-                                            root.requestWidgetEditor("bar")
-                                        }
-                                    }
-                                }
-
-                                Rectangle {
-                                    height: 30
-                                    implicitWidth: 70
-                                    radius: 15
-                                    color: root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol
-                                    border.width: 1
-
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "Сброс"
-                                        color: root.cfg.textMuted
-                                        font.pixelSize: 11
-                                        font.bold: true
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: root.cfg.resetBarModules()
-                                    }
-                                }
-                            }
-
-                            // Карточка пресетов
-                            Rectangle {
-                                Layout.fillWidth: true
-                                height: 42
-                                radius: 12
-                                color: root.cfg.bgElevated
-                                border.color: root.cfg.borderCol
-                                border.width: 1
-
-                                RowLayout {
-                                    anchors.fill: parent
-                                    anchors.leftMargin: 12
-                                    anchors.rightMargin: 12
-                                    spacing: 8
-
-                                    Text { text: "Пресеты:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
-
-                                    Rectangle {
-                                        height: 26; implicitWidth: p1Txt.implicitWidth + 16; radius: 13
-                                        color: root.cfg.bgSurface; border.color: root.cfg.borderCol; border.width: 1
-                                        Text { id: p1Txt; anchors.centerIn: parent; text: "󰘖 Островки"; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
+                                        model: [
+                                            { id: "bubbles", label: "Островки", icon: "󰘖" },
+                                            { id: "groups", label: "Группы", icon: "󰘖" },
+                                            { id: "monolith", label: "Монолит", icon: "󰛲" },
+                                            { id: "full", label: "Полный", icon: "󰀻" }
+                                        ]
+                                        onSelected: val => {
+                                            if (val === "bubbles") {
                                                 root.cfg.barStyle = "bubbles"
                                                 root.cfg.barModuleBubbles = true
                                                 root.cfg.barModulesLeft = ["workspaces", "ram"]
                                                 root.cfg.barModulesCenter = ["clock"]
                                                 root.cfg.barModulesRight = ["tray", "vol", "lang"]
-                                                root.cfg.save()
-                                            }
-                                        }
-                                    }
-
-                                    Rectangle {
-                                        height: 26; implicitWidth: pGrTxt.implicitWidth + 16; radius: 13
-                                        color: root.cfg.bgSurface; border.color: root.cfg.accent; border.width: 1
-                                        Text { id: pGrTxt; anchors.centerIn: parent; text: "󰘖 Островки (Группы)"; color: root.cfg.accent; font.pixelSize: 10; font.bold: true }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
+                                            } else if (val === "groups") {
                                                 root.cfg.barStyle = "bubbles"
                                                 root.cfg.barModuleBubbles = true
                                                 root.cfg.barModulesLeft = ["launcher", "workspaces"]
                                                 root.cfg.barModulesCenter = ["clock+weather"]
                                                 root.cfg.barModulesRight = ["cpu+ram+gpu", "net+bt+vol", "tray"]
-                                                root.cfg.save()
-                                            }
-                                        }
-                                    }
-
-                                    Rectangle {
-                                        height: 26; implicitWidth: p2Txt.implicitWidth + 16; radius: 13
-                                        color: root.cfg.bgSurface; border.color: root.cfg.borderCol; border.width: 1
-                                        Text { id: p2Txt; anchors.centerIn: parent; text: "󰛲 Монолит"; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
+                                            } else if (val === "monolith") {
                                                 root.cfg.barStyle = "monolith"
                                                 root.cfg.barOpacity = 0.95
                                                 root.cfg.barModuleBubbles = false
                                                 root.cfg.barModulesLeft = ["launcher", "workspaces"]
                                                 root.cfg.barModulesCenter = ["clock", "weather"]
                                                 root.cfg.barModulesRight = ["cpu", "ram", "gpu", "net", "bt", "lang", "vol", "tray"]
-                                                root.cfg.save()
-                                            }
-                                        }
-                                    }
-
-                                    Rectangle {
-                                        height: 26; implicitWidth: p3Txt.implicitWidth + 16; radius: 13
-                                        color: root.cfg.bgSurface; border.color: root.cfg.borderCol; border.width: 1
-                                        Text { id: p3Txt; anchors.centerIn: parent; text: "󰀻 Полный"; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
+                                            } else if (val === "full") {
                                                 root.cfg.barModulesLeft = ["launcher", "workspaces", "ram", "weather"]
                                                 root.cfg.barModulesCenter = ["clock"]
                                                 root.cfg.barModulesRight = ["cpu", "gpu", "net", "bt", "lang", "vol", "tray"]
-                                                root.cfg.save()
                                             }
-                                        }
-                                    }
-                                }
-                            }
-
-                            // 3 зоны бара (Лево, Центр, Право)
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 8
-
-                                // Левая зона
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    Layout.preferredWidth: 1
-                                    Layout.alignment: Qt.AlignTop
-                                    radius: 12
-                                    color: root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol
-                                    border.width: 1
-                                    implicitHeight: leftZoneCol.implicitHeight + 16
-
-                                    ColumnLayout {
-                                        id: leftZoneCol
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.top: parent.top
-                                        anchors.margins: 8
-                                        spacing: 6
-
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Левая зона"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-                                            Text { text: root.cfg.barModulesLeft.length + ""; color: root.cfg.accent; font.pixelSize: 10; font.bold: true }
-                                        }
-
-                                        Repeater {
-                                            model: root.cfg.barModulesLeft
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                required property int index
-                                                Layout.fillWidth: true
-                                                height: 40
-                                                radius: 8
-                                                color: root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol
-                                                border.width: 1
-
-                                                readonly property var modInfo: barTabCol.getBarMod(modelData)
-
-                                                RowLayout {
-                                                    anchors.fill: parent
-                                                    anchors.margins: 6
-                                                    spacing: 4
-
-                                                    Text { text: modInfo.icon; color: root.cfg.accent; font.pixelSize: 12 }
-                                                    Text { text: modInfo.name; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true; Layout.fillWidth: true; elide: Text.ElideRight }
-
-                                                    Rectangle {
-                                                        visible: !!modInfo.isGroup
-                                                        width: 20; height: 18; radius: 4
-                                                        color: spltL.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✂"; color: spltL.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: spltL; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.splitBarModule("left", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        visible: index < root.cfg.barModulesLeft.length - 1
-                                                        width: 20; height: 18; radius: 4
-                                                        color: combL.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "🔗"; color: combL.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: combL; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.combineBarModules("left", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index > 0 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "◀"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index > 0) root.cfg.reorderBarModule("left", index, -1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index < root.cfg.barModulesLeft.length - 1 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "▶"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index < root.cfg.barModulesLeft.length - 1) root.cfg.reorderBarModule("left", index, 1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 9
-                                                        color: delL.containsMouse ? root.cfg.danger : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✕"; color: delL.containsMouse ? "#ffffff" : root.cfg.textMuted; font.pixelSize: 8 }
-                                                        MouseArea { id: delL; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.removeBarModule(modelData) }
-                                                    }
-                                                }
-                                            }
+                                            root.cfg.save()
                                         }
                                     }
                                 }
 
-                                // Центральная зона
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    Layout.preferredWidth: 1
-                                    Layout.alignment: Qt.AlignTop
-                                    radius: 12
-                                    color: root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol
-                                    border.width: 1
-                                    implicitHeight: centerZoneCol.implicitHeight + 16
+                                // Положение панели
+                                M3SettingsRow {
+                                    icon: "󰁝"
+                                    title: "Положение на экране"
+                                    subtitle: "Сторона монитора, к которой прикреплена панель"
 
-                                    ColumnLayout {
-                                        id: centerZoneCol
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.top: parent.top
-                                        anchors.margins: 8
-                                        spacing: 6
-
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Центр"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-                                            Text { text: root.cfg.barModulesCenter.length + ""; color: root.cfg.accent; font.pixelSize: 10; font.bold: true }
-                                        }
-
-                                        Repeater {
-                                            model: root.cfg.barModulesCenter
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                required property int index
-                                                Layout.fillWidth: true
-                                                height: 40
-                                                radius: 8
-                                                color: root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol
-                                                border.width: 1
-
-                                                readonly property var modInfo: barTabCol.getBarMod(modelData)
-
-                                                RowLayout {
-                                                    anchors.fill: parent
-                                                    anchors.margins: 6
-                                                    spacing: 4
-
-                                                    Text { text: modInfo.icon; color: root.cfg.accent; font.pixelSize: 12 }
-                                                    Text { text: modInfo.name; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true; Layout.fillWidth: true; elide: Text.ElideRight }
-
-                                                    Rectangle {
-                                                        visible: !!modInfo.isGroup
-                                                        width: 20; height: 18; radius: 4
-                                                        color: spltC.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✂"; color: spltC.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: spltC; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.splitBarModule("center", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        visible: index < root.cfg.barModulesCenter.length - 1
-                                                        width: 20; height: 18; radius: 4
-                                                        color: combC.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "🔗"; color: combC.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: combC; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.combineBarModules("center", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index > 0 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "◀"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index > 0) root.cfg.reorderBarModule("center", index, -1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index < root.cfg.barModulesCenter.length - 1 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "▶"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index < root.cfg.barModulesCenter.length - 1) root.cfg.reorderBarModule("center", index, 1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 9
-                                                        color: delC.containsMouse ? root.cfg.danger : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✕"; color: delC.containsMouse ? "#ffffff" : root.cfg.textMuted; font.pixelSize: 8 }
-                                                        MouseArea { id: delC; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.removeBarModule(modelData) }
-                                                    }
-                                                }
-                                            }
+                                    M3SegmentedButton {
+                                        currentValue: root.cfg.barPosition
+                                        model: [
+                                            { id: "top", label: "Сверху", icon: "󰁝" },
+                                            { id: "bottom", label: "Снизу", icon: "󰁅" },
+                                            { id: "left", label: "Слева", icon: "󰁍" },
+                                            { id: "right", label: "Справа", icon: "󰁔" }
+                                        ]
+                                        onSelected: val => {
+                                            root.cfg.barPosition = val
+                                            root.cfg.save()
                                         }
                                     }
                                 }
 
-                                // Правая зона
-                                Rectangle {
-                                    Layout.fillWidth: true
-                                    Layout.preferredWidth: 1
-                                    Layout.alignment: Qt.AlignTop
-                                    radius: 12
-                                    color: root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol
-                                    border.width: 1
-                                    implicitHeight: rightZoneCol.implicitHeight + 16
+                                // Капсульный фон модулей
+                                M3SettingsRow {
+                                    icon: "󰝤"
+                                    title: "Капсульный фон модулей"
+                                    subtitle: "Каждый модуль оборачивается в парящий островок-капсулу"
 
-                                    ColumnLayout {
-                                        id: rightZoneCol
-                                        anchors.left: parent.left
-                                        anchors.right: parent.right
-                                        anchors.top: parent.top
-                                        anchors.margins: 8
-                                        spacing: 6
-
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Правая зона"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-                                            Text { text: root.cfg.barModulesRight.length + ""; color: root.cfg.accent; font.pixelSize: 10; font.bold: true }
-                                        }
-
-                                        Repeater {
-                                            model: root.cfg.barModulesRight
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                required property int index
-                                                Layout.fillWidth: true
-                                                height: 40
-                                                radius: 8
-                                                color: root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol
-                                                border.width: 1
-
-                                                readonly property var modInfo: barTabCol.getBarMod(modelData)
-
-                                                RowLayout {
-                                                    anchors.fill: parent
-                                                    anchors.margins: 6
-                                                    spacing: 4
-
-                                                    Text { text: modInfo.icon; color: root.cfg.accent; font.pixelSize: 12 }
-                                                    Text { text: modInfo.name; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true; Layout.fillWidth: true; elide: Text.ElideRight }
-
-                                                    Rectangle {
-                                                        visible: !!modInfo.isGroup
-                                                        width: 20; height: 18; radius: 4
-                                                        color: spltR.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✂"; color: spltR.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: spltR; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.splitBarModule("right", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        visible: index < root.cfg.barModulesRight.length - 1
-                                                        width: 20; height: 18; radius: 4
-                                                        color: combR.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "🔗"; color: combR.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 9 }
-                                                        MouseArea { id: combR; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.combineBarModules("right", index) }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index > 0 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "◀"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index > 0) root.cfg.reorderBarModule("right", index, -1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 4; color: root.cfg.bgElevated
-                                                        opacity: index < root.cfg.barModulesRight.length - 1 ? 1 : 0.3
-                                                        Text { anchors.centerIn: parent; text: "▶"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                        MouseArea { anchors.fill: parent; onClicked: { if (index < root.cfg.barModulesRight.length - 1) root.cfg.reorderBarModule("right", index, 1) } }
-                                                    }
-
-                                                    Rectangle {
-                                                        width: 18; height: 18; radius: 9
-                                                        color: delR.containsMouse ? root.cfg.danger : root.cfg.bgElevated
-                                                        Text { anchors.centerIn: parent; text: "✕"; color: delR.containsMouse ? "#ffffff" : root.cfg.textMuted; font.pixelSize: 8 }
-                                                        MouseArea { id: delR; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.removeBarModule(modelData) }
-                                                    }
-                                                }
-                                            }
+                                    M3Switch {
+                                        checked: root.cfg.barModuleBubbles
+                                        activeTrackColor: root.cfg.accent
+                                        activeThumbColor: root.cfg.accentText
+                                        onToggled: val => {
+                                            root.cfg.barModuleBubbles = val
+                                            root.cfg.save()
                                         }
                                     }
                                 }
-                            }
 
-                            // Доступные модули
-                            Rectangle {
-                                Layout.fillWidth: true
-                                radius: 12
-                                color: root.cfg.bgElevated
-                                border.color: root.cfg.borderCol
-                                border.width: 1
-                                visible: barTabCol.getUnusedBarMods().length > 0
-                                implicitHeight: warehouseCol.implicitHeight + 20
+                                // Зеркальное отражение сторон
+                                M3SettingsRow {
+                                    icon: "󰤹"
+                                    title: "Поменять стороны местами"
+                                    subtitle: "Зеркально отобразить левую и правую зоны бара"
 
-                                ColumnLayout {
-                                    id: warehouseCol
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 8
-
-                                    Text { text: "Добавить модуль:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
-
-                                    Flow {
-                                        Layout.fillWidth: true
-                                        spacing: 6
-
-                                        Repeater {
-                                            model: barTabCol.getUnusedBarMods()
-                                            delegate: Rectangle {
-                                                required property var modelData
-                                                height: 28
-                                                implicitWidth: chipRow.implicitWidth + 16
-                                                radius: 14
-                                                color: root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol
-                                                border.width: 1
-
-                                                RowLayout {
-                                                    id: chipRow
-                                                    anchors.centerIn: parent
-                                                    spacing: 6
-
-                                                    Text { text: modelData.icon; color: root.cfg.accent; font.pixelSize: 11 }
-                                                    Text { text: modelData.name; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true }
-
-                                                    Rectangle {
-                                                        height: 18; implicitWidth: addLTxt.implicitWidth + 6; radius: 4
-                                                        color: addLM.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { id: addLTxt; anchors.centerIn: parent; text: "+ Л"; color: addLM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 8; font.bold: true }
-                                                        MouseArea { id: addLM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.moveBarModule(modelData.id, "left") }
-                                                    }
-
-                                                    Rectangle {
-                                                        height: 18; implicitWidth: addCTxt.implicitWidth + 6; radius: 4
-                                                        color: addCM.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { id: addCTxt; anchors.centerIn: parent; text: "+ Ц"; color: addCM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 8; font.bold: true }
-                                                        MouseArea { id: addCM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.moveBarModule(modelData.id, "center") }
-                                                    }
-
-                                                    Rectangle {
-                                                        height: 18; implicitWidth: addRTxt.implicitWidth + 6; radius: 4
-                                                        color: addRM.containsMouse ? root.cfg.accent : root.cfg.bgElevated
-                                                        Text { id: addRTxt; anchors.centerIn: parent; text: "+ П"; color: addRM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 8; font.bold: true }
-                                                        MouseArea { id: addRM; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.moveBarModule(modelData.id, "right") }
-                                                    }
-                                                }
-                                            }
+                                    M3Switch {
+                                        checked: root.cfg.swapBarSides
+                                        activeTrackColor: root.cfg.accent
+                                        activeThumbColor: root.cfg.accentText
+                                        onToggled: val => {
+                                            root.cfg.swapBarSides = val
+                                            root.cfg.save()
                                         }
                                     }
                                 }
-                            }
 
-                            // Параметры геометрии и стиля
-                            Rectangle {
-                                Layout.fillWidth: true
-                                radius: 12
-                                color: root.cfg.bgElevated
-                                border.color: root.cfg.borderCol
-                                border.width: 1
-                                implicitHeight: barCustomCol.implicitHeight + 20
+                                // Высота панели
+                                M3SettingsRow {
+                                    icon: "󰤻"
+                                    title: "Высота панели"
+                                    subtitle: "Толщина бара: " + root.cfg.barHeight + " px"
+                                    showDivider: false
 
-                                ColumnLayout {
-                                    id: barCustomCol
-                                    anchors.fill: parent
-                                    anchors.margins: 12
-                                    spacing: 10
-
-                                    Text { text: "Параметры панели:"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-
-                                    // Положение панели
                                     RowLayout {
-                                        Layout.fillWidth: true
-                                        spacing: 6
-                                        Repeater {
-                                            model: [
-                                                { id: "top", name: "Сверху" },
-                                                { id: "bottom", name: "Снизу" },
-                                                { id: "left", name: "Слева" },
-                                                { id: "right", name: "Справа" }
-                                            ]
-                                            Rectangle {
-                                                required property var modelData
-                                                Layout.fillWidth: true; Layout.preferredHeight: 28; radius: 8
-                                                color: root.cfg.barPosition === modelData.id ? root.cfg.accent : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-
-                                                Text {
-                                                    anchors.centerIn: parent
-                                                    text: modelData.name
-                                                    color: root.cfg.barPosition === modelData.id ? root.cfg.accentText : root.cfg.textPrimary
-                                                    font.pixelSize: 11; font.bold: true
-                                                }
-                                                MouseArea {
-                                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: { root.cfg.barPosition = modelData.id; root.cfg.save() }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Капсульный фон для модулей
-                                    RowLayout {
-                                        Layout.fillWidth: true
-                                        Text { text: "Капсульный фон модулей"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-
+                                        spacing: 8
                                         Rectangle {
-                                            width: 42; height: 24; radius: 12
-                                            color: root.cfg.barModuleBubbles ? root.cfg.accent : root.cfg.bgSurface
-                                            border.color: root.cfg.borderCol; border.width: 1
-
-                                            Rectangle {
-                                                width: 18; height: 18; radius: 9
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                x: root.cfg.barModuleBubbles ? 21 : 3
-                                                color: root.cfg.barModuleBubbles ? root.cfg.accentText : root.cfg.textMuted
-                                                Behavior on x { NumberAnimation { duration: 140 } }
-                                            }
-
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
                                             MouseArea {
                                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                onClicked: { root.cfg.barModuleBubbles = !root.cfg.barModuleBubbles; root.cfg.save() }
+                                                onClicked: { root.cfg.barHeight = Math.max(26, root.cfg.barHeight - 2); root.cfg.save() }
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 68; radius: 16
+                                            color: root.cfg.surfaceContainerLowest || "#181a20"
+                                            border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
+                                            Text { anchors.centerIn: parent; text: root.cfg.barHeight + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: { root.cfg.barHeight = Math.min(54, root.cfg.barHeight + 2); root.cfg.save() }
                                             }
                                         }
                                     }
+                                }
+                            }
 
-                                    // Слайдер длины / ширины бара
-                                    ColumnLayout {
-                                        id: barWidthCol
-                                        readonly property bool isVert: root.cfg.barPosition === "left" || root.cfg.barPosition === "right"
-                                        Layout.fillWidth: true; spacing: 4
+                            // 3. КАРТОЧКА: МОДУЛИ БАРА (M3 Grouped Card)
+                            M3GroupedCard {
+                                sectionTitle: "Активные модули бара"
 
-                                        RowLayout {
+                                ColumnLayout {
+                                    id: zoneCol
+                                    Layout.fillWidth: true
+                                    Layout.margins: 12
+                                    spacing: 12
+
+                                    // Выбор зоны для редактирования (M3 Segmented Button)
+                                        M3SegmentedButton {
+                                            currentValue: barTabCol.currentZone
+                                            model: [
+                                                { id: "left", label: "Левая зона (" + root.cfg.barModulesLeft.length + ")", icon: "󰁍" },
+                                                { id: "center", label: "Центр (" + root.cfg.barModulesCenter.length + ")", icon: "󰁝" },
+                                                { id: "right", label: "Правая зона (" + root.cfg.barModulesRight.length + ")", icon: "󰁔" }
+                                            ]
+                                            onSelected: val => barTabCol.currentZone = val
+                                        }
+
+                                        // Список модулей выбранной зоны
+                                        ColumnLayout {
                                             Layout.fillWidth: true
+                                            spacing: 6
+
+                                            readonly property var activeZoneList: barTabCol.currentZone === "left"
+                                                ? root.cfg.barModulesLeft
+                                                : (barTabCol.currentZone === "center" ? root.cfg.barModulesCenter : root.cfg.barModulesRight)
+
                                             Text {
-                                                text: barWidthCol.isVert ? "Длина панели (по вертикали)" : "Длина / ширина панели"
-                                                color: root.cfg.textPrimary
+                                                visible: !parent.activeZoneList || parent.activeZoneList.length === 0
+                                                text: "В этой зоне пока нет активных модулей"
+                                                color: root.cfg.textMuted
+                                                font.pixelSize: 12
+                                                font.family: root.cfg.fontFamily
+                                                Layout.alignment: Qt.AlignHCenter
+                                                Layout.topMargin: 12
+                                                Layout.bottomMargin: 12
+                                            }
+
+                                            Repeater {
+                                                model: barTabCol.currentZone === "left"
+                                                    ? root.cfg.barModulesLeft
+                                                    : (barTabCol.currentZone === "center" ? root.cfg.barModulesCenter : root.cfg.barModulesRight)
+                                                    
+                                                Rectangle {
+                                                    required property var modelData
+                                                    required property int index
+
+                                                    Layout.fillWidth: true
+                                                    implicitHeight: 48
+                                                    Layout.preferredHeight: 48
+                                                    radius: 18
+                                                    color: root.cfg.surfaceContainerHigh || "#242730"
+                                                    border.color: root.cfg.outlineVariant || "#323540"
+                                                    border.width: 1
+
+                                                    readonly property var modInfo: barTabCol.getBarMod(modelData)
+
+                                                    RowLayout {
+                                                        anchors.fill: parent
+                                                        anchors.leftMargin: 12
+                                                        anchors.rightMargin: 12
+                                                        spacing: 10
+
+                                                        // Squircle Icon Badge
+                                                        Rectangle {
+                                                            width: 32; height: 32; radius: 10
+                                                            color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
+                                                            Text { anchors.centerIn: parent; text: modInfo.icon; color: root.cfg.accent; font.pixelSize: 14 }
+                                                        }
+
+                                                        // Name
+                                                        Text {
+                                                            text: modInfo.name
+                                                            color: root.cfg.textPrimary
+                                                            font.pixelSize: 12
+                                                            font.bold: true
+                                                            font.family: root.cfg.fontFamily
+                                                            Layout.fillWidth: true
+                                                            elide: Text.ElideRight
+                                                        }
+
+                                                        // Разделение группы (если сгруппирован)
+                                                        Rectangle {
+                                                            visible: !!modInfo.isGroup
+                                                            width: 28; height: 28; radius: 14
+                                                            color: spltBtnM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#353842")
+                                                            Text { anchors.centerIn: parent; text: "✂"; color: spltBtnM.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 11 }
+                                                            MouseArea {
+                                                                id: spltBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                                onClicked: root.cfg.splitBarModule(barTabCol.currentZone, index)
+                                                            }
+                                                        }
+
+                                                        // Объединение с следующим (группировка в один остров)
+                                                        Rectangle {
+                                                            visible: index < currentList.length - 1
+                                                            width: 28; height: 28; radius: 14
+                                                            color: combBtnM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#353842")
+                                                            Text { anchors.centerIn: parent; text: "🔗"; color: combBtnM.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 11 }
+                                                            MouseArea {
+                                                                id: combBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                                onClicked: root.cfg.combineBarModules(barTabCol.currentZone, index)
+                                                            }
+                                                        }
+
+                                                        // Переместить влево / вверх
+                                                        Rectangle {
+                                                            width: 28; height: 28; radius: 14
+                                                            color: mvUpM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
+                                                            opacity: index > 0 ? 1 : 0.3
+                                                            Text { anchors.centerIn: parent; text: "󰁝"; color: root.cfg.textPrimary; font.pixelSize: 13 }
+                                                            MouseArea {
+                                                                id: mvUpM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                                onClicked: { if (index > 0) root.cfg.reorderBarModule(barTabCol.currentZone, index, -1) }
+                                                            }
+                                                        }
+
+                                                        // Переместить вправо / вниз
+                                                        Rectangle {
+                                                            width: 28; height: 28; radius: 14
+                                                            color: mvDnM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
+                                                            opacity: index < currentList.length - 1 ? 1 : 0.3
+                                                            Text { anchors.centerIn: parent; text: "󰁅"; color: root.cfg.textPrimary; font.pixelSize: 13 }
+                                                            MouseArea {
+                                                                id: mvDnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                                onClicked: { if (index < currentList.length - 1) root.cfg.reorderBarModule(barTabCol.currentZone, index, 1) }
+                                                            }
+                                                        }
+
+                                                        // Удалить модуль
+                                                        Rectangle {
+                                                            width: 28; height: 28; radius: 14
+                                                            color: delBtnM.containsMouse ? Qt.rgba(root.cfg.danger.r, root.cfg.danger.g, root.cfg.danger.b, 0.20) : "transparent"
+                                                            Text { anchors.centerIn: parent; text: "󰅖"; color: delBtnM.containsMouse ? root.cfg.danger : root.cfg.textMuted; font.pixelSize: 13 }
+                                                            MouseArea {
+                                                                id: delBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                                onClicked: root.cfg.removeBarModule(modelData)
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        // Разделитель
+                                        Rectangle { Layout.fillWidth: true; height: 1; color: root.cfg.outlineVariant || "#323540"; Layout.topMargin: 4; Layout.bottomMargin: 4 }
+
+                                        // Добавление неиспользуемых модулей (Material Action Chips)
+                                        ColumnLayout {
+                                            Layout.fillWidth: true
+                                            spacing: 8
+
+                                            Text {
+                                                text: "Добавить доступный модуль в эту зону:"
+                                                color: root.cfg.onSurfaceVariant || root.cfg.textMuted
                                                 font.pixelSize: 11
                                                 font.bold: true
+                                                font.family: root.cfg.fontFamily
+                                            }
+
+                                            Flow {
                                                 Layout.fillWidth: true
-                                            }
+                                                spacing: 8
 
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: bwMinusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: bwMinusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        if (barWidthCol.isVert) root.cfg.barVerticalHeight = Math.max(360, root.cfg.barVerticalHeight - 20)
-                                                        else root.cfg.barWidth = Math.max(600, root.cfg.barWidth - 20)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
+                                                Repeater {
+                                                    model: barTabCol.getUnusedBarMods()
 
-                                            Text {
-                                                text: (barWidthCol.isVert ? root.cfg.barVerticalHeight : root.cfg.barWidth) + " px"
-                                                color: root.cfg.accent
-                                                font.pixelSize: 11
-                                                font.bold: true
-                                            }
+                                                    Rectangle {
+                                                        required property var modelData
+                                                        height: 34
+                                                        implicitWidth: chipTxt.implicitWidth + 30
+                                                        radius: 17
+                                                        color: chipM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#2d303a")
+                                                        scale: chipM.pressed ? 0.94 : 1.0
+                                                        Behavior on scale { NumberAnimation { duration: 100 } }
+                                                        Behavior on color { ColorAnimation { duration: 150 } }
 
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: bwPlusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: bwPlusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        if (barWidthCol.isVert) root.cfg.barVerticalHeight = Math.min(1080, root.cfg.barVerticalHeight + 20)
-                                                        else root.cfg.barWidth = Math.min(1920, root.cfg.barWidth + 20)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
-                                        }
+                                                        RowLayout {
+                                                            id: chipTxt
+                                                            anchors.centerIn: parent
+                                                            spacing: 6
 
-                                        Rectangle {
-                                            Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgSurface
-                                            Rectangle {
-                                                width: {
-                                                    if (barWidthCol.isVert) return parent.width * Math.max(0, Math.min(1, (root.cfg.barVerticalHeight - 360) / (1080 - 360)))
-                                                    else return parent.width * Math.max(0, Math.min(1, (root.cfg.barWidth - 600) / (1920 - 600)))
-                                                }
-                                                height: parent.height; radius: 3; color: root.cfg.accent
-                                            }
-                                            MouseArea {
-                                                anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                                function update(mx) {
-                                                    let ratio = Math.max(0, Math.min(1, mx / width))
-                                                    if (barWidthCol.isVert) root.cfg.barVerticalHeight = Math.round((360 + ratio * 720) / 10) * 10
-                                                    else root.cfg.barWidth = Math.round((600 + ratio * 1320) / 10) * 10
-                                                    root.cfg.save()
-                                                }
-                                                onPressed: m => update(m.x)
-                                                onPositionChanged: m => { if (pressed) update(m.x) }
-                                            }
-                                        }
+                                                            Text {
+                                                                text: "+ " + (modelData.icon || "󰍛")
+                                                                color: chipM.containsMouse ? root.cfg.accentText : root.cfg.accent
+                                                                font.pixelSize: 12
+                                                            }
+                                                            Text {
+                                                                text: modelData.name
+                                                                color: chipM.containsMouse ? root.cfg.accentText : root.cfg.textPrimary
+                                                                font.pixelSize: 11
+                                                                font.bold: true
+                                                                font.family: root.cfg.fontFamily
+                                                            }
+                                                        }
 
-                                        // Быстрые пресеты длины
-                                        RowLayout {
-                                            spacing: 6
-                                            Repeater {
-                                                model: barWidthCol.isVert
-                                                       ? [{ label: "480 px", val: 480 }, { label: "680 px", val: 680 }, { label: "880 px", val: 880 }, { label: "1080 px", val: 1080 }]
-                                                       : [{ label: "1200 px", val: 1200 }, { label: "1400 px", val: 1400 }, { label: "1650 px", val: 1650 }, { label: "1900 px", val: 1900 }]
-                                                Rectangle {
-                                                    required property var modelData
-                                                    height: 22
-                                                    implicitWidth: pLtxt.implicitWidth + 12
-                                                    radius: 11
-                                                    readonly property bool isCur: (barWidthCol.isVert ? root.cfg.barVerticalHeight : root.cfg.barWidth) === modelData.val
-                                                    color: isCur ? root.cfg.accent : (pLM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface)
-                                                    border.color: isCur ? root.cfg.accent : root.cfg.borderCol
-                                                    border.width: 1
-                                                    Text {
-                                                         id: pLtxt; anchors.centerIn: parent
-                                                         text: modelData.label
-                                                         color: isCur ? root.cfg.accentText : root.cfg.textPrimary
-                                                         font.pixelSize: 9; font.bold: true
-                                                    }
-                                                    MouseArea {
-                                                         id: pLM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                         onClicked: {
-                                                             if (barWidthCol.isVert) root.cfg.barVerticalHeight = modelData.val
-                                                             else root.cfg.barWidth = modelData.val
-                                                             root.cfg.save()
-                                                         }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Слайдер скругления подложки модулей / капсул
-                                    ColumnLayout {
-                                        Layout.fillWidth: true; spacing: 4
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Скругление модулей / капсул"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: mrMinusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: mrMinusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        let cur = root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16
-                                                        root.cfg.barModuleRadius = Math.max(0, cur - 1)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
-
-                                            Text {
-                                                text: {
-                                                    let r = root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16
-                                                    if (r >= 20 || r < 0) return "Капсула (авто)"
-                                                    return r + " px"
-                                                }
-                                                color: root.cfg.accent; font.pixelSize: 11; font.bold: true
-                                            }
-
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: mrPlusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: mrPlusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        let cur = root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16
-                                                        root.cfg.barModuleRadius = Math.min(20, cur + 1)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Rectangle {
-                                            Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgSurface
-                                            Rectangle {
-                                                width: parent.width * Math.max(0, Math.min(1, ((root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) / 20)))
-                                                height: parent.height; radius: 3; color: root.cfg.accent
-                                            }
-                                            MouseArea {
-                                                anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                                function update(mx) {
-                                                    let ratio = Math.max(0, Math.min(1, mx / width))
-                                                    root.cfg.barModuleRadius = Math.round(ratio * 20)
-                                                    root.cfg.save()
-                                                }
-                                                onPressed: m => update(m.x)
-                                                onPositionChanged: m => { if (pressed) update(m.x) }
-                                            }
-                                        }
-
-                                        // Пресеты скругления капсул модулей
-                                        RowLayout {
-                                            spacing: 6
-                                            Repeater {
-                                                model: [
-                                                    { label: "0 px", val: 0 },
-                                                    { label: "6 px", val: 6 },
-                                                    { label: "12 px", val: 12 },
-                                                    { label: "Капсула (авто)", val: 20 }
-                                                ]
-                                                Rectangle {
-                                                    required property var modelData
-                                                    height: 22
-                                                    implicitWidth: pMRtxt.implicitWidth + 12
-                                                    radius: 11
-                                                    readonly property bool isCur: (root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) === modelData.val
-                                                    color: isCur ? root.cfg.accent : (pMRm.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface)
-                                                    border.color: isCur ? root.cfg.accent : root.cfg.borderCol
-                                                    border.width: 1
-                                                    Text {
-                                                         id: pMRtxt; anchors.centerIn: parent
-                                                         text: modelData.label
-                                                         color: isCur ? root.cfg.accentText : root.cfg.textPrimary
-                                                         font.pixelSize: 9; font.bold: true
-                                                    }
-                                                    MouseArea {
-                                                         id: pMRm; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                         onClicked: {
-                                                             root.cfg.barModuleRadius = modelData.val
-                                                             root.cfg.save()
-                                                         }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    // Слайдер высоты бара
-                                    ColumnLayout {
-                                        Layout.fillWidth: true; spacing: 3
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Высота панели"; color: root.cfg.textMuted; font.pixelSize: 11; Layout.fillWidth: true }
-                                            Text { text: root.cfg.barHeight + " px"; color: root.cfg.accent; font.pixelSize: 11; font.bold: true }
-                                        }
-                                        Rectangle {
-                                            Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgSurface
-                                            Rectangle {
-                                                width: parent.width * Math.max(0, Math.min(1, (root.cfg.barHeight - 24) / (56 - 24)))
-                                                height: parent.height; radius: 3; color: root.cfg.accent
-                                            }
-                                            MouseArea {
-                                                anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                                function update(mx) {
-                                                    let ratio = Math.max(0, Math.min(1, mx / width))
-                                                    root.cfg.barHeight = Math.round(24 + ratio * 32)
-                                                    root.cfg.save()
-                                                }
-                                                onPressed: m => update(m.x)
-                                                onPositionChanged: m => { if (pressed) update(m.x) }
-                                            }
-                                        }
-                                    }
-
-                                    // Слайдер скругления углов панели бара
-                                    ColumnLayout {
-                                        Layout.fillWidth: true; spacing: 4
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Скругление углов панели бара"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true; Layout.fillWidth: true }
-
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: brMinusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: brMinusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        root.cfg.barRadius = Math.max(0, root.cfg.barRadius - 1)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
-
-                                            Text { text: root.cfg.barRadius + " px"; color: root.cfg.accent; font.pixelSize: 11; font.bold: true }
-
-                                            Rectangle {
-                                                width: 20; height: 20; radius: 10
-                                                color: brPlusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true }
-                                                MouseArea {
-                                                    id: brPlusM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        root.cfg.barRadius = Math.min(28, root.cfg.barRadius + 1)
-                                                        root.cfg.save()
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        Rectangle {
-                                            Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgSurface
-                                            Rectangle {
-                                                width: parent.width * Math.max(0, Math.min(1, root.cfg.barRadius / 28))
-                                                height: parent.height; radius: 3; color: root.cfg.accent
-                                            }
-                                            MouseArea {
-                                                anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                                function update(mx) {
-                                                    let ratio = Math.max(0, Math.min(1, mx / width))
-                                                    root.cfg.barRadius = Math.round(ratio * 28)
-                                                    root.cfg.save()
-                                                }
-                                                onPressed: m => update(m.x)
-                                                onPositionChanged: m => { if (pressed) update(m.x) }
-                                            }
-                                        }
-
-                                        // Пресеты скругления бара
-                                        RowLayout {
-                                            spacing: 6
-                                            Repeater {
-                                                model: [
-                                                    { label: "0 px", val: 0 },
-                                                    { label: "10 px", val: 10 },
-                                                    { label: "17 px", val: 17 },
-                                                    { label: "28 px", val: 28 }
-                                                ]
-                                                Rectangle {
-                                                    required property var modelData
-                                                    height: 22
-                                                    implicitWidth: pBRtxt.implicitWidth + 12
-                                                    radius: 11
-                                                    readonly property bool isCur: root.cfg.barRadius === modelData.val
-                                                    color: isCur ? root.cfg.accent : (pBRm.containsMouse ? root.cfg.bgElevated : root.cfg.bgSurface)
-                                                    border.color: isCur ? root.cfg.accent : root.cfg.borderCol
-                                                    border.width: 1
-                                                    Text {
-                                                        id: pBRtxt; anchors.centerIn: parent
-                                                        text: modelData.label
-                                                        color: isCur ? root.cfg.accentText : root.cfg.textPrimary
-                                                        font.pixelSize: 9; font.bold: true
-                                                    }
-                                                    MouseArea {
-                                                        id: pBRm; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                        onClicked: {
-                                                             root.cfg.barRadius = modelData.val
-                                                             root.cfg.save()
+                                                        MouseArea {
+                                                            id: chipM
+                                                            anchors.fill: parent
+                                                            hoverEnabled: true
+                                                            cursorShape: Qt.PointingHandCursor
+                                                            onClicked: root.cfg.addBarModule(barTabCol.currentZone, modelData.id)
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-
-                                    // Слайдер прозрачности
-                                    ColumnLayout {
-                                        Layout.fillWidth: true; spacing: 3
-                                        RowLayout {
-                                            Layout.fillWidth: true
-                                            Text { text: "Прозрачность подложки"; color: root.cfg.textMuted; font.pixelSize: 11; Layout.fillWidth: true }
-                                            Text { text: Math.round(root.cfg.barOpacity * 100) + " %"; color: root.cfg.accent; font.pixelSize: 11; font.bold: true }
-                                        }
-                                        Rectangle {
-                                            Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgSurface
-                                            Rectangle {
-                                                width: parent.width * Math.max(0, Math.min(1, root.cfg.barOpacity))
-                                                height: parent.height; radius: 3; color: root.cfg.accent
-                                            }
-                                            MouseArea {
-                                                anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                                function update(mx) {
-                                                    root.cfg.barOpacity = Math.max(0.0, Math.min(1.0, mx / width))
-                                                    root.cfg.save()
-                                                }
-                                                onPressed: m => update(m.x)
-                                                onPositionChanged: m => { if (pressed) update(m.x) }
-                                            }
-                                        }
-                                    }
                                 }
-                            }
 
                             Item { Layout.fillHeight: true }
                         }
@@ -1253,21 +1072,11 @@ Rectangle {
                                                 Layout.fillWidth: true
                                             }
 
-                                            Rectangle {
-                                                width: 42; height: 24; radius: 12
-                                                color: root.cfg.dockEnabled ? root.cfg.accent : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Rectangle {
-                                                    width: 18; height: 18; radius: 9
-                                                    color: root.cfg.dockEnabled ? root.cfg.accentText : root.cfg.textMuted
-                                                    x: root.cfg.dockEnabled ? 21 : 3
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    Behavior on x { NumberAnimation { duration: 140 } }
-                                                }
-                                                MouseArea {
-                                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: { root.cfg.dockEnabled = !root.cfg.dockEnabled; root.cfg.save() }
-                                                }
+                                            M3Switch {
+                                                checked: root.cfg.dockEnabled
+                                                activeTrackColor: root.cfg.accent
+                                                activeThumbColor: root.cfg.accentText
+                                                onToggled: val => { root.cfg.dockEnabled = val; root.cfg.save() }
                                             }
                                         }
                                     }
@@ -1294,21 +1103,11 @@ Rectangle {
                                                 Layout.fillWidth: true
                                             }
 
-                                            Rectangle {
-                                                width: 42; height: 24; radius: 12
-                                                color: root.cfg.dockAutohide ? root.cfg.accent : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Rectangle {
-                                                    width: 18; height: 18; radius: 9
-                                                    color: root.cfg.dockAutohide ? root.cfg.accentText : root.cfg.textMuted
-                                                    x: root.cfg.dockAutohide ? 21 : 3
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    Behavior on x { NumberAnimation { duration: 140 } }
-                                                }
-                                                MouseArea {
-                                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: { root.cfg.dockAutohide = !root.cfg.dockAutohide; root.cfg.save() }
-                                                }
+                                            M3Switch {
+                                                checked: root.cfg.dockAutohide
+                                                activeTrackColor: root.cfg.accent
+                                                activeThumbColor: root.cfg.accentText
+                                                onToggled: val => { root.cfg.dockAutohide = val; root.cfg.save() }
                                             }
                                         }
                                     }
@@ -1573,21 +1372,11 @@ Rectangle {
 
                                     Text { text: "Отображать виджеты на рабочем столе"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; Layout.fillWidth: true }
 
-                                    Rectangle {
-                                        width: 42; height: 24; radius: 12
-                                        color: root.cfg.showDesktopWidgets ? root.cfg.accent : root.cfg.bgSurface
-                                        border.color: root.cfg.borderCol; border.width: 1
-                                        Rectangle {
-                                            width: 18; height: 18; radius: 9
-                                            color: root.cfg.showDesktopWidgets ? root.cfg.accentText : root.cfg.textMuted
-                                            x: root.cfg.showDesktopWidgets ? 21 : 3
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            Behavior on x { NumberAnimation { duration: 140 } }
-                                        }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: { root.cfg.showDesktopWidgets = !root.cfg.showDesktopWidgets; root.cfg.save() }
-                                        }
+                                    M3Switch {
+                                        checked: root.cfg.showDesktopWidgets
+                                        activeTrackColor: root.cfg.accent
+                                        activeThumbColor: root.cfg.accentText
+                                        onToggled: val => { root.cfg.showDesktopWidgets = val; root.cfg.save() }
                                     }
                                 }
                             }
@@ -1656,8 +1445,8 @@ Rectangle {
                             // Добавить виджет
                             Rectangle {
                                 Layout.fillWidth: true
-                                radius: 12
-                                color: root.cfg.bgElevated
+                                radius: 20
+                                color: root.cfg.surfaceContainer
                                 border.color: root.cfg.borderCol
                                 border.width: 1
                                 implicitHeight: addWCol.implicitHeight + 20
@@ -1886,8 +1675,8 @@ Rectangle {
                             anchors.left: parent.left
                             anchors.right: parent.right
                             anchors.top: parent.top
-                            anchors.margins: 16
-                            spacing: 12
+                            anchors.margins: 20
+                            spacing: 16
                             visible: root.tab === "side"
 
                             function getSideSec(id) {
@@ -1904,34 +1693,56 @@ Rectangle {
                                 return root.cfg.allSideSections.filter(s => !active.includes(s.id))
                             }
 
+                            // 1. ЗАГОЛОВОК СТРАНИЦЫ
                             RowLayout {
                                 Layout.fillWidth: true
+                                spacing: 12
 
-                                Text {
-                                    text: "Шторка управления"
-                                    color: root.cfg.textPrimary
-                                    font.pixelSize: 13
-                                    font.bold: true
-                                    font.family: root.cfg.fontFamily
+                                ColumnLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 3
+                                    Text {
+                                        text: "Шторка быстрых настроек"
+                                        color: root.cfg.textPrimary
+                                        font.pixelSize: 20
+                                        font.bold: true
+                                        font.family: root.cfg.fontFamily
+                                    }
+                                    Text {
+                                        text: "Управление структурой, порядком блоков и внешним видом панели управления"
+                                        color: root.cfg.onSurfaceVariant || root.cfg.textMuted
+                                        font.pixelSize: 12
+                                        font.family: root.cfg.fontFamily
+                                    }
                                 }
 
-                                Item { Layout.fillWidth: true }
-
                                 Rectangle {
-                                    height: 30
+                                    height: 36
                                     implicitWidth: liveSideBtnTxt.implicitWidth + 24
-                                    radius: 15
+                                    radius: 18
                                     color: root.cfg.accent
+                                    scale: liveSideBtnM.pressed ? 0.94 : 1.0
+                                    Behavior on scale { NumberAnimation { duration: 100 } }
 
                                     RowLayout {
                                         anchors.centerIn: parent
                                         spacing: 6
-                                        Text { text: "󰍹"; color: root.cfg.accentText; font.pixelSize: 12 }
-                                        Text { id: liveSideBtnTxt; text: "Открыть шторку"; color: root.cfg.accentText; font.pixelSize: 11; font.bold: true }
+                                        Text { text: "󰍹"; color: root.cfg.accentText; font.pixelSize: 13 }
+                                        Text {
+                                            id: liveSideBtnTxt
+                                            text: "Открыть шторку"
+                                            color: root.cfg.accentText
+                                            font.pixelSize: 11
+                                            font.bold: true
+                                            font.family: root.cfg.fontFamily
+                                        }
                                     }
 
                                     MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                        id: liveSideBtnM
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
                                         onClicked: {
                                             root.closeRequested()
                                             settingsSysProc.command = ["quickshell", "ipc", "call", "shell", "toggleSide"]
@@ -1941,258 +1752,288 @@ Rectangle {
                                 }
 
                                 Rectangle {
-                                    height: 30
-                                    implicitWidth: 80
-                                    radius: 15
-                                    color: root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol
+                                    height: 36
+                                    implicitWidth: 84
+                                    radius: 18
+                                    color: resetSideM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : (root.cfg.surfaceContainer || "#22252c")
+                                    border.color: root.cfg.outlineVariant || "#323540"
                                     border.width: 1
-                                    Text { anchors.centerIn: parent; text: "Сброс"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
+                                    scale: resetSideM.pressed ? 0.94 : 1.0
+                                    Behavior on scale { NumberAnimation { duration: 100 } }
+
+                                    RowLayout {
+                                        anchors.centerIn: parent
+                                        spacing: 6
+                                        Text { text: "󰑐"; color: root.cfg.textMuted; font.pixelSize: 12 }
+                                        Text {
+                                            text: "Сброс"
+                                            color: root.cfg.textPrimary
+                                            font.pixelSize: 11
+                                            font.bold: true
+                                            font.family: root.cfg.fontFamily
+                                        }
+                                    }
+
                                     MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                        id: resetSideM
+                                        anchors.fill: parent
+                                        hoverEnabled: true
+                                        cursorShape: Qt.PointingHandCursor
                                         onClicked: {
                                             root.cfg.sidePanelOrder = ["tiles", "sliders", "gauges", "media", "notifications", "power"]
+                                            root.cfg.sideShowHero = true
                                             root.cfg.save()
                                         }
                                     }
                                 }
                             }
 
-                            // Активные секции шторки
-                            Rectangle {
-                                Layout.fillWidth: true
-                                radius: 12
-                                color: root.cfg.bgElevated
-                                border.color: root.cfg.borderCol
-                                border.width: 1
-                                implicitHeight: actSecCol.implicitHeight + 16
+                            // 2. КАРТОЧКА: ВИДИМОСТЬ И СТРУКТУРА ШТОРКИ
+                            M3GroupedCard {
+                                sectionTitle: "Блоки и секции шторки"
 
+                                // Шапка профиля и часы
+                                M3SettingsRow {
+                                    icon: "󰀉"
+                                    title: "Шапка At-a-Glance"
+                                    subtitle: "Крупные часы, погода, профиль и быстрые кнопки"
+
+                                    M3Switch {
+                                        checked: root.cfg.sideShowHero
+                                        activeTrackColor: root.cfg.accent
+                                        activeThumbColor: root.cfg.accentText
+                                        onToggled: val => {
+                                            root.cfg.sideShowHero = val
+                                            root.cfg.save()
+                                        }
+                                    }
+                                }
+
+                                // Порядок активных секций
                                 ColumnLayout {
                                     id: actSecCol
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 6
+                                    Layout.fillWidth: true
+                                    Layout.margins: 12
+                                    spacing: 8
 
-                                    Text { text: "Порядок секций:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
-
-                                    Repeater {
-                                        model: root.cfg.sidePanelOrder
-                                        delegate: Rectangle {
-                                            required property var modelData
-                                            required property int index
-                                            Layout.fillWidth: true
-                                            height: 38
-                                            radius: 8
-                                            color: root.cfg.bgSurface
-                                            border.color: root.cfg.borderCol
-                                            border.width: 1
-
-                                            readonly property var secInfo: sideTabCol.getSideSec(modelData)
-
-                                            RowLayout {
-                                                anchors.fill: parent
-                                                anchors.margins: 6
-                                                spacing: 8
-
-                                                Text { text: secInfo.icon; color: root.cfg.accent; font.pixelSize: 13 }
-                                                Text {
-                                                    text: secInfo.name
-                                                    color: root.cfg.textPrimary
-                                                    font.pixelSize: 11
-                                                    font.bold: true
-                                                    Layout.fillWidth: true
-                                                    elide: Text.ElideRight
-                                                }
-
-                                                Rectangle {
-                                                    width: 22; height: 22; radius: 4
-                                                    color: root.cfg.bgElevated
-                                                    opacity: index > 0 ? 1 : 0.35
-                                                    Text { anchors.centerIn: parent; text: "▲"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                    MouseArea {
-                                                        anchors.fill: parent
-                                                        cursorShape: index > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                                        onClicked: { if (index > 0) root.cfg.reorderSideSection(index, -1) }
-                                                    }
-                                                }
-
-                                                Rectangle {
-                                                    width: 22; height: 22; radius: 4
-                                                    color: root.cfg.bgElevated
-                                                    opacity: index < root.cfg.sidePanelOrder.length - 1 ? 1 : 0.35
-                                                    Text { anchors.centerIn: parent; text: "▼"; color: root.cfg.textPrimary; font.pixelSize: 8 }
-                                                    MouseArea {
-                                                        anchors.fill: parent
-                                                        cursorShape: index < root.cfg.sidePanelOrder.length - 1 ? Qt.PointingHandCursor : Qt.ArrowCursor
-                                                        onClicked: { if (index < root.cfg.sidePanelOrder.length - 1) root.cfg.reorderSideSection(index, 1) }
-                                                    }
-                                                }
-
-                                                Rectangle {
-                                                    width: 22; height: 22; radius: 11
-                                                    color: sHideM.containsMouse ? root.cfg.danger : root.cfg.bgElevated
-                                                    Text { anchors.centerIn: parent; text: "✕"; color: sHideM.containsMouse ? "#ffffff" : root.cfg.textMuted; font.pixelSize: 8 }
-                                                    MouseArea {
-                                                        id: sHideM
-                                                        anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                                        onClicked: root.cfg.toggleSideSection(modelData)
-                                                    }
-                                                }
-                                            }
+                                        Text {
+                                            text: "Порядок отображения активных секций:"
+                                            color: root.cfg.onSurfaceVariant || root.cfg.textMuted
+                                            font.pixelSize: 11
+                                            font.bold: true
+                                            font.family: root.cfg.fontFamily
                                         }
-                                    }
-                                }
-                            }
-
-                            // Скрытые секции шторки
-                            Rectangle {
-                                Layout.fillWidth: true
-                                radius: 12
-                                color: root.cfg.bgElevated
-                                border.color: root.cfg.borderCol
-                                border.width: 1
-                                visible: sideTabCol.getUnusedSideSecs().length > 0
-                                implicitHeight: unusedSecCol.implicitHeight + 16
-
-                                ColumnLayout {
-                                    id: unusedSecCol
-                                    anchors.fill: parent
-                                    anchors.margins: 10
-                                    spacing: 6
-
-                                    Text { text: "Скрытые секции:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
-
-                                    Flow {
-                                        Layout.fillWidth: true
-                                        spacing: 6
 
                                         Repeater {
-                                            model: sideTabCol.getUnusedSideSecs()
-                                            delegate: Rectangle {
+                                            model: root.cfg.sidePanelOrder
+
+                                            Rectangle {
                                                 required property var modelData
-                                                height: 28
-                                                implicitWidth: flowSecRow.implicitWidth + 14
-                                                radius: 14
-                                                color: root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol
+                                                required property int index
+
+                                                Layout.fillWidth: true
+                                                implicitHeight: 48
+                                                Layout.preferredHeight: 48
+                                                radius: 18
+                                                color: root.cfg.surfaceContainerHigh || "#242730"
+                                                border.color: root.cfg.outlineVariant || "#323540"
                                                 border.width: 1
 
+                                                readonly property var secInfo: sideTabCol.getSideSec(modelData)
+
                                                 RowLayout {
-                                                    id: flowSecRow
-                                                    anchors.centerIn: parent
-                                                    spacing: 6
+                                                    anchors.fill: parent
+                                                    anchors.leftMargin: 12
+                                                    anchors.rightMargin: 12
+                                                    spacing: 10
 
-                                                    Text { text: modelData.icon; color: root.cfg.accent; font.pixelSize: 11 }
-                                                    Text { text: modelData.name; color: root.cfg.textPrimary; font.pixelSize: 10; font.bold: true }
-                                                    Text { text: "+"; color: root.cfg.accent; font.pixelSize: 11; font.bold: true }
+                                                    Rectangle {
+                                                        width: 32; height: 32; radius: 10
+                                                        color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
+                                                        Text { anchors.centerIn: parent; text: secInfo.icon; color: root.cfg.accent; font.pixelSize: 14 }
+                                                    }
+
+                                                    Text {
+                                                        text: secInfo.name
+                                                        color: root.cfg.textPrimary
+                                                        font.pixelSize: 12
+                                                        font.bold: true
+                                                        font.family: root.cfg.fontFamily
+                                                        Layout.fillWidth: true
+                                                    }
+
+                                                    // Переместить вверх
+                                                    Rectangle {
+                                                        width: 28; height: 28; radius: 14
+                                                        color: mvSecUpM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
+                                                        opacity: index > 0 ? 1 : 0.3
+                                                        Text { anchors.centerIn: parent; text: "󰁝"; color: root.cfg.textPrimary; font.pixelSize: 13 }
+                                                        MouseArea {
+                                                            id: mvSecUpM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                            onClicked: {
+                                                                if (index > 0) {
+                                                                    let order = root.cfg.sidePanelOrder.slice()
+                                                                    let tmp = order[index]
+                                                                    order[index] = order[index - 1]
+                                                                    order[index - 1] = tmp
+                                                                    root.cfg.sidePanelOrder = order
+                                                                    root.cfg.save()
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // Переместить вниз
+                                                    Rectangle {
+                                                        width: 28; height: 28; radius: 14
+                                                        color: mvSecDnM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
+                                                        opacity: index < root.cfg.sidePanelOrder.length - 1 ? 1 : 0.3
+                                                        Text { anchors.centerIn: parent; text: "󰁅"; color: root.cfg.textPrimary; font.pixelSize: 13 }
+                                                        MouseArea {
+                                                            id: mvSecDnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                            onClicked: {
+                                                                if (index < root.cfg.sidePanelOrder.length - 1) {
+                                                                    let order = root.cfg.sidePanelOrder.slice()
+                                                                    let tmp = order[index]
+                                                                    order[index] = order[index + 1]
+                                                                    order[index + 1] = tmp
+                                                                    root.cfg.sidePanelOrder = order
+                                                                    root.cfg.save()
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+
+                                                    // Скрыть секцию
+                                                    Rectangle {
+                                                        width: 28; height: 28; radius: 14
+                                                        color: hideSecM.containsMouse ? Qt.rgba(root.cfg.danger.r, root.cfg.danger.g, root.cfg.danger.b, 0.20) : "transparent"
+                                                        Text { anchors.centerIn: parent; text: "󰅖"; color: hideSecM.containsMouse ? root.cfg.danger : root.cfg.textMuted; font.pixelSize: 13 }
+                                                        MouseArea {
+                                                            id: hideSecM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                            onClicked: {
+                                                                let order = root.cfg.sidePanelOrder.filter(s => s !== modelData)
+                                                                root.cfg.sidePanelOrder = order
+                                                                root.cfg.save()
+                                                            }
+                                                        }
+                                                    }
                                                 }
+                                            }
+                                        }
 
-                                                MouseArea {
-                                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: root.cfg.toggleSideSection(modelData.id)
+                                        // Добавить скрытые секции
+                                        ColumnLayout {
+                                            visible: sideTabCol.getUnusedSideSecs().length > 0
+                                            Layout.fillWidth: true
+                                            spacing: 6
+                                            Layout.topMargin: 4
+
+                                            Text {
+                                                text: "Скрытые секции (нажмите, чтобы включить):"
+                                                color: root.cfg.onSurfaceVariant || root.cfg.textMuted
+                                                font.pixelSize: 11
+                                                font.family: root.cfg.fontFamily
+                                            }
+
+                                            Flow {
+                                                Layout.fillWidth: true
+                                                spacing: 8
+
+                                                Repeater {
+                                                    model: sideTabCol.getUnusedSideSecs()
+
+                                                    Rectangle {
+                                                        required property var modelData
+                                                        height: 34
+                                                        implicitWidth: addSecTxt.implicitWidth + 30
+                                                        radius: 17
+                                                        color: addSecM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#2d303a")
+                                                        scale: addSecM.pressed ? 0.94 : 1.0
+                                                        Behavior on scale { NumberAnimation { duration: 100 } }
+                                                        Behavior on color { ColorAnimation { duration: 150 } }
+
+                                                        RowLayout {
+                                                            id: addSecTxt
+                                                            anchors.centerIn: parent
+                                                            spacing: 6
+                                                            Text { text: "+ " + (modelData.icon || "󰕮"); color: addSecM.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 12 }
+                                                            Text { text: modelData.name; color: addSecM.containsMouse ? root.cfg.accentText : root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
+                                                        }
+
+                                                        MouseArea {
+                                                            id: addSecM
+                                                            anchors.fill: parent
+                                                            hoverEnabled: true
+                                                            cursorShape: Qt.PointingHandCursor
+                                                            onClicked: {
+                                                                let order = root.cfg.sidePanelOrder.slice()
+                                                                order.push(modelData.id)
+                                                                root.cfg.sidePanelOrder = order
+                                                                root.cfg.save()
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                            }
 
-                            // Слайдер ширины шторки
-                            ColumnLayout {
-                                Layout.fillWidth: true; spacing: 3
-                                RowLayout {
-                                    Layout.fillWidth: true
-                                    Text { text: "Ширина шторки"; color: root.cfg.textMuted; font.pixelSize: 11; Layout.fillWidth: true }
-                                    Text { text: root.cfg.sidePanelWidth + " px"; color: root.cfg.accent; font.pixelSize: 11; font.bold: true }
-                                }
-                                Rectangle {
-                                    Layout.fillWidth: true; Layout.preferredHeight: 6; radius: 3; color: root.cfg.bgElevated
-                                    Rectangle {
-                                        width: parent.width * Math.max(0, Math.min(1, (root.cfg.sidePanelWidth - 320) / (500 - 320)))
-                                        height: parent.height; radius: 3; color: root.cfg.accent
+                            // 3. КАРТОЧКА: ГЕОМЕТРИЯ И АНИМАЦИЯ
+                            M3GroupedCard {
+                                sectionTitle: "Геометрия и стиль"
+
+                                M3SettingsRow {
+                                    icon: "󰍜"
+                                    title: "Ширина шторки"
+                                    subtitle: "Текущая ширина: " + root.cfg.sidePanelWidth + " px"
+
+                                    RowLayout {
+                                        spacing: 8
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: { root.cfg.sidePanelWidth = Math.max(340, root.cfg.sidePanelWidth - 20); root.cfg.save() }
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 68; radius: 16
+                                            color: root.cfg.surfaceContainerLowest || "#181a20"
+                                            border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
+                                            Text { anchors.centerIn: parent; text: root.cfg.sidePanelWidth + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: { root.cfg.sidePanelWidth = Math.min(500, root.cfg.sidePanelWidth + 20); root.cfg.save() }
+                                            }
+                                        }
                                     }
-                                    MouseArea {
-                                        anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                                        function update(mx) {
-                                            let ratio = Math.max(0, Math.min(1, mx / width))
-                                            root.cfg.sidePanelWidth = Math.round(320 + ratio * 180)
+                                }
+
+                                M3SettingsRow {
+                                    icon: "󰎆"
+                                    title: "Стиль прогресса плеера"
+                                    subtitle: "Форма линии трека в карточке мультимедиа"
+                                    showDivider: false
+
+                                    M3SegmentedButton {
+                                        currentValue: root.cfg.playerProgressStyle || "squiggly"
+                                        model: [
+                                            { id: "squiggly", label: "Живая волна (M3)", icon: "󰐊" },
+                                            { id: "flat", label: "Прямая линия", icon: "󰁅" }
+                                        ]
+                                        onSelected: val => {
+                                            root.cfg.playerProgressStyle = val
                                             root.cfg.save()
                                         }
-                                        onPressed: m => update(m.x)
-                                        onPositionChanged: m => { if (pressed) update(m.x) }
-                                    }
-                                }
-                            }
-
-                            // Форма кнопок и волна плеера
-                            RowLayout {
-                                Layout.fillWidth: true; spacing: 8
-
-                                Rectangle {
-                                    Layout.fillWidth: true; Layout.preferredHeight: 32; radius: 10
-                                    color: root.cfg.activeShapeStyle === "blossom" ? root.cfg.accent : root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol; border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰄛 Blossom (органика)"
-                                        color: root.cfg.activeShapeStyle === "blossom" ? root.cfg.accentText : root.cfg.textPrimary
-                                        font.pixelSize: 11; font.bold: true
-                                    }
-                                    MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                        onClicked: { root.cfg.activeShapeStyle = "blossom"; root.cfg.save() }
-                                    }
-                                }
-
-                                Rectangle {
-                                    Layout.fillWidth: true; Layout.preferredHeight: 32; radius: 10
-                                    color: root.cfg.activeShapeStyle === "circle" ? root.cfg.accent : root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol; border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰝥 Круг"
-                                        color: root.cfg.activeShapeStyle === "circle" ? root.cfg.accentText : root.cfg.textPrimary
-                                        font.pixelSize: 11; font.bold: true
-                                    }
-                                    MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                        onClicked: { root.cfg.activeShapeStyle = "circle"; root.cfg.save() }
-                                    }
-                                }
-                            }
-
-                            RowLayout {
-                                Layout.fillWidth: true; spacing: 8
-
-                                Rectangle {
-                                    Layout.fillWidth: true; Layout.preferredHeight: 32; radius: 10
-                                    color: root.cfg.playerProgressStyle === "wavy" ? root.cfg.accent : root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol; border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰎆 Волна плеера"
-                                        color: root.cfg.playerProgressStyle === "wavy" ? root.cfg.accentText : root.cfg.textPrimary
-                                        font.pixelSize: 11; font.bold: true
-                                    }
-                                    MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                        onClicked: { root.cfg.playerProgressStyle = "wavy"; root.cfg.save() }
-                                    }
-                                }
-
-                                Rectangle {
-                                    Layout.fillWidth: true; Layout.preferredHeight: 32; radius: 10
-                                    color: root.cfg.playerProgressStyle === "flat" ? root.cfg.accent : root.cfg.bgElevated
-                                    border.color: root.cfg.borderCol; border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "󰓛 Прямая полоса"
-                                        color: root.cfg.playerProgressStyle === "flat" ? root.cfg.accentText : root.cfg.textPrimary
-                                        font.pixelSize: 11; font.bold: true
-                                    }
-                                    MouseArea {
-                                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                        onClicked: { root.cfg.playerProgressStyle = "flat"; root.cfg.save() }
                                     }
                                 }
                             }
@@ -3156,7 +2997,9 @@ Rectangle {
                                         { name: "Громкость", prop: "osdVolume" },
                                         { name: "Раскладка клавиатуры", prop: "osdLang" },
                                         { name: "Caps Lock", prop: "osdCaps" },
-                                        { name: "Режим «Не беспокоить»", prop: "dndMode" }
+                                        { name: "Режим «Не беспокоить»", prop: "dndMode" },
+                                        { name: "Ночной свет", prop: "nightLight" },
+                                        { name: "Режим энергосбережения", prop: "powerSaveMode" }
                                     ]
 
                                     Rectangle {
@@ -3296,24 +3139,14 @@ Rectangle {
                                             }
 
                                             // Переключатель автоопределения
-                                            Rectangle {
-                                                width: 42; height: 24; radius: 12
-                                                color: root.cfg.weatherAutoLocation ? root.cfg.accent : root.cfg.bgSurface
-                                                border.color: root.cfg.borderCol; border.width: 1
-                                                Rectangle {
-                                                    width: 18; height: 18; radius: 9
-                                                    color: root.cfg.weatherAutoLocation ? root.cfg.accentText : root.cfg.textMuted
-                                                    x: root.cfg.weatherAutoLocation ? 21 : 3
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    Behavior on x { NumberAnimation { duration: 140 } }
-                                                }
-                                                MouseArea {
-                                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                                    onClicked: {
-                                                        root.cfg.weatherAutoLocation = !root.cfg.weatherAutoLocation
-                                                        root.cfg.save()
-                                                        root.cfg.refreshWeather()
-                                                    }
+                                            M3Switch {
+                                                checked: root.cfg.weatherAutoLocation
+                                                activeTrackColor: root.cfg.accent
+                                                activeThumbColor: root.cfg.accentText
+                                                onToggled: val => {
+                                                    root.cfg.weatherAutoLocation = val
+                                                    root.cfg.save()
+                                                    root.cfg.refreshWeather()
                                                 }
                                             }
                                         }
@@ -3778,24 +3611,14 @@ Rectangle {
                                         Layout.fillWidth: true
                                     }
 
-                                    Rectangle {
-                                        width: 42; height: 24; radius: 12
-                                        color: root.clampToMonitor ? root.cfg.accent : root.cfg.bgSurface
-                                        border.color: root.cfg.borderCol; border.width: 1
-                                        Rectangle {
-                                            width: 18; height: 18; radius: 9
-                                            color: root.clampToMonitor ? root.cfg.accentText : root.cfg.textMuted
-                                            x: root.clampToMonitor ? 21 : 3
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            Behavior on x { NumberAnimation { duration: 140 } }
-                                        }
-                                        MouseArea {
-                                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                            onClicked: {
-                                                root.clampToMonitor = !root.clampToMonitor
-                                                settingsSysProc.command = ["python3", "/home/stopnope/.config/quickshell/scripts/vxwm_controller.py", "toggle_clamp"]
-                                                settingsSysProc.running = true
-                                            }
+                                    M3Switch {
+                                        checked: root.clampToMonitor
+                                        activeTrackColor: root.cfg.accent
+                                        activeThumbColor: root.cfg.accentText
+                                        onToggled: val => {
+                                            root.clampToMonitor = val
+                                            settingsSysProc.command = ["python3", "/home/stopnope/.config/quickshell/scripts/vxwm_controller.py", "toggle_clamp"]
+                                            settingsSysProc.running = true
                                         }
                                     }
                                 }
@@ -3829,4 +3652,5 @@ Rectangle {
             }
         }
     }
+}
 }
