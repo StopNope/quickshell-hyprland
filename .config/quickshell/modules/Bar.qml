@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
@@ -965,11 +966,21 @@ Item {
     Rectangle {
         id: mainCapsule
 
-        width: root.isVertical ? Math.max(38, root.barHeight) : Math.min(parent.width - 24, root.barWidth)
+        width: root.isVertical ? Math.max(38, root.barHeight) : (root.cfg.barStyle === "attached" ? Math.min(parent.width - 24, root.barWidth) : Math.min(parent.width - 24, root.barWidth))
         height: root.isVertical ? Math.min(parent.height - 24, root.cfg.barVerticalHeight) : root.barHeight
-        radius: root.barRadius
 
-        anchors.centerIn: parent
+        // Скругления:
+        // Для attached: скруглены ТОЛЬКО нижние углы (bottomLeft и bottomRight), верхние прямые (0)
+        radius: root.barRadius
+        topLeftRadius: (root.cfg.barStyle === "attached" && root.cfg.barPosition !== "bottom" && !root.isVertical) ? 0 : root.barRadius
+        topRightRadius: (root.cfg.barStyle === "attached" && root.cfg.barPosition !== "bottom" && !root.isVertical) ? 0 : root.barRadius
+        bottomLeftRadius: (root.cfg.barStyle === "attached" && root.cfg.barPosition === "bottom" && !root.isVertical) ? 0 : root.barRadius
+        bottomRightRadius: (root.cfg.barStyle === "attached" && root.cfg.barPosition === "bottom" && !root.isVertical) ? 0 : root.barRadius
+
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: (root.cfg.barStyle === "attached" && root.cfg.barPosition !== "bottom" && !root.isVertical) ? parent.top : undefined
+        anchors.bottom: (root.cfg.barStyle === "attached" && root.cfg.barPosition === "bottom" && !root.isVertical) ? parent.bottom : undefined
+        anchors.verticalCenter: (root.cfg.barStyle !== "attached" || root.isVertical) ? parent.verticalCenter : undefined
 
         color: root.cfg.barStyle === "bubbles" ? "transparent" : Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
         border.color: root.cfg.barStyle === "bubbles" ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity)

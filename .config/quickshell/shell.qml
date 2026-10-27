@@ -279,8 +279,8 @@ ShellRoot {
         }
 
         margins {
-            top: appConfig.barPosition === "top" ? 10 : 0
-            bottom: appConfig.barPosition === "bottom" ? 10 : 0
+            top: appConfig.barPosition === "top" ? (appConfig.barStyle === "attached" ? 0 : 10) : 0
+            bottom: appConfig.barPosition === "bottom" ? (appConfig.barStyle === "attached" ? 0 : 10) : 0
             left: appConfig.barPosition === "left" ? 10 : 0
             right: appConfig.barPosition === "right" ? 10 : 0
         }

@@ -668,46 +668,19 @@ Rectangle {
                                 // Пресеты оформления
                                 M3SettingsRow {
                                     icon: "󰘖"
-                                    title: "Пресеты стиля бара"
-                                    subtitle: "Быстрое переключение компоновки и внешнего вида"
+                                    title: "Режим отображения бара"
+                                    subtitle: "Выбор формы бара без изменения порядка модулей"
 
                                     M3SegmentedButton {
-                                        currentValue: {
-                                            if (root.cfg.barStyle === "monolith") return "monolith"
-                                            if (root.cfg.barModulesCenter.some(m => m.indexOf("+") !== -1)) return "groups"
-                                            return "bubbles"
-                                        }
+                                        currentValue: (root.cfg.barStyle === "attached" || root.cfg.barStyle === "bubbles") ? root.cfg.barStyle : "monolith"
                                         model: [
-                                            { id: "bubbles", label: "Островки", icon: "󰘖" },
-                                            { id: "groups", label: "Группы", icon: "󰘖" },
+                                            { id: "attached", label: "Прилипающий", icon: "󰁝" },
                                             { id: "monolith", label: "Монолит", icon: "󰛲" },
-                                            { id: "full", label: "Полный", icon: "󰀻" }
+                                            { id: "bubbles", label: "Островки", icon: "󰘖" }
                                         ]
                                         onSelected: val => {
-                                            if (val === "bubbles") {
-                                                root.cfg.barStyle = "bubbles"
-                                                root.cfg.barModuleBubbles = true
-                                                root.cfg.barModulesLeft = ["workspaces", "ram"]
-                                                root.cfg.barModulesCenter = ["clock"]
-                                                root.cfg.barModulesRight = ["tray", "vol", "lang"]
-                                            } else if (val === "groups") {
-                                                root.cfg.barStyle = "bubbles"
-                                                root.cfg.barModuleBubbles = true
-                                                root.cfg.barModulesLeft = ["launcher", "workspaces"]
-                                                root.cfg.barModulesCenter = ["clock+weather"]
-                                                root.cfg.barModulesRight = ["cpu+ram+gpu", "net+bt+vol", "tray"]
-                                            } else if (val === "monolith") {
-                                                root.cfg.barStyle = "monolith"
-                                                root.cfg.barOpacity = 0.95
-                                                root.cfg.barModuleBubbles = false
-                                                root.cfg.barModulesLeft = ["launcher", "workspaces"]
-                                                root.cfg.barModulesCenter = ["clock", "weather"]
-                                                root.cfg.barModulesRight = ["cpu", "ram", "gpu", "net", "bt", "lang", "vol", "tray"]
-                                            } else if (val === "full") {
-                                                root.cfg.barModulesLeft = ["launcher", "workspaces", "ram", "weather"]
-                                                root.cfg.barModulesCenter = ["clock"]
-                                                root.cfg.barModulesRight = ["cpu", "gpu", "net", "bt", "lang", "vol", "tray"]
-                                            }
+                                            root.cfg.barStyle = val
+                                            root.cfg.barModuleBubbles = (val === "bubbles")
                                             root.cfg.save()
                                         }
                                     }
