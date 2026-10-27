@@ -4,7 +4,7 @@
 
 **English** | [Русский](README_ru.md)
 
-[![Hyprland](https://img.shields.io/badge/Hyprland-0.42%2B-00ADD8?logo=hyprland&logoColor=white)](https://hyprland.org/)
+[![Hyprland](https://img.shields.io/badge/Hyprland-0.55%2B-00ADD8?logo=hyprland&logoColor=white)](https://hyprland.org/)
 [![Quickshell](https://img.shields.io/badge/Quickshell-Qt6%20%2F%20QML-41CD52?logo=qt&logoColor=white)](https://git.outfoxxed.me/outfoxxed/quickshell)
 [![Style](https://img.shields.io/badge/Style-Material%20You%20%2F%20Pixel-4285F4?logo=google&logoColor=white)](https://m3.material.io/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
