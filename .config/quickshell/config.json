@@ -3,7 +3,7 @@
   "swapBarSides": false,
   "barWidth": 1340,
   "barHeight": 30,
-  "barRadius": 15,
+  "barRadius": 28,
   "barVerticalHeight": 580,
   "workspaceStyle": "dots",
   "showWorkspaces": true,
@@ -67,7 +67,7 @@
     }
   ],
   "dockEnabled": false,
-  "dockAutohide": true,
+  "dockAutohide": false,
   "dockIconSize": 36,
   "dockPinnedApps": [
     "firefox",
@@ -83,7 +83,7 @@
   "lockShowWeather": true,
   "lockShowDate": true,
   "weatherAutoLocation": false,
-  "weatherCity": "Париж",
+  "weatherCity": "Тюмень",
   "lockPin": "",
   "osdVolume": true,
   "osdLang": true,
