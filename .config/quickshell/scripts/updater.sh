@@ -112,12 +112,6 @@ if [[ -f "${REPO_DIR}/.local/bin/screenshot.sh" ]]; then
     chmod +x "$HOME/.local/bin/screenshot.sh"
 fi
 
-# Обновление шейдеров Hyprland
-if [[ -d "${REPO_DIR}/.config/hypr/shaders" ]]; then
-    mkdir -p "$HOME/.config/hypr/shaders"
-    cp -r "${REPO_DIR}/.config/hypr/shaders/"* "$HOME/.config/hypr/shaders/" 2>/dev/null || true
-fi
-
 # 4. Обновление интеграции кейбиндов в Hyprland
 HYPR_LUA="$HOME/.config/hypr/hyprland.lua"
 if [[ -f "$HYPR_LUA" && -f "${REPO_DIR}/install.sh" ]]; then

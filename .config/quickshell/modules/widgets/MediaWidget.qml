@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Services.Mpris
 import ".."
@@ -39,17 +40,26 @@ Rectangle {
         target: root.player
         ignoreUnknownSignals: true
         function onPositionChanged() {
-            if (root.player) root.localPos = root.player.position
+            if (root.player) {
+                let p = root.player.position
+                if (Math.abs(root.localPos - p) > 1.2) {
+                    root.localPos = p
+                }
+            }
         }
     }
 
     Timer {
-        interval: 1000
+        interval: 33
         running: root.isPlaying
         repeat: true
         onTriggered: {
-            if (root.player && root.player.isPlaying && root.trackLen > 0 && root.localPos < root.trackLen) {
-                root.localPos += 1
+            if (root.player && root.player.isPlaying) {
+                if (root.trackLen > 0 && root.localPos < root.trackLen) {
+                    root.localPos = Math.min(root.trackLen, root.localPos + 0.033)
+                } else if (root.trackLen <= 0) {
+                    root.localPos += 0.033
+                }
             }
         }
     }
@@ -71,21 +81,15 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 12
 
-            // Обложка трека: radius: 12 в строгом соответствии с M3
-            Rectangle {
+            // Обложка трека: radius: 12 в строгом соответствии с M3 (аппаратное скругление через MultiEffect)
+            Item {
                 Layout.preferredWidth: 46
                 Layout.preferredHeight: 46
-                radius: 12
-                color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.14)
-                border.color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.25)
-                border.width: 1
-                clip: true
 
-                Image {
-                    id: cArt
+                Rectangle {
                     anchors.fill: parent
-                    source: root.player ? (root.player.trackArtUrl || "") : ""
-                    fillMode: Image.PreserveAspectCrop
+                    radius: 12
+                    color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.14)
                 }
 
                 Text {
@@ -94,6 +98,43 @@ Rectangle {
                     text: "󰎆"
                     color: root.cfg.accent
                     font.pixelSize: 20
+                }
+
+                Image {
+                    id: cArt
+                    anchors.fill: parent
+                    source: root.player ? (root.player.trackArtUrl || "") : ""
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    visible: false
+                }
+
+                Item {
+                    id: cArtMask
+                    anchors.fill: parent
+                    layer.enabled: true
+                    visible: false
+                    Rectangle {
+                        anchors.fill: parent
+                        radius: 12
+                        color: "black"
+                    }
+                }
+
+                MultiEffect {
+                    anchors.fill: parent
+                    source: cArt
+                    maskEnabled: true
+                    maskSource: cArtMask
+                    visible: cArt.status === Image.Ready
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 12
+                    color: "transparent"
+                    border.color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.25)
+                    border.width: 1
                 }
             }
 

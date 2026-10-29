@@ -18,6 +18,7 @@ QtObject {
     property int barVerticalHeight: 680
     property string barStyle: "bubbles"      // "bubbles" (парящие островки), "classic" (сплошная плашка)
     property real barOpacity: 1.0            // 0.0 to 1.0 (прозрачность общей плашки бара)
+    property bool barBorder: true            // окантовка бара (вкл/выкл)
     property bool barModuleBubbles: true     // каждый модуль обернут в свою собственную капсулу
     property real barBubbleOpacity: 0.90     // прозрачность самих капсул-пузырьков
     property int barBubbleSpacing: 8         // расстояние между пузырьками
@@ -34,12 +35,12 @@ QtObject {
     property bool showNetwork: true
     property bool showBluetooth: true
     property bool showLang: true
-    property bool showVolume: true
+    property bool showVolume: false
     property bool showTray: true
 
     property var barModulesLeft: ["workspaces"]
     property var barModulesCenter: ["clock", "weather"]
-    property var barModulesRight: ["cpu", "ram", "gpu", "net", "bt", "lang", "vol", "tray"]
+    property var barModulesRight: ["cpu", "ram", "gpu", "net", "bt", "lang", "tray"]
 
     readonly property var allBarModules: [
         { id: "launcher", name: "Меню приложений", icon: "󰀻" },
@@ -53,6 +54,7 @@ QtObject {
         { id: "bt", name: "Bluetooth", icon: "󰂯" },
         { id: "lang", name: "Раскладка", icon: "󰌌" },
         { id: "vol", name: "Звук", icon: "󰕾" },
+        { id: "media", name: "Медиаплеер", icon: "󰎆" },
         { id: "tray", name: "Системный трей", icon: "󰍜" }
     ]
 
@@ -135,7 +137,7 @@ QtObject {
     function resetBarModules() {
         barModulesLeft = ["launcher", "workspaces"]
         barModulesCenter = ["clock", "weather"]
-        barModulesRight = ["cpu", "ram", "gpu", "net", "bt", "lang", "vol", "tray"]
+        barModulesRight = ["cpu", "ram", "gpu", "net", "bt", "lang", "tray"]
         save()
     }
 
@@ -198,7 +200,7 @@ QtObject {
     property bool sideShowHero: true
     property bool sideShowTiles: true
     property bool sideShowSliders: true
-    property bool sideShowMedia: true
+    property bool sideShowMedia: false
     property bool sideShowGauges: true
     property bool sideShowNotifications: true
     property bool sideShowPower: true
@@ -206,7 +208,7 @@ QtObject {
     property string playerProgressStyle: "wavy"     // "wavy" (Material You Squiggly Wave), "flat"
     property string activeShapeStyle: "blossom"     // "blossom" (скругленные шипы), "circle"
 
-    property var sidePanelOrder: ["tiles", "sliders", "gauges", "media", "notifications", "power"]
+    property var sidePanelOrder: ["tiles", "sliders", "gauges", "notifications", "power"]
 
     readonly property var allSideSections: [
         { id: "tiles", name: "Быстрые плитки (Wi-Fi, BT, Свет, DND)", icon: "󰤨" },
@@ -899,6 +901,7 @@ QtObject {
             barModulesRight: root.barModulesRight,
             barStyle: root.barStyle,
             barOpacity: root.barOpacity,
+            barBorder: root.barBorder,
             barModuleBubbles: root.barModuleBubbles,
             barBubbleOpacity: root.barBubbleOpacity,
             barBubbleSpacing: root.barBubbleSpacing,
@@ -918,6 +921,7 @@ QtObject {
         if (d.barVerticalHeight !== undefined) root.barVerticalHeight = d.barVerticalHeight
         if (d.barStyle !== undefined) root.barStyle = d.barStyle
         if (d.barOpacity !== undefined) root.barOpacity = d.barOpacity
+        if (d.barBorder !== undefined) root.barBorder = d.barBorder
         if (d.barModuleBubbles !== undefined) root.barModuleBubbles = d.barModuleBubbles
         if (d.barBubbleOpacity !== undefined) root.barBubbleOpacity = d.barBubbleOpacity
         if (d.barBubbleSpacing !== undefined) root.barBubbleSpacing = d.barBubbleSpacing

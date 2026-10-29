@@ -23,6 +23,10 @@ ShellRoot {
             else sideWindow.openPanel()
         }
 
+        function toggleMedia(): void {
+            mediaPopoutWindow.toggle(0, 0)
+        }
+
         function toggleSettings(): void {
             if (settingsOverlay.visible) settingsOverlay.close()
             else settingsOverlay.open()
@@ -161,6 +165,8 @@ ShellRoot {
                     let parts = cmd.split(":")
                     let y = parts.length > 1 ? parseInt(parts[1]) : 0
                     if (settingsOverlay.visible) settingsView.scrollContent(y)
+                } else if (cmd === "toggle_media" || cmd === "toggle_media_dropdown" || cmd === "toggle_media_center") {
+                    mediaPopoutWindow.toggle(0, 0)
                 } else if (cmd === "toggle_side") {
                     if (sideWindow.visible) sideWindow.closePanel()
                     else sideWindow.openPanel()
@@ -239,6 +245,11 @@ ShellRoot {
                     }
                 } else if (cmd === "close_tray") {
                     trayMenuWindow.close()
+                } else if (cmd === "open_media" || cmd === "toggle_media") {
+                    if (mediaPopoutWindow.visible) mediaPopoutWindow.close()
+                    else mediaPopoutWindow.open(1600, 50)
+                } else if (cmd === "close_media") {
+                    mediaPopoutWindow.close()
                 } else if (cmd.startsWith("osd:")) {
                     let p = cmd.split(":")
                     if (p.length >= 4) {
@@ -307,6 +318,7 @@ ShellRoot {
             }
             onTriggerOsd: (type, icon, title, val) => osdPopup.trigger(type, icon, title, val)
             onOpenTrayMenu: (item, gx, gy) => trayMenuWindow.open(item, gx, gy)
+            onOpenMediaPopup: (gx, gy) => mediaPopoutWindow.toggle(gx, gy)
         }
     }
 
@@ -516,6 +528,74 @@ ShellRoot {
         active: trayMenuWindow.visible
         windows: [trayMenuWindow]
         onCleared: trayMenuWindow.close()
+    }
+
+    // ==========================================
+    // 4.2 ВЫПАДАЮЩИЙ МЕДИАЦЕНТР (MediaPopout)
+    // ==========================================
+    PanelWindow {
+        id: mediaPopoutWindow
+
+        color: "transparent"
+        visible: false
+        WlrLayershell.namespace: "quickshell"
+        WlrLayershell.layer: WlrLayer.Overlay
+        exclusionMode: ExclusionMode.Ignore
+
+        anchors {
+            top: true
+            bottom: true
+            left: true
+            right: true
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: mediaPopoutWindow.close()
+        }
+
+        function toggle(gx, gy) {
+            if (visible && mediaPopout.isOpen) {
+                close()
+            } else {
+                open(gx, gy)
+            }
+        }
+
+        function open(gx, gy) {
+            mediaPopout.targetX = gx
+            mediaPopout.targetY = gy
+            visible = true
+            mediaPopout.isOpen = true
+        }
+
+        function close() {
+            mediaPopout.isOpen = false
+            mediaCloseTimer.start()
+        }
+
+        Timer {
+            id: mediaCloseTimer
+            interval: 340
+            onTriggered: mediaPopoutWindow.visible = false
+        }
+
+        MediaPopout {
+            id: mediaPopout
+            cfg: appConfig
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (appConfig.barPosition === "bottom")
+               ? (parent.height - appConfig.barHeight - mediaPopout.height)
+               : (appConfig.barStyle === "attached" ? appConfig.barHeight : (10 + appConfig.barHeight))
+            onCloseRequested: mediaPopoutWindow.close()
+        }
+    }
+
+    // Клик мимо медиацентра автоматически закрывает его
+    HyprlandFocusGrab {
+        active: mediaPopoutWindow.visible
+        windows: [mediaPopoutWindow]
+        onCleared: mediaPopoutWindow.close()
     }
 
     // ==========================================

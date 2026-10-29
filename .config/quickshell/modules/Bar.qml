@@ -5,6 +5,7 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.SystemTray
 import Quickshell.Io
+import Quickshell.Services.Mpris
 
 Item {
     id: root
@@ -13,6 +14,7 @@ Item {
     required property var cfg
     signal toggleMenu(string tab)
     signal toggleSidePanel()
+    signal openMediaPopup(real globalX, real globalY)
     signal triggerOsd(string type, string icon, string title, int val)
     signal openTrayMenu(var item, real globalX, real globalY)
 
@@ -112,11 +114,13 @@ Item {
     Process {
         id: audioEventProc
         running: true
-        command: ["sh", "-c", "pactl subscribe 2>/dev/null | grep --line-buffered \"'change' on sink\""]
+        command: ["pactl", "subscribe"]
         stdout: SplitParser {
             onRead: data => {
-                volQueryProc.running = false
-                volQueryProc.running = true
+                if (data.includes("sink")) {
+                    volQueryProc.running = false
+                    volQueryProc.running = true
+                }
             }
         }
     }
@@ -366,7 +370,16 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.toggleSidePanel()
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        root.toggleSidePanel()
+                    } else {
+                        let pos = mapToItem(null, 0, 0)
+                        let cx = pos.x + width / 2
+                        root.openMediaPopup(cx, pos.y)
+                    }
+                }
             }
         }
     }
@@ -560,6 +573,116 @@ Item {
         }
     }
 
+    // ================= МОДУЛЬ МЕДИАПЛЕЕРА (ГОРИЗОНТАЛЬНЫЙ) =================
+    Component {
+        id: modMedia
+        Item {
+            id: mediaModuleRoot
+
+            readonly property var players: Mpris.players.values || []
+            readonly property var activePlayer: {
+                if (!players || players.length === 0) return null
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i].isPlaying) return players[i]
+                }
+                return players[0]
+            }
+
+            readonly property bool hasMedia: activePlayer !== null && (activePlayer.trackTitle !== "" || activePlayer.isPlaying)
+            readonly property bool isPlaying: activePlayer !== null && activePlayer.isPlaying
+
+            readonly property string trackTitle: activePlayer ? (activePlayer.trackTitle || "Без названия") : "Плеер"
+            readonly property string trackArtist: activePlayer ? (activePlayer.trackArtist || (activePlayer.trackArtists ? activePlayer.trackArtists.join(", ") : "")) : ""
+            readonly property string displayText: trackArtist.length > 0 ? (trackArtist + " — " + trackTitle) : trackTitle
+
+            implicitHeight: root.barHeight - 6
+            implicitWidth: hasMedia ? (mediaContentRow.implicitWidth + 8) : 26
+
+            Rectangle {
+                anchors.fill: parent
+                radius: parent.height / 2
+                color: mediaMouseArea.containsMouse ? root.cfg.accentContainer : "transparent"
+                Behavior on color { ColorAnimation { duration: 120 } }
+
+                RowLayout {
+                    id: mediaContentRow
+                    anchors.centerIn: parent
+                    spacing: 6
+
+                    Text {
+                        text: mediaModuleRoot.isPlaying ? "󰎆" : "󰏤"
+                        color: mediaModuleRoot.isPlaying ? root.cfg.accent : root.cfg.textMuted
+                        font.pixelSize: root.iconSize
+                        font.bold: true
+                    }
+
+                    Text {
+                        visible: mediaModuleRoot.hasMedia
+                        text: mediaModuleRoot.displayText
+                        color: root.cfg.textPrimary
+                        font.pixelSize: root.fontSizePrimary - 1
+                        font.bold: true
+                        font.family: root.cfg.fontFamily
+                        elide: Text.ElideRight
+                        Layout.maximumWidth: 160
+                    }
+
+                    RowLayout {
+                        visible: mediaModuleRoot.hasMedia && mediaMouseArea.containsMouse
+                        spacing: 2
+
+                        Rectangle {
+                            width: 20; height: 20; radius: 10
+                            color: prevM.containsMouse ? root.cfg.accent : "transparent"
+                            Text { anchors.centerIn: parent; text: "󰒮"; color: prevM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 11 }
+                            MouseArea {
+                                id: prevM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                onClicked: { if (mediaModuleRoot.activePlayer) mediaModuleRoot.activePlayer.previous() }
+                            }
+                        }
+
+                        Rectangle {
+                            width: 20; height: 20; radius: 10
+                            color: ppM.containsMouse ? root.cfg.accent : "transparent"
+                            Text { anchors.centerIn: parent; text: mediaModuleRoot.isPlaying ? "󰏤" : "󰐊"; color: ppM.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 11 }
+                            MouseArea {
+                                id: ppM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                onClicked: { if (mediaModuleRoot.activePlayer) mediaModuleRoot.activePlayer.togglePlaying() }
+                            }
+                        }
+
+                        Rectangle {
+                            width: 20; height: 20; radius: 10
+                            color: nextM.containsMouse ? root.cfg.accent : "transparent"
+                            Text { anchors.centerIn: parent; text: "󰒭"; color: nextM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 11 }
+                            MouseArea {
+                                id: nextM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                onClicked: { if (mediaModuleRoot.activePlayer) mediaModuleRoot.activePlayer.next() }
+                            }
+                        }
+                    }
+                }
+
+                MouseArea {
+                    id: mediaMouseArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+                    onClicked: mouse => {
+                        if (mouse.button === Qt.MiddleButton) {
+                            if (mediaModuleRoot.activePlayer) mediaModuleRoot.activePlayer.togglePlaying()
+                        } else {
+                            let pos = mediaModuleRoot.mapToItem(null, 0, 0)
+                            let cx = pos.x + mediaModuleRoot.width / 2
+                            root.openMediaPopup(cx, pos.y)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     function getHorizontalModule(id) {
         if (id === "launcher") return modLauncher
         if (id === "workspaces") return modWorkspaces
@@ -572,6 +695,7 @@ Item {
         if (id === "bt") return modBt
         if (id === "lang") return modLang
         if (id === "vol") return modVol
+        if (id === "media") return modMedia
         if (id === "tray") return modTray
         return null
     }
@@ -632,7 +756,16 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
-                onClicked: root.toggleSidePanel()
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        root.toggleSidePanel()
+                    } else {
+                        let pos = mapToItem(null, 0, 0)
+                        let cx = pos.x + width / 2
+                        root.openMediaPopup(cx, pos.y)
+                    }
+                }
             }
             ColumnLayout {
                 id: vClockCol
@@ -831,6 +964,52 @@ Item {
         }
     }
 
+    // ================= МОДУЛЬ МЕДИАПЛЕЕРА (ВЕРТИКАЛЬНЫЙ) =================
+    Component {
+        id: vModMedia
+        Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            width: root.iconSize + 8
+            height: width
+            radius: width / 2
+
+            readonly property var players: Mpris.players.values || []
+            readonly property var activePlayer: {
+                if (!players || players.length === 0) return null
+                for (let i = 0; i < players.length; i++) {
+                    if (players[i].isPlaying) return players[i]
+                }
+                return players[0]
+            }
+            readonly property bool isPlaying: activePlayer !== null && activePlayer.isPlaying
+
+            color: vlMediaMouse.containsMouse ? root.cfg.accentContainer : "transparent"
+            Text {
+                anchors.centerIn: parent
+                text: parent.isPlaying ? "󰎆" : "󰏤"
+                color: parent.isPlaying ? root.cfg.accent : root.cfg.textMuted
+                font.pixelSize: root.iconSize + 2
+                font.bold: true
+            }
+            MouseArea {
+                id: vlMediaMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.MiddleButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.MiddleButton) {
+                        if (parent.activePlayer) parent.activePlayer.togglePlaying()
+                    } else {
+                        let pos = mapToItem(null, 0, 0)
+                        let cy = pos.y + height / 2
+                        root.openMediaPopup(pos.x, cy)
+                    }
+                }
+            }
+        }
+    }
+
     function getVerticalModule(id) {
         if (id === "launcher") return vModLauncher
         if (id === "workspaces") return vModWorkspaces
@@ -843,6 +1022,7 @@ Item {
         if (id === "bt") return vModBt
         if (id === "lang") return vModLang
         if (id === "vol") return vModVol
+        if (id === "media") return vModMedia
         if (id === "tray") return vModTray
         return null
     }
@@ -982,9 +1162,15 @@ Item {
         anchors.bottom: (root.cfg.barStyle === "attached" && root.cfg.barPosition === "bottom" && !root.isVertical) ? parent.bottom : undefined
         anchors.verticalCenter: (root.cfg.barStyle !== "attached" || root.isVertical) ? parent.verticalCenter : undefined
 
-        color: root.cfg.barStyle === "bubbles" ? "transparent" : Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
-        border.color: root.cfg.barStyle === "bubbles" ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity)
-        border.width: root.cfg.barStyle === "bubbles" ? 0 : 1
+        // В режиме attached фон и окантовку рисует цельный Shape (attachedBarShape ниже)
+        color: (root.cfg.barStyle === "attached" && !root.isVertical) ? "transparent"
+             : (root.cfg.barStyle === "bubbles") ? "transparent"
+             : Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
+        border.color: (root.cfg.barStyle === "attached" && !root.isVertical) ? "transparent"
+                    : (root.cfg.barStyle === "bubbles" || root.cfg.barBorder === false) ? "transparent"
+                    : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity)
+        border.width: (root.cfg.barStyle === "attached" && !root.isVertical) ? 0
+                    : (root.cfg.barStyle === "bubbles" || root.cfg.barBorder === false) ? 0 : 1
 
         // ================= 1. ГОРИЗОНТАЛЬНЫЙ РЕЖИМ (Сверху / Снизу) =================
         Item {
@@ -1314,6 +1500,109 @@ Item {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    // ================= ЕДИНЫЙ ЦЕЛЬНЫЙ КОНТУР БАРА С ПЛАВНЫМ ПЕРЕХОДОМ (ATTACHED) =================
+    // Рисует единый замкнутый контур бара со скруглениями основания у границы экрана,
+    // без отдельных накладных элементов, с единой непрерывной окантовкой.
+    Shape {
+        id: attachedBarShape
+        visible: root.cfg.barStyle === "attached" && !root.isVertical
+        z: -1
+
+        readonly property bool isBottom: root.cfg.barPosition === "bottom"
+        readonly property real filletRadius: 16
+        readonly property real barRad: root.barRadius
+
+        width: mainCapsule.width + filletRadius * 2
+        height: mainCapsule.height
+
+        anchors.horizontalCenter: mainCapsule.horizontalCenter
+        anchors.top: !isBottom ? mainCapsule.top : undefined
+        anchors.bottom: isBottom ? mainCapsule.bottom : undefined
+
+        ShapePath {
+            id: attachedPath
+            strokeColor: (root.cfg.barBorder === false) ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity)
+            strokeWidth: (root.cfg.barBorder === false) ? 0 : 1
+            fillColor: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
+            capStyle: ShapePath.RoundCap
+            joinStyle: ShapePath.RoundJoin
+
+            readonly property real totalW: attachedBarShape.width
+            readonly property real totalH: attachedBarShape.height
+            readonly property real fR: attachedBarShape.filletRadius
+            readonly property real bR: attachedBarShape.barRad
+            readonly property bool btm: attachedBarShape.isBottom
+
+            // ── ВЕРХНЯЯ СТОРОНА ЭКРАНА (!isBottom) ──
+            startX: 0
+            startY: btm ? totalH : 0
+
+            // 1. Верхний/нижний край вдоль экрана
+            PathLine {
+                x: attachedPath.totalW
+                y: attachedPath.btm ? attachedPath.totalH : 0
+            }
+
+            // 2. Правый переход у экрана (вогнутая дуга)
+            PathArc {
+                x: attachedPath.totalW - attachedPath.fR
+                y: attachedPath.btm ? attachedPath.totalH - attachedPath.fR : attachedPath.fR
+                radiusX: attachedPath.fR
+                radiusY: attachedPath.fR
+                direction: attachedPath.btm ? PathArc.Clockwise : PathArc.Counterclockwise
+                useLargeArc: false
+            }
+
+            // 3. Правая вертикальная грань бара к нижнему углу
+            PathLine {
+                x: attachedPath.totalW - attachedPath.fR
+                y: attachedPath.btm ? attachedPath.bR : attachedPath.totalH - attachedPath.bR
+            }
+
+            // 4. Правый угол бара (выпуклая дуга)
+            PathArc {
+                x: attachedPath.totalW - attachedPath.fR - attachedPath.bR
+                y: attachedPath.btm ? 0 : attachedPath.totalH
+                radiusX: attachedPath.bR
+                radiusY: attachedPath.bR
+                direction: attachedPath.btm ? PathArc.Counterclockwise : PathArc.Clockwise
+                useLargeArc: false
+            }
+
+            // 5. Нижний край бара
+            PathLine {
+                x: attachedPath.fR + attachedPath.bR
+                y: attachedPath.btm ? 0 : attachedPath.totalH
+            }
+
+            // 6. Левый угол бара (выпуклая дуга)
+            PathArc {
+                x: attachedPath.fR
+                y: attachedPath.btm ? attachedPath.bR : attachedPath.totalH - attachedPath.bR
+                radiusX: attachedPath.bR
+                radiusY: attachedPath.bR
+                direction: attachedPath.btm ? PathArc.Counterclockwise : PathArc.Clockwise
+                useLargeArc: false
+            }
+
+            // 7. Левая вертикальная грань бара к основанию экрана
+            PathLine {
+                x: attachedPath.fR
+                y: attachedPath.btm ? attachedPath.totalH - attachedPath.fR : attachedPath.fR
+            }
+
+            // 8. Левый переход у экрана (вогнутая дуга, замыкающая в начало)
+            PathArc {
+                x: 0
+                y: attachedPath.btm ? attachedPath.totalH : 0
+                radiusX: attachedPath.fR
+                radiusY: attachedPath.fR
+                direction: attachedPath.btm ? PathArc.Clockwise : PathArc.Counterclockwise
+                useLargeArc: false
             }
         }
     }

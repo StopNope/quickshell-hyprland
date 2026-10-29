@@ -724,18 +724,18 @@ Rectangle {
                                     }
                                 }
 
-                                // Зеркальное отражение сторон
+                                // Окантовка бара
                                 M3SettingsRow {
-                                    icon: "󰤹"
-                                    title: "Поменять стороны местами"
-                                    subtitle: "Зеркально отобразить левую и правую зоны бара"
+                                    icon: "󰄲"
+                                    title: "Окантовка бара"
+                                    subtitle: "Тонкая линия границы вокруг формы бара"
 
                                     M3Switch {
-                                        checked: root.cfg.swapBarSides
+                                        checked: root.cfg.barBorder !== false
                                         activeTrackColor: root.cfg.accent
                                         activeThumbColor: root.cfg.accentText
                                         onToggled: val => {
-                                            root.cfg.swapBarSides = val
+                                            root.cfg.barBorder = val
                                             root.cfg.save()
                                         }
                                     }
