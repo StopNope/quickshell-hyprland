@@ -15,8 +15,10 @@ Item {
     signal toggleMenu(string tab)
     signal toggleSidePanel()
     signal openMediaPopup(real globalX, real globalY)
+    signal openTimerPopup(real globalX, real globalY)
     signal triggerOsd(string type, string icon, string title, int val)
     signal openTrayMenu(var item, real globalX, real globalY)
+    property var timerState: null
 
     // ================= ДИНАМИЧЕСКИЙ СПИСОК ВОРКСПЕЙСОВ =================
     // Храним стабильный currentWorkspaceId, чтобы пилюля не исчезала при переходе на пустые столы
@@ -324,26 +326,45 @@ Item {
 
     Component {
         id: modWorkspaces
-        RowLayout {
-            spacing: 6
-            Repeater {
-                model: root.activeWorkspaces
-                Rectangle {
-                    id: dot
-                    required property int modelData
-                    readonly property bool isActive: dot.modelData === root.currentWorkspaceId
-                    Layout.preferredHeight: root.dotHeight
-                    Layout.preferredWidth: isActive ? root.dotActiveWidth : root.dotHeight
-                    radius: root.dotHeight / 2
-                    color: isActive ? root.cfg.accent : (wsMouse.containsMouse ? root.cfg.accentContainer : "#545766")
-                    Behavior on Layout.preferredWidth { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    MouseArea {
-                        id: wsMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.switchToWorkspace(dot.modelData)
+        Item {
+            implicitWidth: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? pacmanWs.implicitWidth : dotRow.implicitWidth
+            implicitHeight: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? pacmanWs.implicitHeight : 24
+
+            PacmanWorkspaces {
+                id: pacmanWs
+                visible: root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman"
+                anchors.centerIn: parent
+                cfg: root.cfg
+                activeWorkspaces: root.activeWorkspaces
+                currentWorkspaceId: root.currentWorkspaceId
+                isVertical: false
+                onWorkspaceSelected: wsId => root.switchToWorkspace(wsId)
+            }
+
+            RowLayout {
+                id: dotRow
+                visible: root.cfg.workspaceStyle !== "arcade" && root.cfg.workspaceStyle !== "pacman"
+                anchors.centerIn: parent
+                spacing: 6
+                Repeater {
+                    model: root.activeWorkspaces
+                    Rectangle {
+                        id: dot
+                        required property int modelData
+                        readonly property bool isActive: dot.modelData === root.currentWorkspaceId
+                        Layout.preferredHeight: root.dotHeight
+                        Layout.preferredWidth: isActive ? root.dotActiveWidth : root.dotHeight
+                        radius: root.dotHeight / 2
+                        color: isActive ? root.cfg.accent : (wsMouse.containsMouse ? root.cfg.accentContainer : "#545766")
+                        Behavior on Layout.preferredWidth { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                        MouseArea {
+                            id: wsMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.switchToWorkspace(dot.modelData)
+                        }
                     }
                 }
             }
@@ -400,6 +421,46 @@ Item {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
                 onClicked: weatherProc.running = true
+            }
+        }
+    }
+
+    Component {
+        id: modTimer
+        Item {
+            implicitWidth: timerRow.implicitWidth + 12
+            implicitHeight: 24
+
+            Row {
+                id: timerRow
+                anchors.centerIn: parent
+                spacing: 5
+                Text {
+                    text: root.timerState ? root.timerState.modeIcon : "󰄉"
+                    color: (root.timerState && root.timerState.isRunning) ? root.cfg.accent : root.cfg.textMuted
+                    font.pixelSize: root.fontSizePrimary
+                }
+                Text {
+                    text: root.timerState ? root.timerState.formatTime(root.timerState.remainingSec) : "25:00"
+                    color: (root.timerState && root.timerState.isRunning) ? root.cfg.textPrimary : root.cfg.textMuted
+                    font.pixelSize: root.fontSizePrimary
+                    font.bold: true
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        if (root.timerState) root.timerState.toggle()
+                    } else {
+                        let pos = mapToItem(null, 0, 0)
+                        let cx = pos.x + width / 2
+                        root.openTimerPopup(cx, pos.y)
+                    }
+                }
             }
         }
     }
@@ -688,6 +749,7 @@ Item {
         if (id === "workspaces") return modWorkspaces
         if (id === "clock") return modClock
         if (id === "weather") return modWeather
+        if (id === "timer") return modTimer
         if (id === "cpu") return modCpu
         if (id === "ram") return modRam
         if (id === "gpu") return modGpu
@@ -719,28 +781,47 @@ Item {
 
     Component {
         id: vModWorkspaces
-        ColumnLayout {
+        Item {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 5
-            Repeater {
-                model: root.activeWorkspaces
-                Rectangle {
-                    id: vDot
-                    required property int modelData
-                    readonly property bool isActive: vDot.modelData === root.currentWorkspaceId
-                    Layout.alignment: Qt.AlignHCenter
-                    Layout.preferredWidth: root.dotHeight
-                    Layout.preferredHeight: isActive ? root.dotActiveWidth : root.dotHeight
-                    radius: root.dotHeight / 2
-                    color: isActive ? root.cfg.accent : (vWsMouse.containsMouse ? root.cfg.accentContainer : "#545766")
-                    Behavior on Layout.preferredHeight { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                    Behavior on color { ColorAnimation { duration: 150 } }
-                    MouseArea {
-                        id: vWsMouse
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: root.switchToWorkspace(vDot.modelData)
+            implicitWidth: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? vPacmanWs.implicitWidth : 38
+            implicitHeight: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? vPacmanWs.implicitHeight : vDotCol.implicitHeight
+
+            PacmanWorkspaces {
+                id: vPacmanWs
+                visible: root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman"
+                anchors.centerIn: parent
+                cfg: root.cfg
+                activeWorkspaces: root.activeWorkspaces
+                currentWorkspaceId: root.currentWorkspaceId
+                isVertical: true
+                onWorkspaceSelected: wsId => root.switchToWorkspace(wsId)
+            }
+
+            ColumnLayout {
+                id: vDotCol
+                visible: root.cfg.workspaceStyle !== "arcade" && root.cfg.workspaceStyle !== "pacman"
+                Layout.alignment: Qt.AlignHCenter
+                spacing: 5
+                Repeater {
+                    model: root.activeWorkspaces
+                    Rectangle {
+                        id: vDot
+                        required property int modelData
+                        readonly property bool isActive: vDot.modelData === root.currentWorkspaceId
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.preferredWidth: root.dotHeight
+                        Layout.preferredHeight: isActive ? root.dotActiveWidth : root.dotHeight
+                        radius: root.dotHeight / 2
+                        color: isActive ? root.cfg.accent : (vWsMouse.containsMouse ? root.cfg.accentContainer : "#545766")
+                        Behavior on Layout.preferredHeight { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+                        Behavior on color { ColorAnimation { duration: 150 } }
+                        MouseArea {
+                            id: vWsMouse
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: root.switchToWorkspace(vDot.modelData)
+                        }
                     }
                 }
             }
@@ -1010,11 +1091,44 @@ Item {
         }
     }
 
+    Component {
+        id: vModTimer
+        Rectangle {
+            Layout.alignment: Qt.AlignHCenter
+            width: root.iconSize + 8
+            height: width
+            radius: width / 2
+            color: vTimerMouse.containsMouse ? root.cfg.accentContainer : "transparent"
+            Text {
+                anchors.centerIn: parent
+                text: root.timerState ? root.timerState.modeIcon : "󰄉"
+                color: (root.timerState && root.timerState.isRunning) ? root.cfg.accent : root.cfg.textMuted
+                font.pixelSize: root.iconSize + 1
+            }
+            MouseArea {
+                id: vTimerMouse
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                onClicked: mouse => {
+                    if (mouse.button === Qt.RightButton) {
+                        if (root.timerState) root.timerState.toggle()
+                    } else {
+                        let pos = mapToItem(null, 0, 0)
+                        let cy = pos.y + height / 2
+                        root.openTimerPopup(pos.x, cy)
+                    }
+                }
+            }
+        }
+    }
+
     function getVerticalModule(id) {
         if (id === "launcher") return vModLauncher
         if (id === "workspaces") return vModWorkspaces
         if (id === "clock") return vModClock
         if (id === "weather") return vModWeather
+        if (id === "timer") return vModTimer
         if (id === "cpu") return vModCpu
         if (id === "ram") return vModRam
         if (id === "gpu") return vModGpu
@@ -1513,8 +1627,11 @@ Item {
         z: -1
 
         readonly property bool isBottom: root.cfg.barPosition === "bottom"
-        readonly property real filletRadius: 16
-        readonly property real barRad: root.barRadius
+        readonly property real totalW: width
+        readonly property real totalH: height
+        readonly property real maxCornerR: Math.min(root.barRadius, totalH * 0.48)
+        readonly property real barRad: Math.max(0, maxCornerR)
+        readonly property real filletRadius: Math.min(14, Math.max(8, totalH - barRad - 1))
 
         width: mainCapsule.width + filletRadius * 2
         height: mainCapsule.height
@@ -1531,77 +1648,70 @@ Item {
             capStyle: ShapePath.RoundCap
             joinStyle: ShapePath.RoundJoin
 
-            readonly property real totalW: attachedBarShape.width
-            readonly property real totalH: attachedBarShape.height
-            readonly property real fR: attachedBarShape.filletRadius
-            readonly property real bR: attachedBarShape.barRad
-            readonly property bool btm: attachedBarShape.isBottom
-
-            // ── ВЕРХНЯЯ СТОРОНА ЭКРАНА (!isBottom) ──
             startX: 0
-            startY: btm ? totalH : 0
+            startY: attachedBarShape.isBottom ? attachedBarShape.totalH : 0
 
             // 1. Верхний/нижний край вдоль экрана
             PathLine {
-                x: attachedPath.totalW
-                y: attachedPath.btm ? attachedPath.totalH : 0
+                x: attachedBarShape.totalW
+                y: attachedBarShape.isBottom ? attachedBarShape.totalH : 0
             }
 
             // 2. Правый переход у экрана (вогнутая дуга)
             PathArc {
-                x: attachedPath.totalW - attachedPath.fR
-                y: attachedPath.btm ? attachedPath.totalH - attachedPath.fR : attachedPath.fR
-                radiusX: attachedPath.fR
-                radiusY: attachedPath.fR
-                direction: attachedPath.btm ? PathArc.Clockwise : PathArc.Counterclockwise
+                x: attachedBarShape.totalW - attachedBarShape.filletRadius
+                y: attachedBarShape.isBottom ? (attachedBarShape.totalH - attachedBarShape.filletRadius) : attachedBarShape.filletRadius
+                radiusX: attachedBarShape.filletRadius
+                radiusY: attachedBarShape.filletRadius
+                direction: attachedBarShape.isBottom ? PathArc.Clockwise : PathArc.Counterclockwise
                 useLargeArc: false
             }
 
-            // 3. Правая вертикальная грань бара к нижнему углу
+            // 3. Правая вертикальная грань бара к углу
             PathLine {
-                x: attachedPath.totalW - attachedPath.fR
-                y: attachedPath.btm ? attachedPath.bR : attachedPath.totalH - attachedPath.bR
+                x: attachedBarShape.totalW - attachedBarShape.filletRadius
+                y: attachedBarShape.isBottom ? attachedBarShape.barRad : (attachedBarShape.totalH - attachedBarShape.barRad)
             }
 
-            // 4. Правый угол бара (выпуклая дуга)
+            // 4. Правый выпуклый угол бара
             PathArc {
-                x: attachedPath.totalW - attachedPath.fR - attachedPath.bR
-                y: attachedPath.btm ? 0 : attachedPath.totalH
-                radiusX: attachedPath.bR
-                radiusY: attachedPath.bR
-                direction: attachedPath.btm ? PathArc.Counterclockwise : PathArc.Clockwise
+                x: attachedBarShape.totalW - attachedBarShape.filletRadius - attachedBarShape.barRad
+                y: attachedBarShape.isBottom ? 0 : attachedBarShape.totalH
+                radiusX: Math.max(0.1, attachedBarShape.barRad)
+                radiusY: Math.max(0.1, attachedBarShape.barRad)
+                direction: attachedBarShape.isBottom ? PathArc.Counterclockwise : PathArc.Clockwise
                 useLargeArc: false
             }
 
-            // 5. Нижний край бара
+            // 5. Внешний край бара
             PathLine {
-                x: attachedPath.fR + attachedPath.bR
-                y: attachedPath.btm ? 0 : attachedPath.totalH
+                x: attachedBarShape.filletRadius + attachedBarShape.barRad
+                y: attachedBarShape.isBottom ? 0 : attachedBarShape.totalH
             }
 
-            // 6. Левый угол бара (выпуклая дуга)
+            // 6. Левый выпуклый угол бара
             PathArc {
-                x: attachedPath.fR
-                y: attachedPath.btm ? attachedPath.bR : attachedPath.totalH - attachedPath.bR
-                radiusX: attachedPath.bR
-                radiusY: attachedPath.bR
-                direction: attachedPath.btm ? PathArc.Counterclockwise : PathArc.Clockwise
+                x: attachedBarShape.filletRadius
+                y: attachedBarShape.isBottom ? attachedBarShape.barRad : (attachedBarShape.totalH - attachedBarShape.barRad)
+                radiusX: Math.max(0.1, attachedBarShape.barRad)
+                radiusY: Math.max(0.1, attachedBarShape.barRad)
+                direction: attachedBarShape.isBottom ? PathArc.Counterclockwise : PathArc.Clockwise
                 useLargeArc: false
             }
 
             // 7. Левая вертикальная грань бара к основанию экрана
             PathLine {
-                x: attachedPath.fR
-                y: attachedPath.btm ? attachedPath.totalH - attachedPath.fR : attachedPath.fR
+                x: attachedBarShape.filletRadius
+                y: attachedBarShape.isBottom ? (attachedBarShape.totalH - attachedBarShape.filletRadius) : attachedBarShape.filletRadius
             }
 
             // 8. Левый переход у экрана (вогнутая дуга, замыкающая в начало)
             PathArc {
                 x: 0
-                y: attachedPath.btm ? attachedPath.totalH : 0
-                radiusX: attachedPath.fR
-                radiusY: attachedPath.fR
-                direction: attachedPath.btm ? PathArc.Clockwise : PathArc.Counterclockwise
+                y: attachedBarShape.isBottom ? attachedBarShape.totalH : 0
+                radiusX: attachedBarShape.filletRadius
+                radiusY: attachedBarShape.filletRadius
+                direction: attachedBarShape.isBottom ? PathArc.Clockwise : PathArc.Counterclockwise
                 useLargeArc: false
             }
         }

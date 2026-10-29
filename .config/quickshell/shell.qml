@@ -167,6 +167,8 @@ ShellRoot {
                     if (settingsOverlay.visible) settingsView.scrollContent(y)
                 } else if (cmd === "toggle_media" || cmd === "toggle_media_dropdown" || cmd === "toggle_media_center") {
                     mediaPopoutWindow.toggle(0, 0)
+                } else if (cmd === "toggle_timer" || cmd === "toggle_pomodoro") {
+                    timerPopoutWindow.toggle(0, 0)
                 } else if (cmd === "toggle_side") {
                     if (sideWindow.visible) sideWindow.closePanel()
                     else sideWindow.openPanel()
@@ -296,8 +298,8 @@ ShellRoot {
             right: appConfig.barPosition === "right" ? 10 : 0
         }
 
-        // Высота/ширина окна бара
-        implicitHeight: isVert ? appConfig.barVerticalHeight : appConfig.barHeight
+        // Высота/ширина окна бара (для attached даем +2px запаса, чтобы скругление не обрезалось границей окна)
+        implicitHeight: isVert ? appConfig.barVerticalHeight : (appConfig.barStyle === "attached" ? appConfig.barHeight + 2 : appConfig.barHeight)
         implicitWidth: isVert ? Math.max(38, appConfig.barHeight) : 1920
 
         // Зазор над баром и под баром строго равны (по 10px, учитывая gaps_out Hyprland)
@@ -319,6 +321,8 @@ ShellRoot {
             onTriggerOsd: (type, icon, title, val) => osdPopup.trigger(type, icon, title, val)
             onOpenTrayMenu: (item, gx, gy) => trayMenuWindow.open(item, gx, gy)
             onOpenMediaPopup: (gx, gy) => mediaPopoutWindow.toggle(gx, gy)
+            timerState: focusTimerService
+            onOpenTimerPopup: (gx, gy) => timerPopoutWindow.toggle(gx, gy)
         }
     }
 
@@ -596,6 +600,77 @@ ShellRoot {
         active: mediaPopoutWindow.visible
         windows: [mediaPopoutWindow]
         onCleared: mediaPopoutWindow.close()
+    }
+
+    // ==========================================
+    // 4.3 СЕРВИС И ВЫПАДАЮЩИЙ ТАЙМЕР ПОМОДОРО (TimerPopout)
+    // ==========================================
+    FocusTimer {
+        id: focusTimerService
+        cfg: appConfig
+    }
+
+    PanelWindow {
+        id: timerPopoutWindow
+
+        color: "transparent"
+        visible: false
+        WlrLayershell.namespace: "quickshell"
+        WlrLayershell.layer: WlrLayer.Overlay
+        exclusionMode: ExclusionMode.Ignore
+
+        anchors {
+            top: true
+            bottom: true
+            left: true
+            right: true
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: timerPopoutWindow.close()
+        }
+
+        function toggle(gx, gy) {
+            if (visible && timerPopout.isOpen) {
+                close()
+            } else {
+                open(gx, gy)
+            }
+        }
+
+        function open(gx, gy) {
+            visible = true
+            timerPopout.isOpen = true
+        }
+
+        function close() {
+            timerPopout.isOpen = false
+            timerCloseTimer.start()
+        }
+
+        Timer {
+            id: timerCloseTimer
+            interval: 320
+            onTriggered: timerPopoutWindow.visible = false
+        }
+
+        TimerPopout {
+            id: timerPopout
+            cfg: appConfig
+            timerState: focusTimerService
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: (appConfig.barPosition === "bottom")
+               ? (parent.height - appConfig.barHeight - timerPopout.height)
+               : (appConfig.barStyle === "attached" ? appConfig.barHeight : (10 + appConfig.barHeight))
+            onCloseRequested: timerPopoutWindow.close()
+        }
+    }
+
+    HyprlandFocusGrab {
+        active: timerPopoutWindow.visible
+        windows: [timerPopoutWindow]
+        onCleared: timerPopoutWindow.close()
     }
 
     // ==========================================

@@ -27,6 +27,7 @@ QtObject {
 
     // ================= 2. МОДУЛИ И МОДУЛЬНЫЙ КОНСТРУКТОР БАРА =================
     property bool showWorkspaces: true
+    property string workspaceStyle: "arcade" // "arcade" | "dots" (pacman legacy alias supported)
     property bool showCpu: true
     property bool showRam: true
     property bool showGpu: true
@@ -39,7 +40,7 @@ QtObject {
     property bool showTray: true
 
     property var barModulesLeft: ["workspaces"]
-    property var barModulesCenter: ["clock", "weather"]
+    property var barModulesCenter: ["clock", "weather", "timer"]
     property var barModulesRight: ["cpu", "ram", "gpu", "net", "bt", "lang", "tray"]
 
     readonly property var allBarModules: [
@@ -47,6 +48,7 @@ QtObject {
         { id: "workspaces", name: "Воркспейсы", icon: "󰄯" },
         { id: "clock", name: "Часы", icon: "󰥔" },
         { id: "weather", name: "Погода", icon: "󰖐" },
+        { id: "timer", name: "Помодоро Таймер", icon: "󰄉" },
         { id: "cpu", name: "Процессор (CPU)", icon: "󰍛" },
         { id: "ram", name: "Память (RAM)", icon: "󰘚" },
         { id: "gpu", name: "Видеокарта (GPU)", icon: "󰢮" },
@@ -848,6 +850,7 @@ QtObject {
             barHeight: root.barHeight,
             barRadius: root.barRadius,
             barVerticalHeight: root.barVerticalHeight,
+            workspaceStyle: root.workspaceStyle,
             showWorkspaces: root.showWorkspaces,
             showCpu: root.showCpu,
             showRam: root.showRam,
@@ -927,6 +930,7 @@ QtObject {
         if (d.barBubbleSpacing !== undefined) root.barBubbleSpacing = d.barBubbleSpacing
         if (d.barModuleRadius !== undefined) root.barModuleRadius = d.barModuleRadius
         if (d.barDragReorder !== undefined) root.barDragReorder = d.barDragReorder
+        if (d.workspaceStyle !== undefined) root.workspaceStyle = (d.workspaceStyle === "pacman") ? "arcade" : d.workspaceStyle
         if (d.showWorkspaces !== undefined) root.showWorkspaces = d.showWorkspaces
         if (d.showCpu !== undefined) root.showCpu = d.showCpu
         if (d.showRam !== undefined) root.showRam = d.showRam

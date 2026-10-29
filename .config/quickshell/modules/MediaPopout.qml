@@ -26,7 +26,10 @@ Item {
     readonly property real cardW: 520
     readonly property real fR: 24           // Плавный радиус сопряжения (fillet) с кромкой бара
     readonly property real bR: 28           // Радиус нижних углов медиацентра
-    readonly property real targetH: 236      // Полная высота раскрытого меню
+    property string activeTab: "player"     // "player" | "lyrics"
+    property string visMode: "bars"         // "bars" | "wave" | "off"
+    property real targetH: (activeTab === "lyrics") ? 360 : 236      // Адаптивная высота под режим текста
+    Behavior on targetH { NumberAnimation { duration: 260; easing.type: Easing.OutCubic } }
     readonly property real totalW: isAttached ? (cardW + 2 * fR) : cardW
 
     implicitWidth: totalW
@@ -165,11 +168,80 @@ Item {
         }
     }
 
-    onTrackTitleChanged: checkArt()
-    onTrackArtistChanged: checkArt()
+    // ── СИНХРОНИЗИРОВАННЫЙ ТЕКСТ ПЕСЕН (LRCLIB) ──
+    property var lyricsList: []
+    property bool lyricsFound: false
+    property bool lyricsLoading: false
+
+    Process {
+        id: lyricsProc
+        running: false
+        command: ["/home/stopnope/.config/quickshell/scripts/lyrics_fetcher.py", root.trackArtist, root.trackTitle, String(root.trackLen)]
+        stdout: SplitParser {
+            splitMarker: "\n"
+            onRead: data => {
+                root.lyricsLoading = false
+                let trimmed = data.trim()
+                if (!trimmed) return
+                try {
+                    let parsed = JSON.parse(trimmed)
+                    if (parsed && parsed.found && parsed.lines && parsed.lines.length > 0) {
+                        root.lyricsList = parsed.lines
+                        root.lyricsFound = true
+                    } else {
+                        root.lyricsList = []
+                        root.lyricsFound = false
+                    }
+                } catch (e) {
+                    root.lyricsList = []
+                    root.lyricsFound = false
+                }
+            }
+        }
+    }
+
+    function checkLyrics() {
+        if (root.hasMedia && root.trackTitle && root.trackTitle !== "Музыка не играет") {
+            root.lyricsLoading = true
+            lyricsProc.running = false
+            lyricsProc.running = true
+        } else {
+            root.lyricsList = []
+            root.lyricsFound = false
+            root.lyricsLoading = false
+        }
+    }
+
+    readonly property int activeLyricIndex: {
+        if (!lyricsFound || !lyricsList || lyricsList.length === 0) return -1
+        let pos = root.smoothPos
+        let cur = -1
+        for (let i = 0; i < lyricsList.length; i++) {
+            if (pos >= lyricsList[i].time) {
+                cur = i
+            } else {
+                break
+            }
+        }
+        return cur
+    }
+
+    onTrackTitleChanged: {
+        checkArt()
+        if (root.activeTab === "lyrics") checkLyrics()
+        else {
+            root.lyricsFound = false
+            root.lyricsList = []
+        }
+    }
+    onTrackArtistChanged: {
+        checkArt()
+        if (root.activeTab === "lyrics") checkLyrics()
+    }
     onIsOpenChanged: {
         if (isOpen) {
             checkArt()
+            if (activeTab === "lyrics") checkLyrics()
             if (player) {
                 root.localPos = player.position
                 root.smoothPos = player.position
@@ -519,12 +591,13 @@ Item {
                 width: 32 * 8 + 31 * 6 // 442px
                 height: 95
                 z: 1
-                opacity: root.isPlaying ? 0.85 : 0.20
+                opacity: (root.activeTab === "lyrics") ? 0.0 : (root.isPlaying ? 0.85 : 0.20)
                 Behavior on opacity { NumberAnimation { duration: 250 } }
 
                 Row {
                     anchors.fill: parent
                     spacing: 6
+                    visible: root.visMode === "bars"
 
                     Repeater {
                         model: 32
@@ -557,6 +630,57 @@ Item {
                                 }
                             }
                         }
+                    }
+                }
+
+                // 2. Жидкая Волна CAVA (Fluid Wave Visualizer)
+                Canvas {
+                    id: fluidWaveVis
+                    anchors.fill: parent
+                    visible: root.visMode === "wave"
+
+                    property real wavePhase: 0
+                    NumberAnimation on wavePhase {
+                        running: root.isOpen && root.visMode === "wave" && root.isPlaying
+                        from: 0; to: 2 * Math.PI; duration: 2400; loops: Animation.Infinite
+                    }
+
+                    onPaint: {
+                        let ctx = getContext("2d")
+                        ctx.clearRect(0, 0, width, height)
+                        if (width <= 0 || height <= 0) return
+
+                        let avg = 0
+                        if (root.cavaBars && root.cavaBars.length > 0) {
+                            for (let i = 0; i < 8; i++) avg += (root.cavaBars[i] || 0)
+                            avg = avg / 8.0
+                        }
+                        let amp = Math.max(8, (avg / 100.0) * (height * 0.45))
+
+                        let grad = ctx.createLinearGradient(0, 0, 0, height)
+                        grad.addColorStop(0, Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.45))
+                        grad.addColorStop(1, Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.02))
+
+                        ctx.beginPath()
+                        ctx.moveTo(0, height)
+                        let baseY = height - 10
+                        for (let x = 0; x <= width; x += 6) {
+                            let y = baseY - amp * Math.sin((x / width) * 3 * Math.PI + wavePhase)
+                            ctx.lineTo(x, y)
+                        }
+                        ctx.lineTo(width, height)
+                        ctx.closePath()
+                        ctx.fillStyle = grad
+                        ctx.fill()
+                    }
+
+                    Connections {
+                        target: root
+                        function onCavaBarsChanged() { if (root.visMode === "wave") fluidWaveVis.requestPaint() }
+                    }
+                    Connections {
+                        target: fluidWaveVis
+                        function onWavePhaseChanged() { fluidWaveVis.requestPaint() }
                     }
                 }
             }
@@ -641,7 +765,110 @@ Item {
                         }
                     }
 
+                    // Вкладки: [ 󰎆 Плеер | 󰎈 Текст ]
+                    Row {
+                        spacing: 4
+                        Rectangle {
+                            height: 24
+                            implicitWidth: playerTabRow.implicitWidth + 14
+                            radius: 12
+                            color: root.activeTab === "player" ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.22) : (playerTabM.containsMouse ? (root.cfg.surfaceContainerHighest || "#303440") : "transparent")
+                            border.color: root.activeTab === "player" ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.40) : "transparent"
+                            border.width: 1
+
+                            Row {
+                                id: playerTabRow
+                                anchors.centerIn: parent
+                                spacing: 4
+                                Text {
+                                    text: "󰎆"
+                                    color: root.activeTab === "player" ? root.cfg.accent : root.cfg.textMuted
+                                    font.pixelSize: 11
+                                }
+                                Text {
+                                    text: "Плеер"
+                                    color: root.activeTab === "player" ? root.cfg.textPrimary : root.cfg.textMuted
+                                    font.pixelSize: 10
+                                    font.bold: root.activeTab === "player"
+                                    font.family: root.cfg.fontFamily
+                                }
+                            }
+                            MouseArea {
+                                id: playerTabM
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: root.activeTab = "player"
+                            }
+                        }
+
+                        Rectangle {
+                            height: 24
+                            implicitWidth: lyricsTabRow.implicitWidth + 14
+                            radius: 12
+                            color: root.activeTab === "lyrics" ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.22) : (lyricsTabM.containsMouse ? (root.cfg.surfaceContainerHighest || "#303440") : "transparent")
+                            border.color: root.activeTab === "lyrics" ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.40) : "transparent"
+                            border.width: 1
+
+                            Row {
+                                id: lyricsTabRow
+                                anchors.centerIn: parent
+                                spacing: 4
+                                Text {
+                                    text: "󰎈"
+                                    color: root.activeTab === "lyrics" ? root.cfg.accent : root.cfg.textMuted
+                                    font.pixelSize: 11
+                                }
+                                Text {
+                                    text: "Текст"
+                                    color: root.activeTab === "lyrics" ? root.cfg.textPrimary : root.cfg.textMuted
+                                    font.pixelSize: 10
+                                    font.bold: root.activeTab === "lyrics"
+                                    font.family: root.cfg.fontFamily
+                                }
+                            }
+                            MouseArea {
+                                id: lyricsTabM
+                                anchors.fill: parent
+                                hoverEnabled: true
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    root.activeTab = "lyrics"
+                                    root.checkLyrics()
+                                }
+                            }
+                        }
+                    }
+
                     Item { Layout.fillWidth: true }
+
+                    // Кнопка переключения визуализатора (CAVA Спектр / Волна / Выкл)
+                    Rectangle {
+                        width: 24
+                        height: 24
+                        radius: 12
+                        visible: root.activeTab === "player"
+                        color: visM.containsMouse ? (root.cfg.surfaceContainerHighest || "#303440") : "transparent"
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: root.visMode === "bars" ? "󰐐" : (root.visMode === "wave" ? "󰈲" : "󰐑")
+                            color: root.visMode !== "off" ? root.cfg.accent : root.cfg.textMuted
+                            font.pixelSize: 13
+                        }
+
+                        MouseArea {
+                            id: visM
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            hoverEnabled: true
+                            onClicked: {
+                                if (root.visMode === "bars") root.visMode = "wave"
+                                else if (root.visMode === "wave") root.visMode = "off"
+                                else root.visMode = "bars"
+                            }
+                        }
+                    }
 
                     Rectangle {
                         width: 24
@@ -670,6 +897,7 @@ Item {
                 RowLayout {
                     Layout.fillWidth: true
                     spacing: 16
+                    visible: root.activeTab === "player"
 
                     // Обложка трека (Аппаратный Squircle radius: 18 через MultiEffect)
                     Item {
@@ -812,7 +1040,7 @@ Item {
                                         ctx.lineTo(width, cy)
                                         ctx.stroke()
 
-                                        // 2. Проигранная часть (жидкая волна в стиле Android 14 / Serpantinum)
+                                        // 2. Проигранная часть (жидкая волна в стиле Android 14)
                                         if (px > 0) {
                                             ctx.beginPath()
                                             ctx.strokeStyle = root.cfg.accent
@@ -898,6 +1126,169 @@ Item {
                                     font.pixelSize: 10
                                     font.family: root.cfg.fontFamily
                                 }
+                            }
+                        }
+                    }
+                }
+
+                // ── Б2. РЕЖИМ ТЕКСТА ПЕСНИ (LIVE SYNCED LYRICS - LRCLIB) ──
+                Item {
+                    id: lyricsContainer
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    visible: root.activeTab === "lyrics"
+                    clip: true
+
+                    property bool userScrolling: false
+
+                    Timer {
+                        id: userScrollTimer
+                        interval: 2500
+                        onTriggered: lyricsContainer.userScrolling = false
+                    }
+
+                    // Шапка текста песни
+                    RowLayout {
+                        id: lyricsHeader
+                        anchors.top: parent.top
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        spacing: 8
+                        z: 3
+
+                        Text {
+                            text: root.trackTitle
+                            color: root.cfg.textPrimary
+                            font.pixelSize: 13
+                            font.bold: true
+                            font.family: root.cfg.fontFamily
+                            elide: Text.ElideRight
+                            Layout.fillWidth: true
+                        }
+
+                        Text {
+                            text: root.trackArtist
+                            color: root.cfg.accent
+                            font.pixelSize: 11
+                            font.family: root.cfg.fontFamily
+                            elide: Text.ElideRight
+                        }
+                    }
+
+                    // Состояние поиска
+                    ColumnLayout {
+                        anchors.centerIn: parent
+                        spacing: 8
+                        visible: !root.lyricsFound
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: root.lyricsLoading ? "󰎈" : "󰎊"
+                            color: root.cfg.accent
+                            font.pixelSize: 28
+                            opacity: 0.8
+                            RotationAnimation on rotation {
+                                running: root.lyricsLoading
+                                from: 0; to: 360; duration: 1800; loops: Animation.Infinite
+                            }
+                        }
+
+                        Text {
+                            Layout.alignment: Qt.AlignHCenter
+                            text: {
+                                if (!root.hasMedia || root.trackTitle === "Музыка не играет") return "Музыка не играет"
+                                if (root.lyricsLoading) return "Поиск синхронизированного текста..."
+                                return "Текст для этого трека не найден"
+                            }
+                            color: root.cfg.textMuted
+                            font.pixelSize: 12
+                            font.bold: true
+                            font.family: root.cfg.fontFamily
+                        }
+
+                        Text {
+                            visible: !root.lyricsLoading && root.hasMedia
+                            Layout.alignment: Qt.AlignHCenter
+                            text: root.trackArtist + " — " + root.trackTitle
+                            color: root.cfg.accent
+                            font.pixelSize: 10
+                            font.family: root.cfg.fontFamily
+                            opacity: 0.7
+                        }
+                    }
+
+                    // Список строк синхронизированного текста
+                    ListView {
+                        id: lyricsListView
+                        anchors.top: lyricsHeader.bottom
+                        anchors.topMargin: 8
+                        anchors.bottom: parent.bottom
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        visible: root.lyricsFound && root.lyricsList.length > 0
+                        clip: true
+                        spacing: 12
+                        model: root.lyricsList
+
+                        currentIndex: root.activeLyricIndex
+                        preferredHighlightBegin: height * 0.38
+                        preferredHighlightEnd: height * 0.38
+                        highlightRangeMode: lyricsContainer.userScrolling ? ListView.NoHighlightRange : ListView.ApplyRange
+                        highlightMoveDuration: 280
+
+                        onCurrentIndexChanged: {
+                            if (!lyricsContainer.userScrolling && currentIndex >= 0) {
+                                positionViewAtIndex(currentIndex, ListView.Center)
+                            }
+                        }
+
+                        delegate: Item {
+                            width: lyricsListView.width
+                            height: lyricText.implicitHeight + 8
+
+                            readonly property bool isCurrent: index === root.activeLyricIndex
+                            readonly property bool isPast: index < root.activeLyricIndex
+
+                            Text {
+                                id: lyricText
+                                width: parent.width - 24
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: modelData.text || "♪ ♪ ♪"
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                                font.family: root.cfg.fontFamily
+                                font.pixelSize: isCurrent ? 15 : 12
+                                font.bold: isCurrent
+                                color: isCurrent ? root.cfg.accent : (isPast ? root.cfg.textMuted : root.cfg.textPrimary)
+                                opacity: isCurrent ? 1.0 : (isPast ? 0.38 : 0.65)
+                                scale: isCurrent ? 1.04 : 1.0
+
+                                Behavior on font.pixelSize { NumberAnimation { duration: 180 } }
+                                Behavior on color { ColorAnimation { duration: 200 } }
+                                Behavior on opacity { NumberAnimation { duration: 200 } }
+                                Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutBack } }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (root.player && modelData.time !== undefined) {
+                                        root.smoothPos = modelData.time
+                                        root.localPos = modelData.time
+                                        root.player.position = modelData.time
+                                    }
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            propagateComposedEvents: true
+                            onWheel: wheel => {
+                                lyricsContainer.userScrolling = true
+                                userScrollTimer.restart()
+                                lyricsListView.contentY = Math.max(0, Math.min(lyricsListView.contentHeight - lyricsListView.height, lyricsListView.contentY - wheel.angleDelta.y))
                             }
                         }
                     }

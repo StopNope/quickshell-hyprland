@@ -3,7 +3,7 @@
   "swapBarSides": false,
   "barWidth": 1920,
   "barHeight": 36,
-  "barRadius": 0,
+  "barRadius": 16,
   "barVerticalHeight": 580,
   "barStyle": "classic",
   "barOpacity": 1.0,
@@ -44,6 +44,7 @@
   "sideShowNotifications": true,
   "sideShowPower": true,
   "sideSliderStyle": "pill",
+  "workspaceStyle": "arcade",
   "playerProgressStyle": "wavy",
   "activeShapeStyle": "blossom",
   "sidePanelOrder": [

@@ -686,6 +686,25 @@ Rectangle {
                                     }
                                 }
 
+                                // Стиль воркспейсов
+                                M3SettingsRow {
+                                    icon: "󰄯"
+                                    title: "Стиль воркспейсов"
+                                    subtitle: "Анимированная ретро-аркада со следящими персонажами или классические точки"
+
+                                    M3SegmentedButton {
+                                        currentValue: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? "arcade" : "dots"
+                                        model: [
+                                            { id: "arcade", label: "Аркада", icon: "󰄯" },
+                                            { id: "dots", label: "Точки", icon: "󰝥" }
+                                        ]
+                                        onSelected: val => {
+                                            root.cfg.workspaceStyle = val
+                                            root.cfg.save()
+                                        }
+                                    }
+                                }
+
                                 // Положение панели
                                 M3SettingsRow {
                                     icon: "󰁝"
@@ -746,7 +765,7 @@ Rectangle {
                                     icon: "󰤻"
                                     title: "Высота панели"
                                     subtitle: "Толщина бара: " + root.cfg.barHeight + " px"
-                                    showDivider: false
+                                    showDivider: true
 
                                     RowLayout {
                                         spacing: 8
@@ -772,6 +791,42 @@ Rectangle {
                                             MouseArea {
                                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                                                 onClicked: { root.cfg.barHeight = Math.min(54, root.cfg.barHeight + 2); root.cfg.save() }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Скругление углов бара
+                                M3SettingsRow {
+                                    icon: "󰄯"
+                                    title: "Скругление углов бара"
+                                    subtitle: "Радиус углов формы панели: " + root.cfg.barRadius + " px"
+                                    showDivider: false
+
+                                    RowLayout {
+                                        spacing: 8
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: { root.cfg.barRadius = Math.max(0, root.cfg.barRadius - 2); root.cfg.save() }
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 68; radius: 16
+                                            color: root.cfg.surfaceContainerLowest || "#181a20"
+                                            border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
+                                            Text { anchors.centerIn: parent; text: root.cfg.barRadius + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: { root.cfg.barRadius = Math.min(28, root.cfg.barRadius + 2); root.cfg.save() }
                                             }
                                         }
                                     }
