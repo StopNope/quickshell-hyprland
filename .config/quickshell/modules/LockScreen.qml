@@ -53,6 +53,7 @@ Item {
 
     // Мягкий полупрозрачный тональный акцентный слой поверх размытых окон
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         color: Qt.rgba(root.cfg.bgPrimary.r, root.cfg.bgPrimary.g, root.cfg.bgPrimary.b, 0.45)
     }
@@ -216,6 +217,7 @@ Item {
 
         // Индикатор хоста/дистрибутива
         Rectangle {
+            antialiasing: true
             height: 32
             radius: 16
             color: root.cfg.surfaceContainerHigh
@@ -239,6 +241,7 @@ Item {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 height: 32
                 radius: 16
                 color: root.cfg.surfaceContainerHigh
@@ -284,6 +287,7 @@ Item {
             visible: root.isPrimaryScreen
 
             Rectangle {
+                antialiasing: true
                 anchors.fill: parent
                 radius: 28
                 color: root.cfg.surfaceContainer
@@ -303,6 +307,7 @@ Item {
                         Text { text: "Сейчас играет"; color: root.cfg.onSurfaceVariant; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
                         Item { Layout.fillWidth: true }
                         Rectangle {
+                            antialiasing: true
                             width: 8; height: 8; radius: 4
                             color: root.cfg.accent
                             SequentialAnimation on opacity {
@@ -315,6 +320,7 @@ Item {
 
                     // Обложка трека в органической форме
                     Rectangle {
+                        antialiasing: true
                         Layout.alignment: Qt.AlignHCenter
                         Layout.preferredWidth: 160
                         Layout.preferredHeight: 160
@@ -373,6 +379,7 @@ Item {
 
                         // Prev
                         Rectangle {
+                            antialiasing: true
                             width: 38; height: 38; radius: 19
                             color: prevM.containsMouse ? root.cfg.surfaceContainerHighest : root.cfg.surfaceContainerHigh
                             border.color: root.cfg.outlineVariant; border.width: 1
@@ -385,6 +392,7 @@ Item {
 
                         // Play/Pause (Акцентный Squircle / Blossom)
                         Rectangle {
+                            antialiasing: true
                             width: 48; height: 48; radius: 24
                             color: root.cfg.accent
                             Text {
@@ -401,6 +409,7 @@ Item {
 
                         // Next
                         Rectangle {
+                            antialiasing: true
                             width: 38; height: 38; radius: 19
                             color: nextM.containsMouse ? root.cfg.surfaceContainerHighest : root.cfg.surfaceContainerHigh
                             border.color: root.cfg.outlineVariant; border.width: 1
@@ -459,6 +468,7 @@ Item {
 
             // Органический чип: Дата + Погода (Pixel Pill)
             Rectangle {
+                antialiasing: true
                 Layout.alignment: Qt.AlignHCenter
                 height: 34
                 implicitWidth: dateRow.implicitWidth + 28
@@ -504,6 +514,7 @@ Item {
                 Layout.topMargin: 6
 
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: root.cfg.primaryContainer
                     border.color: root.cfg.accent
@@ -535,6 +546,7 @@ Item {
 
             // Поле ввода пароля (Вложенная капсула Android 15)
             Rectangle {
+                antialiasing: true
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 350
                 Layout.preferredHeight: 52
@@ -578,6 +590,7 @@ Item {
 
                     // Кнопка разблокировки
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 36
                         Layout.preferredHeight: 36
                         radius: 18
@@ -609,6 +622,7 @@ Item {
             visible: root.isPrimaryScreen
 
             Rectangle {
+                antialiasing: true
                 anchors.fill: parent
                 radius: 28
                 color: root.cfg.surfaceContainer
@@ -629,6 +643,7 @@ Item {
 
                     // CPU Карточка
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 64
                         radius: 18
@@ -650,12 +665,14 @@ Item {
 
                             // Толстая капсула прогресса
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 height: 10
                                 radius: 5
                                 color: root.cfg.surfaceContainerLowest
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: parent.height
                                     width: Math.max(10, parent.width * (root.cfg.cpuVal / 100))
                                     radius: 5
@@ -667,6 +684,7 @@ Item {
 
                     // RAM Карточка
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 64
                         radius: 18
@@ -687,12 +705,14 @@ Item {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 height: 10
                                 radius: 5
                                 color: root.cfg.surfaceContainerLowest
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: parent.height
                                     width: Math.max(10, parent.width * (root.cfg.ramVal / 100))
                                     radius: 5
@@ -704,6 +724,7 @@ Item {
 
                     // GPU Карточка
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 64
                         radius: 18
@@ -724,12 +745,14 @@ Item {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 height: 10
                                 radius: 5
                                 color: root.cfg.surfaceContainerLowest
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: parent.height
                                     width: Math.max(10, parent.width * (root.cfg.gpuVal / 100))
                                     radius: 5
@@ -747,6 +770,7 @@ Item {
 
     // ================= 3. НИЖНЯЯ ПАНЕЛЬ ПИТАНИЯ (Floating Pill) =================
     Rectangle {
+        antialiasing: true
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottomMargin: 32
@@ -772,6 +796,7 @@ Item {
                 ]
 
                 Rectangle {
+                    antialiasing: true
                     required property var modelData
                     height: 30
                     implicitWidth: pItemRow.implicitWidth + 16

@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -53,6 +54,7 @@ Rectangle {
 
             // Мягкая кнопка '+' (Material Squircle FAB)
             Rectangle {
+                antialiasing: true
                 width: 32
                 height: 32
                 radius: 11
@@ -88,6 +90,7 @@ Rectangle {
                 model: root.tasks
 
                 Rectangle {
+                    antialiasing: true
                     required property var modelData
                     required property int index
                     Layout.fillWidth: true
@@ -100,6 +103,7 @@ Rectangle {
 
                         // Круглый чекбокс (Material You)
                         Rectangle {
+                            antialiasing: true
                             width: 22
                             height: 22
                             radius: 11
@@ -160,6 +164,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 28
                 height: 28
                 radius: 10
@@ -186,6 +191,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 width: autoSaveText.implicitWidth + 14
                 radius: 11
@@ -206,6 +212,7 @@ Rectangle {
 
         // Поле для ввода заметки в мягком внутреннем контейнере
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 16
@@ -256,6 +263,7 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 8
             Rectangle {
+                antialiasing: true
                 width: 26; height: 26; radius: 9
                 color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.14)
                 Text { anchors.centerIn: parent; text: "󰄲"; color: root.cfg.accent; font.pixelSize: 13 }
@@ -263,6 +271,7 @@ Rectangle {
             Text { text: "Чек-лист дня"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; font.family: root.cfg.fontFamily }
             Item { Layout.fillWidth: true }
             Rectangle {
+                antialiasing: true
                 height: 20; implicitWidth: bjCnt.implicitWidth + 12; radius: 10
                 color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.12)
                 Text { id: bjCnt; anchors.centerIn: parent; text: "3 задачи"; color: root.cfg.accent; font.pixelSize: 9; font.bold: true }
@@ -289,6 +298,7 @@ Rectangle {
                 ]
 
                 Rectangle {
+                    antialiasing: true
                     id: taskRow
                     required property var modelData
                     required property int index
@@ -307,6 +317,7 @@ Rectangle {
                         spacing: 8
 
                         Rectangle {
+                            antialiasing: true
                             width: 16; height: 16; radius: 8
                             color: taskRow.checked ? root.cfg.accent : "transparent"
                             border.color: taskRow.checked ? root.cfg.accent : root.cfg.onSurfaceVariant
@@ -355,6 +366,7 @@ Rectangle {
             Layout.fillWidth: true
             spacing: 8
             Rectangle {
+                antialiasing: true
                 width: 24; height: 24; radius: 12
                 color: Qt.rgba(root.cfg.warning.r, root.cfg.warning.g, root.cfg.warning.b, 0.2)
                 Text { anchors.centerIn: parent; text: "󰤱"; color: root.cfg.warning; font.pixelSize: 12 }
@@ -365,6 +377,7 @@ Rectangle {
         }
 
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 16

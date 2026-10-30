@@ -5,6 +5,7 @@ import Quickshell.Io
 import "./m3"
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -99,6 +100,7 @@ Rectangle {
 
         // ЛЕВАЯ ПАНЕЛЬ НАВИГАЦИИ (Material 3 Navigation Rail)
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: 260
             Layout.fillHeight: true
             color: root.cfg.surfaceContainerLow || Qt.darker(root.cfg.bgElevated, 1.12)
@@ -106,6 +108,7 @@ Rectangle {
 
             // Прячем правые углы, чтобы была ровная вертикальная граница
             Rectangle {
+                antialiasing: true
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
@@ -115,6 +118,7 @@ Rectangle {
 
             // Тонкий вертикальный разделитель M3
             Rectangle {
+                antialiasing: true
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
@@ -136,6 +140,7 @@ Rectangle {
                     spacing: 10
 
                     Rectangle {
+                        antialiasing: true
                         width: 38
                         height: 38
                         radius: 12
@@ -172,6 +177,7 @@ Rectangle {
 
                     // ПОЛЕ БЫСТРОГО ПОИСКА РАЗДЕЛОВ
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 36
                         radius: 18
@@ -283,6 +289,7 @@ Rectangle {
 
                                     // ПИЛЮЛЯ НАВИГАЦИИ (M3 NAVIGATION PILL)
                                     Rectangle {
+                                        antialiasing: true
                                         anchors.fill: parent
                                         visible: modelData.type !== "section"
                                         radius: 18
@@ -300,6 +307,7 @@ Rectangle {
 
                                             // Иконка в мягкой круглой подложке
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.preferredWidth: 26
                                                 Layout.preferredHeight: 26
                                                 radius: 13
@@ -331,6 +339,7 @@ Rectangle {
 
                                             // Правый микро-маркер активного состояния
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.preferredWidth: 4
                                                 Layout.preferredHeight: 14
                                                 radius: 2
@@ -357,6 +366,7 @@ Rectangle {
 
                     // КАРТОЧКА ПОЛЬЗОВАТЕЛЯ И СИСТЕМЫ ВНИЗУ RAIL (ЗАПОЛНЯЕТ ПУСТОТУ)
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 88
                         radius: 16
@@ -375,6 +385,7 @@ Rectangle {
                                 spacing: 10
 
                                 Rectangle {
+                                    antialiasing: true
                                     width: 32
                                     height: 32
                                     radius: 16
@@ -419,6 +430,7 @@ Rectangle {
                                 spacing: 6
 
                                 Rectangle {
+                                    antialiasing: true
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 24
                                     radius: 12
@@ -442,6 +454,7 @@ Rectangle {
                                 }
 
                                 Rectangle {
+                                    antialiasing: true
                                     Layout.preferredWidth: 26
                                     Layout.preferredHeight: 24
                                     radius: 12
@@ -515,6 +528,7 @@ Rectangle {
 
                         // Кнопка быстрого вызова экранного редактора
                         Rectangle {
+                            antialiasing: true
                             visible: root.tab === "bar" || root.tab === "widgets"
                             height: 32
                             implicitWidth: topEdTxt.implicitWidth + 24
@@ -552,6 +566,7 @@ Rectangle {
 
                         // Кнопка закрытия окна
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 32
                             Layout.preferredHeight: 32
                             radius: 16
@@ -770,6 +785,7 @@ Rectangle {
                                     RowLayout {
                                         spacing: 8
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -779,12 +795,14 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 68; radius: 16
                                             color: root.cfg.surfaceContainerLowest || "#181a20"
                                             border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
                                             Text { anchors.centerIn: parent; text: root.cfg.barHeight + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -806,6 +824,7 @@ Rectangle {
                                     RowLayout {
                                         spacing: 8
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -815,12 +834,14 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 68; radius: 16
                                             color: root.cfg.surfaceContainerLowest || "#181a20"
                                             border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
                                             Text { anchors.centerIn: parent; text: root.cfg.barRadius + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -842,6 +863,7 @@ Rectangle {
                                     RowLayout {
                                         spacing: 8
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -855,6 +877,7 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 68; radius: 16
                                             color: root.cfg.surfaceContainerLowest || "#181a20"
                                             border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
@@ -868,6 +891,7 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -893,6 +917,7 @@ Rectangle {
                                     RowLayout {
                                         spacing: 8
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -906,6 +931,7 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 68; radius: 16
                                             color: root.cfg.surfaceContainerLowest || "#181a20"
                                             border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
@@ -919,6 +945,7 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -982,6 +1009,7 @@ Rectangle {
                                                     : (barTabCol.currentZone === "center" ? root.cfg.barModulesCenter : root.cfg.barModulesRight)
                                                     
                                                 Rectangle {
+                                                    antialiasing: true
                                                     required property var modelData
                                                     required property int index
 
@@ -1003,6 +1031,7 @@ Rectangle {
 
                                                         // Squircle Icon Badge
                                                         Rectangle {
+                                                            antialiasing: true
                                                             width: 32; height: 32; radius: 10
                                                             color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
                                                             Text { anchors.centerIn: parent; text: modInfo.icon; color: root.cfg.accent; font.pixelSize: 14 }
@@ -1021,6 +1050,7 @@ Rectangle {
 
                                                         // Разделение группы (если сгруппирован)
                                                         Rectangle {
+                                                            antialiasing: true
                                                             visible: !!modInfo.isGroup
                                                             width: 28; height: 28; radius: 14
                                                             color: spltBtnM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#353842")
@@ -1033,6 +1063,7 @@ Rectangle {
 
                                                         // Объединение с следующим (группировка в один остров)
                                                         Rectangle {
+                                                            antialiasing: true
                                                             visible: index < currentList.length - 1
                                                             width: 28; height: 28; radius: 14
                                                             color: combBtnM.containsMouse ? root.cfg.accent : (root.cfg.surfaceContainerHighest || "#353842")
@@ -1045,6 +1076,7 @@ Rectangle {
 
                                                         // Переместить влево / вверх
                                                         Rectangle {
+                                                            antialiasing: true
                                                             width: 28; height: 28; radius: 14
                                                             color: mvUpM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
                                                             opacity: index > 0 ? 1 : 0.3
@@ -1057,6 +1089,7 @@ Rectangle {
 
                                                         // Переместить вправо / вниз
                                                         Rectangle {
+                                                            antialiasing: true
                                                             width: 28; height: 28; radius: 14
                                                             color: mvDnM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
                                                             opacity: index < currentList.length - 1 ? 1 : 0.3
@@ -1069,6 +1102,7 @@ Rectangle {
 
                                                         // Удалить модуль
                                                         Rectangle {
+                                                            antialiasing: true
                                                             width: 28; height: 28; radius: 14
                                                             color: delBtnM.containsMouse ? Qt.rgba(root.cfg.danger.r, root.cfg.danger.g, root.cfg.danger.b, 0.20) : "transparent"
                                                             Text { anchors.centerIn: parent; text: "󰅖"; color: delBtnM.containsMouse ? root.cfg.danger : root.cfg.textMuted; font.pixelSize: 13 }
@@ -1106,6 +1140,7 @@ Rectangle {
                                                     model: barTabCol.getUnusedBarMods()
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         required property var modelData
                                                         height: 34
                                                         implicitWidth: chipTxt.implicitWidth + 30
@@ -1170,6 +1205,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 14
                                 color: root.cfg.bgElevated
@@ -1273,6 +1309,7 @@ Rectangle {
                                                         { label: "48 px", size: 48 }
                                                     ]
                                                     Rectangle {
+                                                        antialiasing: true
                                                         required property var modelData
                                                         height: 28
                                                         implicitWidth: szTxt.implicitWidth + 16
@@ -1311,6 +1348,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 14
                                 color: root.cfg.bgElevated
@@ -1333,6 +1371,7 @@ Rectangle {
                                             model: root.cfg.dockPinnedApps || []
 
                                             Rectangle {
+                                                antialiasing: true
                                                 required property string modelData
                                                 height: 30
                                                 implicitWidth: chipRow.implicitWidth + 14
@@ -1355,6 +1394,7 @@ Rectangle {
                                                     }
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         width: 16; height: 16; radius: 8
                                                         color: delChipM.containsMouse ? root.cfg.danger : Qt.rgba(255, 255, 255, 0.08)
 
@@ -1398,6 +1438,7 @@ Rectangle {
                                             ]
 
                                             Rectangle {
+                                                antialiasing: true
                                                 required property var modelData
                                                 readonly property bool alreadyPinned: root.cfg.isAppPinned(modelData.id)
                                                 visible: !alreadyPinned
@@ -1457,6 +1498,7 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: 30
                                     implicitWidth: openWEdTxt.implicitWidth + 24
                                     radius: 15
@@ -1488,6 +1530,7 @@ Rectangle {
 
                             // Отображать виджеты
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 46
                                 radius: 12
@@ -1513,6 +1556,7 @@ Rectangle {
 
                             // Общее скругление виджетов
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 52
                                 radius: 12
@@ -1544,6 +1588,7 @@ Rectangle {
                                             ]
 
                                             Rectangle {
+                                                antialiasing: true
                                                 required property var modelData
                                                 width: 30
                                                 height: 26
@@ -1574,6 +1619,7 @@ Rectangle {
 
                             // Добавить виджет
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 20
                                 color: root.cfg.surfaceContainer
@@ -1605,6 +1651,7 @@ Rectangle {
                                             ]
 
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 30
                                                 implicitWidth: qAddTxt.implicitWidth + 20
                                                 radius: 15
@@ -1639,6 +1686,7 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Text { text: "Активные виджеты (" + root.cfg.desktopWidgets.length + "):"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; Layout.fillWidth: true }
                                 Rectangle {
+                                    antialiasing: true
                                     height: 24; implicitWidth: 80; radius: 12
                                     color: root.cfg.bgElevated
                                     border.color: root.cfg.borderCol
@@ -1724,6 +1772,7 @@ Rectangle {
 
                                                 // Кнопка смены вида
                                                 Rectangle {
+                                                    antialiasing: true
                                                     height: 24
                                                     implicitWidth: varBtnTxt.implicitWidth + 14
                                                     radius: 12
@@ -1749,6 +1798,7 @@ Rectangle {
 
                                                 // Кнопка удаления
                                                 Rectangle {
+                                                    antialiasing: true
                                                     width: 24; height: 24; radius: 12
                                                     color: delBtnM.containsMouse ? root.cfg.danger : root.cfg.bgSurface
                                                     border.color: root.cfg.borderCol
@@ -1775,6 +1825,7 @@ Rectangle {
                                                 Repeater {
                                                     model: ["theme", "#ffffff", "#a8c7fa", "#d0bcff", "#a6e3a1", "#ffb4a2", "#fabd2f", "#f38ba8"]
                                                     Rectangle {
+                                                        antialiasing: true
                                                         required property string modelData
                                                         width: 18; height: 18; radius: 9
                                                         color: modelData === "theme" ? root.cfg.accent : modelData
@@ -1847,6 +1898,7 @@ Rectangle {
                                 }
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: 36
                                     implicitWidth: liveSideBtnTxt.implicitWidth + 24
                                     radius: 18
@@ -1882,6 +1934,7 @@ Rectangle {
                                 }
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: 36
                                     implicitWidth: 84
                                     radius: 18
@@ -1958,6 +2011,7 @@ Rectangle {
                                             model: root.cfg.sidePanelOrder
 
                                             Rectangle {
+                                                antialiasing: true
                                                 required property var modelData
                                                 required property int index
 
@@ -1978,6 +2032,7 @@ Rectangle {
                                                     spacing: 10
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         width: 32; height: 32; radius: 10
                                                         color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
                                                         Text { anchors.centerIn: parent; text: secInfo.icon; color: root.cfg.accent; font.pixelSize: 14 }
@@ -1994,6 +2049,7 @@ Rectangle {
 
                                                     // Переместить вверх
                                                     Rectangle {
+                                                        antialiasing: true
                                                         width: 28; height: 28; radius: 14
                                                         color: mvSecUpM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
                                                         opacity: index > 0 ? 1 : 0.3
@@ -2015,6 +2071,7 @@ Rectangle {
 
                                                     // Переместить вниз
                                                     Rectangle {
+                                                        antialiasing: true
                                                         width: 28; height: 28; radius: 14
                                                         color: mvSecDnM.containsMouse ? (root.cfg.surfaceContainerHighest || "#353842") : "transparent"
                                                         opacity: index < root.cfg.sidePanelOrder.length - 1 ? 1 : 0.3
@@ -2036,6 +2093,7 @@ Rectangle {
 
                                                     // Скрыть секцию
                                                     Rectangle {
+                                                        antialiasing: true
                                                         width: 28; height: 28; radius: 14
                                                         color: hideSecM.containsMouse ? Qt.rgba(root.cfg.danger.r, root.cfg.danger.g, root.cfg.danger.b, 0.20) : "transparent"
                                                         Text { anchors.centerIn: parent; text: "󰅖"; color: hideSecM.containsMouse ? root.cfg.danger : root.cfg.textMuted; font.pixelSize: 13 }
@@ -2074,6 +2132,7 @@ Rectangle {
                                                     model: sideTabCol.getUnusedSideSecs()
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         required property var modelData
                                                         height: 34
                                                         implicitWidth: addSecTxt.implicitWidth + 30
@@ -2122,6 +2181,7 @@ Rectangle {
                                     RowLayout {
                                         spacing: 8
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -2131,12 +2191,14 @@ Rectangle {
                                             }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 68; radius: 16
                                             color: root.cfg.surfaceContainerLowest || "#181a20"
                                             border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
                                             Text { anchors.centerIn: parent; text: root.cfg.sidePanelWidth + " px"; color: root.cfg.accent; font.bold: true; font.pixelSize: 11; font.family: "Fredoka" }
                                         }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32; width: 32; radius: 16
                                             color: root.cfg.surfaceContainerHighest || "#353842"
                                             Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
@@ -2238,6 +2300,7 @@ Rectangle {
                                         ]
 
                                         Rectangle {
+                                            antialiasing: true
                                             required property var modelData
                                             Layout.fillWidth: true
                                             Layout.preferredHeight: 36
@@ -2253,6 +2316,7 @@ Rectangle {
                                                 spacing: 8
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     Layout.preferredWidth: 14
                                                     Layout.preferredHeight: 14
                                                     radius: 7
@@ -2313,6 +2377,7 @@ Rectangle {
                                     Repeater {
                                         model: root.cfg.customThemes
                                         Rectangle {
+                                            antialiasing: true
                                             required property var modelData
                                             Layout.fillWidth: true
                                             Layout.preferredHeight: 36
@@ -2328,6 +2393,7 @@ Rectangle {
                                                 spacing: 8
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     Layout.preferredWidth: 14
                                                     Layout.preferredHeight: 14
                                                     radius: 7
@@ -2355,6 +2421,7 @@ Rectangle {
                                                 }
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     width: 24
                                                     height: 24
                                                     radius: 12
@@ -2388,6 +2455,7 @@ Rectangle {
 
                             // 3. СТУДИЯ КАСТОМИЗАЦИИ С ПОЛНОЙ RGB НАСТРОЙКОЙ
                             Rectangle {
+                                antialiasing: true
                                 id: customStudioCard
                                 Layout.fillWidth: true
                                 radius: 14
@@ -2455,6 +2523,7 @@ Rectangle {
                                         }
                                         Item { Layout.fillWidth: true }
                                         Rectangle {
+                                            antialiasing: true
                                             height: 22
                                             width: 70
                                             radius: 6
@@ -2473,6 +2542,7 @@ Rectangle {
 
                                     // Живое превью темы
                                     Rectangle {
+                                        antialiasing: true
                                         Layout.fillWidth: true
                                         height: 52
                                         radius: 10
@@ -2492,6 +2562,7 @@ Rectangle {
 
                                             // Превью иконки
                                             Rectangle {
+                                                antialiasing: true
                                                 width: 32
                                                 height: 32
                                                 radius: 16
@@ -2506,6 +2577,7 @@ Rectangle {
 
                                             // Превью акцентного бейджа
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 26
                                                 implicitWidth: 84
                                                 radius: 13
@@ -2523,6 +2595,7 @@ Rectangle {
 
                                             // Превью кнопки
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 26
                                                 implicitWidth: 90
                                                 radius: 8
@@ -2559,6 +2632,7 @@ Rectangle {
                                         }
 
                                         Rectangle {
+                                            antialiasing: true
                                             Layout.fillWidth: true
                                             height: 32
                                             radius: 8
@@ -2605,6 +2679,7 @@ Rectangle {
                                                 ]
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     required property var modelData
                                                     Layout.fillWidth: true
                                                     height: 28
@@ -2617,6 +2692,7 @@ Rectangle {
                                                         anchors.centerIn: parent
                                                         spacing: 6
                                                         Rectangle {
+                                                            antialiasing: true
                                                             width: 10; height: 10; radius: 5
                                                             color: modelData.col
                                                             border.color: Qt.rgba(1, 1, 1, 0.3)
@@ -2660,6 +2736,7 @@ Rectangle {
                                                 model: ["#ff5555", "#ff7597", "#ff9e64", "#facc15", "#a6e3a1", "#2dd4bf", "#00f0ff", "#7aa2f7", "#a855f7", "#ffffff"]
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     required property string modelData
                                                     Layout.fillWidth: true
                                                     height: 22
@@ -2701,6 +2778,7 @@ Rectangle {
                                                 height: 22
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     id: rTrack
                                                     anchors.left: parent.left
                                                     anchors.right: parent.right
@@ -2710,6 +2788,7 @@ Rectangle {
                                                     color: Qt.rgba(1, 1, 1, 0.08)
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         anchors.left: parent.left
                                                         anchors.top: parent.top
                                                         anchors.bottom: parent.bottom
@@ -2720,6 +2799,7 @@ Rectangle {
                                                 }
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     x: Math.max(0, Math.min(rTrack.width - width, (rTrack.width - width) * (customStudioCard.redVal / 255.0)))
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     width: 16
@@ -2744,6 +2824,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 width: 38
                                                 height: 22
                                                 radius: 6
@@ -2778,6 +2859,7 @@ Rectangle {
                                                 height: 22
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     id: gTrack
                                                     anchors.left: parent.left
                                                     anchors.right: parent.right
@@ -2787,6 +2869,7 @@ Rectangle {
                                                     color: Qt.rgba(1, 1, 1, 0.08)
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         anchors.left: parent.left
                                                         anchors.top: parent.top
                                                         anchors.bottom: parent.bottom
@@ -2797,6 +2880,7 @@ Rectangle {
                                                 }
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     x: Math.max(0, Math.min(gTrack.width - width, (gTrack.width - width) * (customStudioCard.greenVal / 255.0)))
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     width: 16
@@ -2821,6 +2905,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 width: 38
                                                 height: 22
                                                 radius: 6
@@ -2855,6 +2940,7 @@ Rectangle {
                                                 height: 22
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     id: bTrack
                                                     anchors.left: parent.left
                                                     anchors.right: parent.right
@@ -2864,6 +2950,7 @@ Rectangle {
                                                     color: Qt.rgba(1, 1, 1, 0.08)
 
                                                     Rectangle {
+                                                        antialiasing: true
                                                         anchors.left: parent.left
                                                         anchors.top: parent.top
                                                         anchors.bottom: parent.bottom
@@ -2874,6 +2961,7 @@ Rectangle {
                                                 }
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     x: Math.max(0, Math.min(bTrack.width - width, (bTrack.width - width) * (customStudioCard.blueVal / 255.0)))
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     width: 16
@@ -2898,6 +2986,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 width: 38
                                                 height: 22
                                                 radius: 6
@@ -2928,6 +3017,7 @@ Rectangle {
                                         }
 
                                         Rectangle {
+                                            antialiasing: true
                                             Layout.preferredWidth: 100
                                             height: 32
                                             radius: 8
@@ -2952,6 +3042,7 @@ Rectangle {
                                         Item { Layout.fillWidth: true }
 
                                         Rectangle {
+                                            antialiasing: true
                                             height: 32
                                             implicitWidth: saveThemeBtnText.implicitWidth + 28
                                             radius: 8
@@ -3019,6 +3110,7 @@ Rectangle {
                                 Item { Layout.fillWidth: true }
 
                                 Rectangle {
+                                    antialiasing: true
                                     height: 30
                                     implicitWidth: osdLiveBtnTxt.implicitWidth + 24
                                     radius: 15
@@ -3042,6 +3134,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 Layout.preferredHeight: 46
                                 radius: 12
@@ -3086,6 +3179,7 @@ Rectangle {
                                     ]
 
                                     Rectangle {
+                                        antialiasing: true
                                         required property var modelData
                                         Layout.preferredHeight: 24
                                         Layout.preferredWidth: pText.implicitWidth + 14
@@ -3133,6 +3227,7 @@ Rectangle {
                                     ]
 
                                     Rectangle {
+                                        antialiasing: true
                                         required property var modelData
                                         Layout.fillWidth: true
                                         Layout.preferredHeight: 38
@@ -3149,10 +3244,12 @@ Rectangle {
                                             Text { text: modelData.name; color: root.cfg.textPrimary; font.pixelSize: 11; Layout.fillWidth: true }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.preferredWidth: 36; Layout.preferredHeight: 20; radius: 10
                                                 color: root.cfg[modelData.prop] ? root.cfg.accent : root.cfg.bgSurface
                                                 border.color: root.cfg.borderCol; border.width: 1
                                                 Rectangle {
+                                                    antialiasing: true
                                                     width: 14; height: 14; radius: 7; y: 2
                                                     x: root.cfg[modelData.prop] ? 18 : 2
                                                     color: root.cfg[modelData.prop] ? root.cfg.accentText : root.cfg.textMuted
@@ -3194,6 +3291,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 14
                                 color: root.cfg.bgElevated
@@ -3219,6 +3317,7 @@ Rectangle {
                                             Text { text: "Аварийный PIN:"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; Layout.preferredWidth: 160 }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.fillWidth: true; Layout.preferredHeight: 28; radius: 6
                                                 color: root.cfg.bgSurface
                                                 border.color: pinInp.activeFocus ? root.cfg.accent : root.cfg.borderCol
@@ -3309,6 +3408,7 @@ Rectangle {
                                                 visible: root.cfg.weatherAutoLocation
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     Layout.fillWidth: true
                                                     height: 28
                                                     radius: 14
@@ -3333,6 +3433,7 @@ Rectangle {
                                                 }
 
                                                 Rectangle {
+                                                    antialiasing: true
                                                     height: 28
                                                     implicitWidth: 32
                                                     radius: 14
@@ -3357,6 +3458,7 @@ Rectangle {
 
                                             // Если выключено — поле ручного ввода
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.fillWidth: true; Layout.preferredHeight: 28; radius: 6
                                                 color: root.cfg.bgSurface
                                                 border.color: cityInp.activeFocus ? root.cfg.accent : root.cfg.borderCol
@@ -3392,6 +3494,7 @@ Rectangle {
                                             Text { text: "Файл аватарки:"; color: root.cfg.textPrimary; font.pixelSize: 12; font.bold: true; Layout.preferredWidth: 160 }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.fillWidth: true; Layout.preferredHeight: 28; radius: 6
                                                 color: root.cfg.bgSurface
                                                 border.color: avatarInp.activeFocus ? root.cfg.accent : root.cfg.borderCol
@@ -3431,6 +3534,7 @@ Rectangle {
                                         { name: "Дата", prop: "lockShowDate" }
                                     ]
                                     Rectangle {
+                                        antialiasing: true
                                         required property var modelData
                                         Layout.fillWidth: true; Layout.preferredHeight: 38; radius: 10
                                         color: root.cfg.bgElevated; border.color: root.cfg.borderCol; border.width: 1
@@ -3438,10 +3542,12 @@ Rectangle {
                                             anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 10
                                             Text { text: modelData.name; color: root.cfg.textPrimary; font.pixelSize: 11; Layout.fillWidth: true }
                                             Rectangle {
+                                                antialiasing: true
                                                 Layout.preferredWidth: 36; Layout.preferredHeight: 20; radius: 10
                                                 color: root.cfg[modelData.prop] ? root.cfg.accent : root.cfg.bgSurface
                                                 border.color: root.cfg.borderCol; border.width: 1
                                                 Rectangle {
+                                                    antialiasing: true
                                                     width: 14; height: 14; radius: 7; y: 2
                                                     x: root.cfg[modelData.prop] ? 18 : 2
                                                     color: root.cfg[modelData.prop] ? root.cfg.accentText : root.cfg.textMuted
@@ -3458,6 +3564,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true; Layout.preferredHeight: 36; radius: 18
                                 color: root.cfg.accent
                                 Layout.topMargin: 4
@@ -3497,6 +3604,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 14
                                 color: root.cfg.bgElevated
@@ -3530,6 +3638,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 28
                                                 implicitWidth: 100
                                                 radius: 14
@@ -3579,6 +3688,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 28
                                                 implicitWidth: 80
                                                 radius: 14
@@ -3624,6 +3734,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 28
                                                 implicitWidth: 80
                                                 radius: 14
@@ -3681,6 +3792,7 @@ Rectangle {
                                             }
 
                                             Rectangle {
+                                                antialiasing: true
                                                 height: 28
                                                 implicitWidth: 90
                                                 radius: 14
@@ -3719,6 +3831,7 @@ Rectangle {
                             }
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.fillWidth: true
                                 radius: 14
                                 color: root.cfg.bgElevated
@@ -3769,6 +3882,7 @@ Rectangle {
                     visible: tabFlickable.contentHeight > tabFlickable.height
 
                     Rectangle {
+                        antialiasing: true
                         id: scrollThumb
                         anchors.right: parent.right
                         width: 4

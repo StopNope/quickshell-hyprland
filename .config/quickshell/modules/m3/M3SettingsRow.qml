@@ -22,6 +22,7 @@ Item {
     implicitHeight: Math.max(56, contentRow.implicitHeight + 16)
 
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         radius: 16
         color: (root.clickable && rowMouse.containsMouse) ? Qt.rgba(255, 255, 255, 0.04) : "transparent"
@@ -37,6 +38,7 @@ Item {
 
         // Контейнер иконки (Squircle 36x36)
         Rectangle {
+            antialiasing: true
             visible: root.icon !== ""
             width: 36
             height: 36
@@ -99,6 +101,7 @@ Item {
 
     // Inset Divider
     Rectangle {
+        antialiasing: true
         visible: root.showDivider
         anchors.bottom: parent.bottom
         anchors.left: parent.left

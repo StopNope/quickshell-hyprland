@@ -211,6 +211,7 @@ Item {
 
     // Полупрозрачный фон с затемнением (клик закрывает)
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         color: Qt.rgba(0, 0, 0, 0.45)
         opacity: root.isOpen ? 1 : 0
@@ -224,6 +225,7 @@ Item {
 
     // Центрированная карточка буфера обмена (Минималистичный Material You)
     Rectangle {
+        antialiasing: true
         id: clipboardCard
         anchors.centerIn: parent
         width: 640
@@ -250,6 +252,7 @@ Item {
 
             // 1. Поисковая строка Material You
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 48
                 radius: 24
@@ -322,6 +325,7 @@ Item {
 
                     // Кнопка очистки поиска
                     Rectangle {
+                        antialiasing: true
                         width: 22; height: 22; radius: 11
                         color: root.cfg.bgElevated
                         visible: searchField.text.length > 0
@@ -353,6 +357,7 @@ Item {
 
                 // Кнопка "All"
                 Rectangle {
+                    antialiasing: true
                     height: 24
                     width: allText.implicitWidth + 16
                     radius: 12
@@ -382,6 +387,7 @@ Item {
 
                 // Кнопка "Screenshots"
                 Rectangle {
+                    antialiasing: true
                     height: 24
                     width: screensText.implicitWidth + 18
                     radius: 12
@@ -422,6 +428,7 @@ Item {
 
                 // Кнопка "Text"
                 Rectangle {
+                    antialiasing: true
                     height: 24
                     width: textCatText.implicitWidth + 18
                     radius: 12
@@ -464,6 +471,7 @@ Item {
 
                 // Кнопка очистки всей истории
                 Rectangle {
+                    antialiasing: true
                     height: 24
                     width: clearText.implicitWidth + 16
                     radius: 12
@@ -545,6 +553,7 @@ Item {
                         readonly property bool isSelected: index === root.selectedIndex
 
                         Rectangle {
+                            antialiasing: true
                             anchors.fill: parent
                             radius: 12
                             color: isSelected 
@@ -565,6 +574,7 @@ Item {
 
                                 // Превью скриншота
                                 Rectangle {
+                                    antialiasing: true
                                     width: 136
                                     Layout.fillHeight: true
                                     Layout.topMargin: 6
@@ -629,6 +639,7 @@ Item {
 
                                 // Кнопка удалить (появляется при выборе или наведении)
                                 Rectangle {
+                                    antialiasing: true
                                     z: 10
                                     width: 28; height: 28; radius: 14
                                     visible: isSelected || cardMouseArea.containsMouse
@@ -661,6 +672,7 @@ Item {
 
                                 // Иконка текста
                                 Rectangle {
+                                    antialiasing: true
                                     width: 32; height: 32; radius: 8
                                     color: isSelected ? root.cfg.accentContainer : root.cfg.bgElevated
 
@@ -699,6 +711,7 @@ Item {
 
                                 // Кнопка удалить (появляется при выборе или наведении)
                                 Rectangle {
+                                    antialiasing: true
                                     z: 10
                                     width: 28; height: 28; radius: 14
                                     visible: isSelected || cardMouseArea.containsMouse

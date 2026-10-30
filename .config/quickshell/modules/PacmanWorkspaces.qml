@@ -92,6 +92,7 @@ Item {
 
                 // Точка (Pellet)
                 Rectangle {
+                    antialiasing: true
                     anchors.centerIn: parent
                     visible: !slotItem.isActive
                     width: slotItem.isPowerPellet ? 6 : 4
@@ -106,6 +107,7 @@ Item {
 
                 // Маленькое ретро-привидение на некоторых воркспейсах
                 Canvas {
+                    antialiasing: true
                     id: ghostCanvas
                     anchors.centerIn: parent
                     visible: !slotItem.isActive && (slotItem.index % 2 === 1)
@@ -191,6 +193,7 @@ Item {
                 readonly property bool isActive: vSlotItem.modelData === root.currentWorkspaceId
 
                 Rectangle {
+                    antialiasing: true
                     anchors.centerIn: parent
                     visible: !vSlotItem.isActive
                     width: 5
@@ -228,6 +231,7 @@ Item {
         }
 
         Canvas {
+            antialiasing: true
             id: pacmanCanvas
             anchors.fill: parent
 

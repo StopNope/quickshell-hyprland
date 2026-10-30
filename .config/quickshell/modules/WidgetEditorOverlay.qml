@@ -359,10 +359,12 @@ Item {
 
     // 1. Полупрозрачное затемнение рабочего стола с точечной сеткой
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         color: Qt.rgba(0, 0, 0, 0.45)
 
         Canvas {
+            antialiasing: true
             anchors.fill: parent
             opacity: 0.15
             onPaint: {
@@ -398,6 +400,7 @@ Item {
 
                 // Вертикальная направляющая
                 Rectangle {
+                    antialiasing: true
                     visible: modelData.type === "v"
                     x: modelData.pos - 1
                     y: 0
@@ -408,6 +411,7 @@ Item {
 
                     // Бейдж с надписью у верхнего края
                     Rectangle {
+                        antialiasing: true
                         anchors.top: parent.top
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.topMargin: 20
@@ -429,6 +433,7 @@ Item {
 
                 // Горизонтальная направляющая
                 Rectangle {
+                    antialiasing: true
                     visible: modelData.type === "h"
                     x: 0
                     y: modelData.pos - 1
@@ -439,6 +444,7 @@ Item {
 
                     // Бейдж с надписью у левого края
                     Rectangle {
+                        antialiasing: true
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.leftMargin: 20
@@ -525,6 +531,7 @@ Item {
 
                 // Интерактивная рамка перетаскивания и изменения размера
                 Rectangle {
+                    antialiasing: true
                     anchors.fill: parent
                     radius: dragBox.currentRadius
                     color: (dragArea.drag.active || dragBox.isResizing) ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.15) : "transparent"
@@ -533,6 +540,7 @@ Item {
 
                     // Верхняя панель управления виджетом (Тип + Размеры S/M/L + Кастомный размер + Вид + Удалить)
                     Rectangle {
+                        antialiasing: true
                         anchors.bottom: parent.top
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.bottomMargin: 8
@@ -546,6 +554,7 @@ Item {
 
                         // Плавающее меню настройки скругления (Слайдер + Пресеты + Применить ко всем)
                         Rectangle {
+                            antialiasing: true
                             anchors.bottom: dragBox.y < 80 ? undefined : parent.top
                             anchors.top: dragBox.y < 80 ? parent.bottom : undefined
                             anchors.bottomMargin: 6
@@ -580,6 +589,7 @@ Item {
 
                                 // Кнопка - (шаг 1px)
                                 Rectangle {
+                                    antialiasing: true
                                     width: 20
                                     height: 20
                                     radius: 10
@@ -602,6 +612,7 @@ Item {
                                     height: 20
 
                                     Rectangle {
+                                        antialiasing: true
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.left: parent.left
                                         anchors.right: parent.right
@@ -610,6 +621,7 @@ Item {
                                         color: root.cfg.bgSurface || Qt.rgba(1, 1, 1, 0.15)
 
                                         Rectangle {
+                                            antialiasing: true
                                             anchors.left: parent.left
                                             anchors.top: parent.top
                                             anchors.bottom: parent.bottom
@@ -620,6 +632,7 @@ Item {
                                     }
 
                                     Rectangle {
+                                        antialiasing: true
                                         x: Math.max(0, Math.min(wSliderItem.width - width, (dragBox.currentRadius / 52) * (wSliderItem.width - width)))
                                         anchors.verticalCenter: parent.verticalCenter
                                         width: 14
@@ -653,6 +666,7 @@ Item {
 
                                 // Кнопка + (шаг 1px)
                                 Rectangle {
+                                    antialiasing: true
                                     width: 20
                                     height: 20
                                     radius: 10
@@ -688,6 +702,7 @@ Item {
                                     ]
 
                                     Rectangle {
+                                        antialiasing: true
                                         required property var modelData
                                         width: 22
                                         height: 22
@@ -719,6 +734,7 @@ Item {
 
                                 // Кнопка «Применить ко всем»
                                 Rectangle {
+                                    antialiasing: true
                                     height: 22
                                     implicitWidth: allBtnTxt.implicitWidth + 12
                                     radius: 11
@@ -754,6 +770,7 @@ Item {
 
                         // Плавающая палитра выбора цвета часов (быстрый выбор в 1 клик)
                         Rectangle {
+                            antialiasing: true
                             anchors.bottom: dragBox.y < 80 ? undefined : parent.top
                             anchors.top: dragBox.y < 80 ? parent.bottom : undefined
                             anchors.bottomMargin: 6
@@ -793,6 +810,7 @@ Item {
                                     ]
 
                                     Rectangle {
+                                        antialiasing: true
                                         required property var modelData
                                         width: 22
                                         height: 22
@@ -859,6 +877,7 @@ Item {
                                 Repeater {
                                     model: ["S", "M", "L"]
                                     Rectangle {
+                                        antialiasing: true
                                         required property string modelData
                                         width: 20
                                         height: 20
@@ -884,6 +903,7 @@ Item {
 
                             // Индикатор текущего размера в пикселях
                             Rectangle {
+                                antialiasing: true
                                 height: 20
                                 implicitWidth: dimTxt.implicitWidth + 10
                                 radius: 10
@@ -902,6 +922,7 @@ Item {
 
                             // Настройка скругления углов виджета (Radius Control)
                             Rectangle {
+                                antialiasing: true
                                 height: 20
                                 implicitWidth: radBtnTxt.implicitWidth + 14
                                 radius: 10
@@ -942,6 +963,7 @@ Item {
 
                             // Переключатель вида (Variant)
                             Rectangle {
+                                antialiasing: true
                                 height: 20
                                 implicitWidth: vTxt.implicitWidth + 10
                                 radius: 10
@@ -1001,6 +1023,7 @@ Item {
 
                             // Выбор цвета часов (открывает палитру в 1 клик)
                             Rectangle {
+                                antialiasing: true
                                 visible: dragBox.widgetItem.type === "clock"
                                 height: 20
                                 implicitWidth: clrTxt.implicitWidth + 14
@@ -1013,6 +1036,7 @@ Item {
                                     anchors.centerIn: parent
                                     spacing: 4
                                     Rectangle {
+                                        antialiasing: true
                                         width: 10; height: 10; radius: 5
                                         color: {
                                             let c = dragBox.widgetItem.clockColor || "lavender"
@@ -1048,6 +1072,7 @@ Item {
 
                             // Переключатель прозрачности фона виджета
                             Rectangle {
+                                antialiasing: true
                                 height: 20
                                 width: 20
                                 radius: 10
@@ -1071,6 +1096,7 @@ Item {
 
                             // Кнопка удаления
                             Rectangle {
+                                antialiasing: true
                                 width: 20
                                 height: 20
                                 radius: 10
@@ -1136,6 +1162,7 @@ Item {
 
                     // 1. Угловой маркер (Resize Corner ⤡)
                     Rectangle {
+                        antialiasing: true
                         id: brCornerHandle
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
@@ -1209,6 +1236,7 @@ Item {
 
                     // 2. Правый боковой маркер (Horizontal Resize)
                     Rectangle {
+                        antialiasing: true
                         id: rEdgeHandle
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
@@ -1265,6 +1293,7 @@ Item {
 
                     // 3. Нижний маркер высоты (Vertical Resize)
                     Rectangle {
+                        antialiasing: true
                         id: bEdgeHandle
                         anchors.bottom: parent.bottom
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1321,6 +1350,7 @@ Item {
 
                     // 4. Плавающий бейдж с размерами при изменении
                     Rectangle {
+                        antialiasing: true
                         visible: dragBox.isResizing
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
@@ -1362,6 +1392,7 @@ Item {
             y: root.cfg.osdBottomMargin > 0 ? (root.height - 44 - root.cfg.osdBottomMargin) : (root.height - 44 - 120)
 
             Rectangle {
+                antialiasing: true
                 anchors.fill: parent
                 radius: 22
                 color: root.cfg.bgSurface
@@ -1375,6 +1406,7 @@ Item {
                     spacing: 12
 
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 28
                         Layout.preferredHeight: 28
                         radius: 14
@@ -1389,12 +1421,14 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 8
                         radius: 4
                         color: root.cfg.bgPrimary
 
                         Rectangle {
+                            antialiasing: true
                             anchors.left: parent.left
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
@@ -1407,6 +1441,7 @@ Item {
 
                 // Индикатор координат и центровки
                 Rectangle {
+                    antialiasing: true
                     anchors.bottom: parent.top
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottomMargin: 8
@@ -1585,6 +1620,7 @@ Item {
 
         // Верхний поясняющий баннер
         Rectangle {
+            antialiasing: true
             anchors.top: parent.top
             anchors.topMargin: root.cfg.barPosition === "top" ? 78 : 24
             anchors.horizontalCenter: parent.horizontalCenter
@@ -1613,6 +1649,7 @@ Item {
 
         // Интерактивная панель бара на экране (точно на месте панели задач)
         Rectangle {
+            antialiasing: true
             id: onScreenBarCapsule
             anchors.top: root.cfg.barPosition === "top" ? parent.top : undefined
             anchors.bottom: root.cfg.barPosition === "bottom" ? parent.bottom : undefined
@@ -1629,6 +1666,7 @@ Item {
 
             // Плавающий светящийся маркер точного слота вставки модуля
             Rectangle {
+                antialiasing: true
                 id: dropMarkerLine
                 visible: root.draggingBarModId !== "" &&
                          (root.barHoverZone === "left" || root.barHoverZone === "center" || root.barHoverZone === "right") &&
@@ -1643,6 +1681,7 @@ Item {
 
                 // Верхняя и нижняя точки маркера Material You
                 Rectangle {
+                    antialiasing: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
                     anchors.topMargin: -3
@@ -1650,6 +1689,7 @@ Item {
                     color: root.cfg.accent
                 }
                 Rectangle {
+                    antialiasing: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: -3
@@ -1684,6 +1724,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         visible: (root.cfg.barModulesLeft || []).length === 0
                         height: 32
                         implicitWidth: emptyLTxt.implicitWidth + 24
@@ -1724,6 +1765,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         visible: (root.cfg.barModulesCenter || []).length === 0
                         height: 32
                         implicitWidth: emptyCTxt.implicitWidth + 24
@@ -1767,6 +1809,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         visible: (root.cfg.barModulesRight || []).length === 0
                         height: 32
                         implicitWidth: emptyRTxt.implicitWidth + 24
@@ -1789,6 +1832,7 @@ Item {
 
         // Индикатор сброса модуля вниз (Зона удаления / возврата в склад)
         Rectangle {
+            antialiasing: true
             anchors.centerIn: parent
             visible: root.draggingBarModId !== ""
             height: 52
@@ -1816,6 +1860,7 @@ Item {
 
         // Плавающий фантомный чип под курсором при перетаскивании модуля
         Rectangle {
+            antialiasing: true
             id: floatingGhostChip
             visible: root.draggingBarModId !== ""
             x: Math.round(root.barDragX - width / 2)
@@ -1853,6 +1898,7 @@ Item {
     // ПЛАВАЮЩИЙ MATERIAL YOU DOCK УПРАВЛЕНИЯ (BOTTOM BAR)
     // =========================================================
     Rectangle {
+        antialiasing: true
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottomMargin: 24
@@ -1883,42 +1929,49 @@ Item {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: cBtnTxt.implicitWidth + 20; radius: 18; color: cBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: cBtnTxt; anchors.centerIn: parent; text: "󰥔 Часы"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: cBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("clock", root.monX + 100, root.monY + 100) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: wBtnTxt.implicitWidth + 20; radius: 18; color: wBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: wBtnTxt; anchors.centerIn: parent; text: "󰖐 Погода"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: wBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("weather", root.monX + 380, root.monY + 100) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: vBtnTxt.implicitWidth + 20; radius: 18; color: vBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: vBtnTxt; anchors.centerIn: parent; text: "󰍛 Ресурсы"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: vBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("vitals", root.monX + 100, root.monY + 260) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: mBtnTxt.implicitWidth + 20; radius: 18; color: mBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: mBtnTxt; anchors.centerIn: parent; text: "󰎆 Плеер"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: mBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("player", root.monX + 440, root.monY + 260) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: calBtnTxt.implicitWidth + 20; radius: 18; color: calBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: calBtnTxt; anchors.centerIn: parent; text: "󰸗 Календарь"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: calBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("calendar", root.monX + 200, root.monY + 150) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: nBtnTxt.implicitWidth + 20; radius: 18; color: nBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: nBtnTxt; anchors.centerIn: parent; text: "󰏫 Заметки"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: nBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("notes", root.monX + 300, root.monY + 200) }
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: stBtnTxt.implicitWidth + 20; radius: 18; color: stBtnM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: stBtnTxt; anchors.centerIn: parent; text: "󰋊 Диск"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea { id: stBtnM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.cfg.addWidget("storage", root.monX + 200, root.monY + 300) }
@@ -1939,6 +1992,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         width: 24; height: 24; radius: 12
                         color: gMinusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                         border.color: root.cfg.borderCol; border.width: 1
@@ -1954,12 +2008,14 @@ Item {
                         width: 110; height: 24
 
                         Rectangle {
+                            antialiasing: true
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left; anchors.right: parent.right
                             height: 6; radius: 3
                             color: root.cfg.bgElevated
 
                             Rectangle {
+                                antialiasing: true
                                 anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
                                 width: Math.max(6, Math.min(parent.width, ((root.cfg.widgetRadius || 28) / 52) * parent.width))
                                 radius: 3; color: root.cfg.accent
@@ -1967,6 +2023,7 @@ Item {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             x: Math.max(0, Math.min(gSliderItem.width - width, ((root.cfg.widgetRadius || 28) / 52) * (gSliderItem.width - width)))
                             anchors.verticalCenter: parent.verticalCenter
                             width: 14; height: 14; radius: 7
@@ -1988,6 +2045,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         width: 24; height: 24; radius: 12
                         color: gPlusM.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                         border.color: root.cfg.borderCol; border.width: 1
@@ -1999,6 +2057,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         height: 24; implicitWidth: gValTxt.implicitWidth + 12; radius: 12
                         color: root.cfg.accentContainer
                         Text {
@@ -2018,6 +2077,7 @@ Item {
                 Text { text: "Пресеты OSD:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: p1Txt.implicitWidth + 18; radius: 18; color: p1M.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: p1Txt; anchors.centerIn: parent; text: "󰆤 Снизу строго по центру"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea {
@@ -2033,6 +2093,7 @@ Item {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36; implicitWidth: p2Txt.implicitWidth + 18; radius: 18; color: p2M.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                     Text { id: p2Txt; anchors.centerIn: parent; text: "Вверху справа"; color: root.cfg.textPrimary; font.pixelSize: 11; font.bold: true }
                     MouseArea {
@@ -2067,6 +2128,7 @@ Item {
                     model: root.getUnusedBarMods()
 
                     Rectangle {
+                        antialiasing: true
                         id: whChip
                         required property var modelData
                         height: 36
@@ -2147,6 +2209,7 @@ Item {
 
                 // Переключатели стиля бара (Островки / Монолит)
                 Rectangle {
+                    antialiasing: true
                     height: 36
                     implicitWidth: bStyleBubbles.implicitWidth + 18
                     radius: 18
@@ -2170,6 +2233,7 @@ Item {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36
                     implicitWidth: bStyleMono.implicitWidth + 18
                     radius: 18
@@ -2193,6 +2257,7 @@ Item {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 36
                     implicitWidth: rstTxt.implicitWidth + 20
                     radius: 18
@@ -2216,6 +2281,7 @@ Item {
                     Text { text: "󰚌 Скругление:"; color: root.cfg.textMuted; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
 
                     Rectangle {
+                        antialiasing: true
                         width: 22; height: 22; radius: 11
                         color: bModRMinus.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                         border.color: root.cfg.borderCol; border.width: 1
@@ -2234,16 +2300,19 @@ Item {
                         id: bModRSlider
                         width: 90; height: 20
                         Rectangle {
+                            antialiasing: true
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left; anchors.right: parent.right
                             height: 6; radius: 3; color: root.cfg.bgElevated
                             Rectangle {
+                                antialiasing: true
                                 anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom
                                 width: Math.max(6, ((root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) / 20) * parent.width)
                                 radius: 3; color: root.cfg.accent
                             }
                         }
                         Rectangle {
+                            antialiasing: true
                             x: Math.max(0, Math.min(bModRSlider.width - width, ((root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) / 20) * (bModRSlider.width - width)))
                             anchors.verticalCenter: parent.verticalCenter
                             width: 14; height: 14; radius: 7
@@ -2265,6 +2334,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         width: 22; height: 22; radius: 11
                         color: bModRPlus.containsMouse ? root.cfg.bgElevated : root.cfg.bgPrimary
                         border.color: root.cfg.borderCol; border.width: 1
@@ -2280,6 +2350,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         height: 22; implicitWidth: bModRTxt.implicitWidth + 10; radius: 11
                         color: root.cfg.accentContainer
                         Text {
@@ -2299,6 +2370,7 @@ Item {
 
             // Кнопка сохранения и выхода
             Rectangle {
+                antialiasing: true
                 height: 40
                 implicitWidth: saveBtnTxt.implicitWidth + 24
                 radius: 20

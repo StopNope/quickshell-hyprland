@@ -111,7 +111,7 @@ Item {
                 root.nextCycle()
                 // Мягкое уведомление в quickshell без громких звуков
                 if (root.cfg && root.cfg.pushNotification) {
-                    root.cfg.pushNotification("Помодоро Таймер", root.modeName + " завершен! Время переключиться.")
+                    root.cfg.pushNotification("Таймер", root.modeName + " завершен! Время переключиться.")
                 }
             }
         }

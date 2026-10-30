@@ -7,6 +7,7 @@ import Quickshell.Services.Mpris
 import "./m3"
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -105,6 +106,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 32; height: 32; radius: 16
                 color: root.cfg.accentContainer
                 Text { anchors.centerIn: parent; text: "󰏫"; color: root.m3Pastel; font.pixelSize: 15 }
@@ -118,6 +120,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 height: 32; implicitWidth: doneTxt.implicitWidth + 20; radius: 16; color: root.m3Pastel
                 Text { id: doneTxt; anchors.centerIn: parent; text: "✓ Готово"; color: root.m3OnPastel; font.pixelSize: 11; font.bold: true; font.family: root.cfg.fontFamily }
                 MouseArea {
@@ -147,6 +150,7 @@ Rectangle {
 
                     // Чип: Hero
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowHero ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -161,6 +165,7 @@ Rectangle {
 
                     // Чип: Быстрые плитки (Wi-Fi / BT)
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowTiles ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -175,6 +180,7 @@ Rectangle {
 
                     // Чип: Слайдеры
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowSliders ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -189,6 +195,7 @@ Rectangle {
 
                     // Чип: Медиаплеер
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowMedia ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -203,6 +210,7 @@ Rectangle {
 
                     // Чип: Монитор ресурсов
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowGauges ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -217,6 +225,7 @@ Rectangle {
 
                     // Чип: Уведомления
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowNotifications ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -231,6 +240,7 @@ Rectangle {
 
                     // Чип: Питание
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true; height: 42; radius: 18
                         color: root.cfg.sideShowPower ? root.cfg.accentContainer : root.m3SurfaceVariant
                         border.color: root.cfg.borderCol || "#323540"
@@ -255,6 +265,7 @@ Rectangle {
                         Layout.fillWidth: true
                         Text { text: "Полоса музыки:"; color: root.cfg.textPrimary; font.pixelSize: 11; font.family: root.cfg.fontFamily; Layout.fillWidth: true }
                         Rectangle {
+                            antialiasing: true
                             height: 28; implicitWidth: 100; radius: 14
                             color: root.cfg.playerProgressStyle === "wavy" ? root.m3Pastel : root.m3SurfaceVariant
                             border.color: root.cfg.borderCol || "#323540"
@@ -263,6 +274,7 @@ Rectangle {
                             MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: { root.cfg.playerProgressStyle = "wavy"; root.cfg.save() } }
                         }
                         Rectangle {
+                            antialiasing: true
                             height: 28; implicitWidth: 70; radius: 14
                             color: root.cfg.playerProgressStyle === "flat" ? root.m3Pastel : root.m3SurfaceVariant
                             border.color: root.cfg.borderCol || "#323540"
@@ -300,6 +312,7 @@ Rectangle {
 
                 // Чип профиля пользователя
                 Rectangle {
+                    antialiasing: true
                     height: 36
                     implicitWidth: userRow.implicitWidth + 20
                     radius: 18
@@ -313,6 +326,7 @@ Rectangle {
                         spacing: 8
 
                         Rectangle {
+                            antialiasing: true
                             width: 26
                             height: 26
                             radius: 13
@@ -352,6 +366,7 @@ Rectangle {
                 // Круглые кнопки FAB (36x36)
                 // 1. Карандаш (редактирование шторки)
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: editBtnM.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
                     border.color: root.cfg.borderCol || "#323540"; border.width: 1
@@ -367,6 +382,7 @@ Rectangle {
 
                 // 2. Настройки
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: sBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
                     border.color: root.cfg.borderCol || "#323540"; border.width: 1
@@ -382,6 +398,7 @@ Rectangle {
 
                 // 3. Блокировка
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: lkBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
                     border.color: root.cfg.borderCol || "#323540"; border.width: 1
@@ -397,6 +414,7 @@ Rectangle {
 
                 // 4. Закрытие
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: cBtn.containsMouse ? root.m3SurfaceHighest : root.m3SurfaceVariant
                     border.color: root.cfg.borderCol || "#323540"; border.width: 1
@@ -426,6 +444,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 42
                     implicitWidth: weatherBox.implicitWidth + 24
                     radius: 21
@@ -634,12 +653,22 @@ Rectangle {
         Component {
             id: compMedia
             Rectangle {
+                antialiasing: true
                 id: mediaCard
                 Layout.fillWidth: true
                 implicitHeight: hasMedia ? 166 : 72
                 Layout.preferredHeight: implicitHeight
                 radius: 24
-                color: root.m3SurfaceContainer
+                gradient: Gradient {
+                    GradientStop {
+                        position: 0.0
+                        color: root.m3SurfaceHigh || root.cfg.surfaceContainerHigh || root.cfg.bgElevated
+                    }
+                    GradientStop {
+                        position: 1.0
+                        color: root.m3SurfaceContainer || root.cfg.surfaceContainer || root.cfg.bgPrimary
+                    }
+                }
                 border.color: root.cfg.borderCol || "#323540"
                 border.width: 1
                 clip: true
@@ -732,6 +761,7 @@ Rectangle {
                         spacing: 12
 
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 46
                             Layout.preferredHeight: 46
                             radius: 14
@@ -791,6 +821,7 @@ Rectangle {
 
                         // Переключатель стиля полосы: Волна / Прямая
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 28
                             Layout.preferredHeight: 28
                             radius: 14
@@ -842,6 +873,7 @@ Rectangle {
                             }
 
                             Canvas {
+                                antialiasing: true
                                 id: cardWaveCanvas
                                 anchors.fill: parent
                                 property real phase: 0
@@ -980,6 +1012,7 @@ Rectangle {
 
                         // Кнопка: Предыдущий трек
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 36
                             Layout.preferredHeight: 36
                             radius: 18
@@ -996,6 +1029,7 @@ Rectangle {
 
                         // Кнопка: Play / Pause - круглая Material FAB
                         Rectangle {
+                            antialiasing: true
                             id: playFab
                             Layout.preferredWidth: 46
                             Layout.preferredHeight: 46
@@ -1006,6 +1040,7 @@ Rectangle {
 
                             // Векторная плавная иконка Плей с оптической центровкой
                             Canvas {
+                                antialiasing: true
                                 id: sidePlayCanvas
                                 anchors.fill: parent
                                 opacity: mediaCard.isPlaying ? 0 : 1
@@ -1050,6 +1085,7 @@ Rectangle {
 
                             // Векторная плавная иконка Паузы
                             Canvas {
+                                antialiasing: true
                                 id: sidePauseCanvas
                                 anchors.fill: parent
                                 opacity: mediaCard.isPlaying ? 1 : 0
@@ -1090,6 +1126,7 @@ Rectangle {
 
                         // Кнопка: Следующий трек
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 36
                             Layout.preferredHeight: 36
                             radius: 18
@@ -1116,6 +1153,7 @@ Rectangle {
                     visible: !mediaCard.hasMedia
 
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 44
                         Layout.preferredHeight: 44
                         radius: 22
@@ -1156,6 +1194,7 @@ Rectangle {
         Component {
             id: compGauges
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 implicitHeight: 44
                 Layout.preferredHeight: 44
@@ -1232,6 +1271,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 76
                         Layout.preferredHeight: 26
                         radius: 13
@@ -1297,6 +1337,7 @@ Rectangle {
                             spacing: 10
 
                             Rectangle {
+                                antialiasing: true
                                 Layout.preferredWidth: 32
                                 Layout.preferredHeight: 32
                                 radius: 16
@@ -1363,6 +1404,7 @@ Rectangle {
 
                             // Кнопка быстрого закрытия отдельного уведомления
                             Rectangle {
+                                antialiasing: true
                                 Layout.preferredWidth: 22
                                 Layout.preferredHeight: 22
                                 radius: 11
@@ -1396,6 +1438,7 @@ Rectangle {
 
                 // Компактная карточка при отсутствии уведомлений (вместо пустой зоны)
                 Rectangle {
+                    antialiasing: true
                     visible: root.cfg.notifications.length === 0
                     Layout.fillWidth: true
                     Layout.preferredHeight: 46
@@ -1418,6 +1461,7 @@ Rectangle {
         Component {
             id: compPower
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 implicitHeight: 44
                 Layout.preferredHeight: 44
@@ -1429,6 +1473,7 @@ Rectangle {
 
                     // 1. Блокировка
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         radius: 20
@@ -1456,6 +1501,7 @@ Rectangle {
 
                     // 2. Выход из системы
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         radius: 20
@@ -1483,6 +1529,7 @@ Rectangle {
 
                     // 3. Перезагрузка
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         radius: 20
@@ -1510,6 +1557,7 @@ Rectangle {
 
                     // 4. Выключение
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         radius: 20

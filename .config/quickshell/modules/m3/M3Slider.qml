@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     property real value: 50        // 0 to 100
@@ -38,6 +39,7 @@ Rectangle {
         spacing: 12
 
         Rectangle {
+            antialiasing: true
             width: 32
             height: 32
             radius: 16
@@ -91,6 +93,7 @@ Rectangle {
 
         // Цветной фон активной части - полная ширина капсулы для сохранения гладких углов
         Rectangle {
+            antialiasing: true
             width: root.width
             height: root.height
             radius: root.radius
@@ -106,6 +109,7 @@ Rectangle {
             spacing: 12
 
             Rectangle {
+                antialiasing: true
                 width: 32
                 height: 32
                 radius: 16

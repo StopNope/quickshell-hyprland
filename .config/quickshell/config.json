@@ -2,8 +2,8 @@
   "barPosition": "top",
   "swapBarSides": false,
   "barWidth": 1340,
-  "barHeight": 30,
-  "barRadius": 2,
+  "barHeight": 28,
+  "barRadius": 14,
   "barVerticalHeight": 580,
   "workspaceStyle": "arcade",
   "showWorkspaces": true,
@@ -75,7 +75,7 @@
     "dolphin",
     "telegram"
   ],
-  "userNotes": "\u0436\u043e\u043f\u0430\n\u041a\u043b\u0438\u043a\u043d\u0438\u0442\u0435, \u0447\u0442\u043e\u0431\u044b \u0437\u0430\u043f\u0438\u0441\u0430\u0442\u044c \u043c\u044b\u0441\u043b\u044c...",
+  "userNotes": "жопа\nКликните, чтобы записать мысль...",
   "currentTheme": "One Dark Pro",
   "avatarPath": "/home/stopnope/.face",
   "lockShowAvatar": false,
@@ -83,7 +83,7 @@
   "lockShowWeather": true,
   "lockShowDate": true,
   "weatherAutoLocation": false,
-  "weatherCity": "\u0422\u044e\u043c\u0435\u043d\u044c",
+  "weatherCity": "Тюмень",
   "lockPin": "",
   "osdVolume": true,
   "osdLang": true,
@@ -92,7 +92,7 @@
   "osdLeftMargin": 840,
   "customThemes": [
     {
-      "name": "\u041c\u043e\u0439 \u0441\u0442\u0438\u043b\u044c1",
+      "name": "Мой стиль1",
       "accent": "#ffffff",
       "bgSurface": "#181920",
       "bgPrimary": "#101116",
@@ -102,7 +102,7 @@
       "accentText": "#ffffff"
     },
     {
-      "name": "\u041c\u043e\u0439 \u0441\u0442\u0438\u043b\u044c",
+      "name": "Мой стиль",
       "accent": "#ffffff",
       "bgSurface": "#1a1c22",
       "bgPrimary": "#131418",

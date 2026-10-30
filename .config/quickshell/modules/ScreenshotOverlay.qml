@@ -149,6 +149,7 @@ Item {
 
         // Полное затемнение до создания выделения
         Rectangle {
+            antialiasing: true
             anchors.fill: parent
             color: Qt.rgba(0, 0, 0, 0.58)
             visible: !root.hasCrop
@@ -157,6 +158,7 @@ Item {
         // 4 прямоугольника затемнения вокруг выделенной области
         // Верхний
         Rectangle {
+            antialiasing: true
             visible: root.hasCrop
             x: 0; y: 0; width: root.width
             height: Math.max(0, root.cropY)
@@ -164,6 +166,7 @@ Item {
         }
         // Нижний
         Rectangle {
+            antialiasing: true
             visible: root.hasCrop
             x: 0; y: root.cropY + root.cropH
             width: root.width
@@ -172,6 +175,7 @@ Item {
         }
         // Левый
         Rectangle {
+            antialiasing: true
             visible: root.hasCrop
             x: 0; y: root.cropY
             width: Math.max(0, root.cropX)
@@ -180,6 +184,7 @@ Item {
         }
         // Правый
         Rectangle {
+            antialiasing: true
             visible: root.hasCrop
             x: root.cropX + root.cropW
             y: root.cropY
@@ -193,6 +198,7 @@ Item {
     // 3. РАМКА ВЫДЕЛЕНИЯ (MATERIAL YOU CROP BOX)
     // ========================================================
     Rectangle {
+        antialiasing: true
         id: cropBorder
         visible: root.hasCrop
         x: root.cropX
@@ -206,6 +212,7 @@ Item {
 
         // Бейдж с разрешением в стиле Material You
         Rectangle {
+            antialiasing: true
             anchors.bottom: parent.top
             anchors.bottomMargin: 8
             anchors.left: parent.left
@@ -239,6 +246,7 @@ Item {
     // 4. CANVAS ДЛЯ АННОТАЦИЙ (СТРЕЛКИ, КАРАНДАШ, РАМКИ)
     // ========================================================
     Canvas {
+        antialiasing: true
         id: drawCanvas
         anchors.fill: parent
 
@@ -474,6 +482,7 @@ Item {
     // 6. ВСПЛЫВАЮЩАЯ ПОДСКАЗКА СВЕРХУ (HINT BANNER)
     // ========================================================
     Rectangle {
+        antialiasing: true
         id: hintBanner
         visible: !root.hasCrop
         anchors.horizontalCenter: parent.horizontalCenter
@@ -529,6 +538,7 @@ Item {
     // 7. MATERIAL YOU ПЛАВАЮЩАЯ ПАНЕЛЬ ИНСТРУМЕНТОВ (TOOLBAR)
     // ========================================================
     Rectangle {
+        antialiasing: true
         id: toolBar
         visible: root.hasCrop || root.shapes.length > 0
         height: 48
@@ -562,6 +572,7 @@ Item {
 
             // Кнопка: Кадрирование/Выделение
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: root.currentTool === "crop" ? root.cfg.accentContainer : "transparent"
                 border.color: root.currentTool === "crop" ? root.cfg.accent : "transparent"
@@ -584,6 +595,7 @@ Item {
 
             // Кнопка: Карандаш
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: root.currentTool === "pen" ? root.cfg.accentContainer : "transparent"
                 border.color: root.currentTool === "pen" ? root.cfg.accent : "transparent"
@@ -606,6 +618,7 @@ Item {
 
             // Кнопка: Стрелка
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: root.currentTool === "arrow" ? root.cfg.accentContainer : "transparent"
                 border.color: root.currentTool === "arrow" ? root.cfg.accent : "transparent"
@@ -628,6 +641,7 @@ Item {
 
             // Кнопка: Рамка / Прямоугольник
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: root.currentTool === "rect" ? root.cfg.accentContainer : "transparent"
                 border.color: root.currentTool === "rect" ? root.cfg.accent : "transparent"
@@ -650,6 +664,7 @@ Item {
 
             // Кнопка: Размытие / Цензура
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: root.currentTool === "blur" ? root.cfg.accentContainer : "transparent"
                 border.color: root.currentTool === "blur" ? root.cfg.accent : "transparent"
@@ -685,6 +700,7 @@ Item {
                 ]
 
                 Rectangle {
+                    antialiasing: true
                     required property var modelData
                     width: 22; height: 22; radius: 11
                     color: modelData.col
@@ -692,6 +708,7 @@ Item {
                     border.width: 2
 
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         anchors.margins: -3
                         radius: 14
@@ -716,6 +733,7 @@ Item {
 
             // Отменить (Undo)
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: "transparent"
 
@@ -736,6 +754,7 @@ Item {
 
             // Очистить (Reset)
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: "transparent"
 
@@ -756,6 +775,7 @@ Item {
 
             // Закрыть / Отмена (Esc)
             Rectangle {
+                antialiasing: true
                 width: 36; height: 36; radius: 18
                 color: "transparent"
 
@@ -776,6 +796,7 @@ Item {
 
             // Главная кнопка: СОХРАНИТЬ (ENTER)
             Rectangle {
+                antialiasing: true
                 height: 36
                 implicitWidth: saveRow.implicitWidth + 24
                 radius: 18

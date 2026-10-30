@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 
 Rectangle {
+    antialiasing: true
     id: root
 
     property var model: []
@@ -33,6 +34,7 @@ Rectangle {
             model: root.model
 
             Rectangle {
+                antialiasing: true
                 required property var modelData
                 readonly property bool isSelected: root.currentValue === modelData.id
 

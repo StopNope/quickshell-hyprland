@@ -303,6 +303,7 @@ Item {
             implicitWidth: root.iconSize + 10
             implicitHeight: root.iconSize + 10
             Rectangle {
+                antialiasing: true
                 anchors.fill: parent
                 radius: width / 2
                 color: lMouse.containsMouse ? root.cfg.accentContainer : "transparent"
@@ -349,6 +350,7 @@ Item {
                 Repeater {
                     model: root.activeWorkspaces
                     Rectangle {
+                        antialiasing: true
                         id: dot
                         required property int modelData
                         readonly property bool isActive: dot.modelData === root.currentWorkspaceId
@@ -584,6 +586,7 @@ Item {
                     height: root.iconSize + 6
 
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         radius: 6
                         color: trayMouse.containsMouse ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.2) : "transparent"
@@ -660,6 +663,7 @@ Item {
             implicitWidth: hasMedia ? (mediaContentRow.implicitWidth + 8) : 26
 
             Rectangle {
+                antialiasing: true
                 anchors.fill: parent
                 radius: parent.height / 2
                 color: mediaMouseArea.containsMouse ? root.cfg.accentContainer : "transparent"
@@ -693,6 +697,7 @@ Item {
                         spacing: 2
 
                         Rectangle {
+                            antialiasing: true
                             width: 20; height: 20; radius: 10
                             color: prevM.containsMouse ? root.cfg.accent : "transparent"
                             Text { anchors.centerIn: parent; text: "󰒮"; color: prevM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 11 }
@@ -703,6 +708,7 @@ Item {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             width: 20; height: 20; radius: 10
                             color: ppM.containsMouse ? root.cfg.accent : "transparent"
                             Text { anchors.centerIn: parent; text: mediaModuleRoot.isPlaying ? "󰏤" : "󰐊"; color: ppM.containsMouse ? root.cfg.accentText : root.cfg.accent; font.pixelSize: 11 }
@@ -713,6 +719,7 @@ Item {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             width: 20; height: 20; radius: 10
                             color: nextM.containsMouse ? root.cfg.accent : "transparent"
                             Text { anchors.centerIn: parent; text: "󰒭"; color: nextM.containsMouse ? root.cfg.accentText : root.cfg.textMuted; font.pixelSize: 11 }
@@ -766,6 +773,7 @@ Item {
     Component {
         id: vModLauncher
         Rectangle {
+            antialiasing: true
             Layout.alignment: Qt.AlignHCenter
             width: root.iconSize + 8
             height: width
@@ -805,6 +813,7 @@ Item {
                 Repeater {
                     model: root.activeWorkspaces
                     Rectangle {
+                        antialiasing: true
                         id: vDot
                         required property int modelData
                         readonly property bool isActive: vDot.modelData === root.currentWorkspaceId
@@ -1007,6 +1016,7 @@ Item {
                     height: width
 
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         radius: 4
                         color: vTrayMouse.containsMouse ? Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.2) : "transparent"
@@ -1049,6 +1059,7 @@ Item {
     Component {
         id: vModMedia
         Rectangle {
+            antialiasing: true
             Layout.alignment: Qt.AlignHCenter
             width: root.iconSize + 8
             height: width
@@ -1094,6 +1105,7 @@ Item {
     Component {
         id: vModTimer
         Rectangle {
+            antialiasing: true
             Layout.alignment: Qt.AlignHCenter
             width: root.iconSize + 8
             height: width
@@ -1155,6 +1167,7 @@ Item {
         z: isDragging ? 200 : 1
 
         Rectangle {
+            antialiasing: true
             id: bubbleRect
             anchors.verticalCenter: parent.verticalCenter
             x: 0
@@ -1235,6 +1248,7 @@ Item {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             visible: index < bubbleContainer.modelData.split("+").length - 1
                             width: 1
                             height: Math.max(10, root.barHeight - 16)
@@ -1258,6 +1272,7 @@ Item {
 
     // ================= ГЛАВНАЯ КАПСУЛА БАРА =================
     Rectangle {
+        antialiasing: true
         id: mainCapsule
 
         width: root.isVertical ? Math.max(38, root.barHeight) : (root.cfg.barStyle === "attached" ? Math.min(parent.width - 24, root.barWidth) : Math.min(parent.width - 24, root.barWidth))
@@ -1276,7 +1291,7 @@ Item {
         anchors.bottom: (root.cfg.barStyle === "attached" && root.cfg.barPosition === "bottom" && !root.isVertical) ? parent.bottom : undefined
         anchors.verticalCenter: (root.cfg.barStyle !== "attached" || root.isVertical) ? parent.verticalCenter : undefined
 
-        // В режиме attached фон и окантовку рисует цельный Shape (attachedBarShape ниже)
+        // В режиме attached фон и окантовку рисует цельный Shape (attachedBarShape с эффектом натяжения)
         color: (root.cfg.barStyle === "attached" && !root.isVertical) ? "transparent"
              : (root.cfg.barStyle === "bubbles") ? "transparent"
              : Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
@@ -1460,6 +1475,7 @@ Item {
         property int currentIndex: 0
 
         Rectangle {
+            antialiasing: true
             anchors.fill: parent
             radius: 16
             color: root.cfg.surfaceContainerHigh
@@ -1496,6 +1512,7 @@ Item {
 
                 // Разъединить объединённую группу модулей
                 Rectangle {
+                    antialiasing: true
                     visible: modContextPopup.currentModId.indexOf("+") !== -1
                     Layout.fillWidth: true; Layout.preferredHeight: 26; radius: 8
                     color: cSplitM.containsMouse ? root.cfg.bgElevated : "transparent"
@@ -1515,6 +1532,7 @@ Item {
 
                 // Объединить со следующим модулем
                 Rectangle {
+                    antialiasing: true
                     readonly property int zoneLen: {
                         let z = modContextPopup.currentZone
                         let l = z === "left" ? root.cfg.barModulesLeft : (z === "center" ? root.cfg.barModulesCenter : root.cfg.barModulesRight)
@@ -1539,6 +1557,7 @@ Item {
 
                 // 1. Сдвинуть влево
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true; Layout.preferredHeight: 26; radius: 8
                     color: cM1.containsMouse ? root.cfg.bgElevated : "transparent"
                     RowLayout {
@@ -1557,6 +1576,7 @@ Item {
 
                 // 2. Сдвинуть вправо
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true; Layout.preferredHeight: 26; radius: 8
                     color: cM2.containsMouse ? root.cfg.bgElevated : "transparent"
                     RowLayout {
@@ -1575,6 +1595,7 @@ Item {
 
                 // 3. Переместить в другую зону
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true; Layout.preferredHeight: 26; radius: 8
                     color: cM3.containsMouse ? root.cfg.bgElevated : "transparent"
                     RowLayout {
@@ -1599,6 +1620,7 @@ Item {
 
                 // 4. Скрыть модуль
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true; Layout.preferredHeight: 26; radius: 8
                     color: cM4.containsMouse ? root.cfg.bgElevated : "transparent"
                     RowLayout {
@@ -1618,19 +1640,28 @@ Item {
         }
     }
 
-    // ================= ЕДИНЫЙ ЦЕЛЬНЫЙ КОНТУР БАРА С ПЛАВНЫМ ПЕРЕХОДОМ (ATTACHED) =================
-    // Рисует единый замкнутый контур бара со скруглениями основания у границы экрана,
-    // без отдельных накладных элементов, с единой непрерывной окантовкой.
+    // ================= ЕДИНЫЙ ЦЕЛЬНЫЙ КОНТУР БАРА С ЭФФЕКТОМ НАТЯЖЕНИЯ (ATTACHED) =================
+    // Рисует единый замкнутый контур бара со скруглениями основания у границы экрана (эффект натяжения).
     Shape {
+        antialiasing: true
         id: attachedBarShape
         visible: root.cfg.barStyle === "attached" && !root.isVertical
         z: -1
 
+        // Аппаратное сглаживание векторной геометрии (MSAA 4x)
+        layer.enabled: true
+        layer.samples: 4
+        layer.smooth: true
+
         readonly property bool isBottom: root.cfg.barPosition === "bottom"
         readonly property real totalW: width
         readonly property real totalH: height
-        readonly property real barRad: Math.max(0, Math.min(root.barRadius, totalH - 6))
-        readonly property real filletRadius: Math.max(4, Math.min(14, totalH - barRad - 1))
+
+        // Безопасное гармоничное распределение радиусов:
+        // filletRadius (натяжение у основания экрана) и barRad (скругление нижних углов)
+        // гарантируют наличие свободного вертикального сегмента между ними при ЛЮБОЙ высоте бара:
+        readonly property real filletRadius: Math.min(8.0, Math.max(3.0, totalH * 0.22))
+        readonly property real barRad: Math.min(root.barRadius, Math.max(4.0, totalH * 0.45))
 
         width: mainCapsule.width + filletRadius * 2
         height: mainCapsule.height
@@ -1641,8 +1672,8 @@ Item {
 
         ShapePath {
             id: attachedPath
-            strokeColor: (root.cfg.barBorder === false) ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity)
-            strokeWidth: (root.cfg.barBorder === false) ? 0 : 1
+            strokeColor: (root.cfg.barBorder === false) ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity * 0.75)
+            strokeWidth: (root.cfg.barBorder === false) ? 0 : 1.2
             fillColor: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity)
             capStyle: ShapePath.RoundCap
             joinStyle: ShapePath.RoundJoin
@@ -1656,7 +1687,7 @@ Item {
                 y: attachedBarShape.isBottom ? attachedBarShape.totalH : 0
             }
 
-            // 2. Правый переход у экрана (вогнутая дуга)
+            // 2. Правый переход у экрана (вогнутая дуга — скругление у основания / эффект натяжения)
             PathArc {
                 x: attachedBarShape.totalW - attachedBarShape.filletRadius
                 y: attachedBarShape.isBottom ? (attachedBarShape.totalH - attachedBarShape.filletRadius) : attachedBarShape.filletRadius
@@ -1666,13 +1697,13 @@ Item {
                 useLargeArc: false
             }
 
-            // 3. Правая вертикальная грань бара к углу
+            // 3. Правая вертикальная грань бара к нижнему углу
             PathLine {
                 x: attachedBarShape.totalW - attachedBarShape.filletRadius
                 y: attachedBarShape.isBottom ? attachedBarShape.barRad : (attachedBarShape.totalH - attachedBarShape.barRad)
             }
 
-            // 4. Правый выпуклый угол бара
+            // 4. Правый выпуклый угол бара (скругление нижнего угла)
             PathArc {
                 x: attachedBarShape.totalW - attachedBarShape.filletRadius - attachedBarShape.barRad
                 y: attachedBarShape.isBottom ? 0 : attachedBarShape.totalH
@@ -1682,13 +1713,13 @@ Item {
                 useLargeArc: false
             }
 
-            // 5. Внешний край бара
+            // 5. Внешний горизонтальный край бара
             PathLine {
                 x: attachedBarShape.filletRadius + attachedBarShape.barRad
                 y: attachedBarShape.isBottom ? 0 : attachedBarShape.totalH
             }
 
-            // 6. Левый выпуклый угол бара
+            // 6. Левый выпуклый угол бара (скругление нижнего угла)
             PathArc {
                 x: attachedBarShape.filletRadius
                 y: attachedBarShape.isBottom ? attachedBarShape.barRad : (attachedBarShape.totalH - attachedBarShape.barRad)
@@ -1704,7 +1735,7 @@ Item {
                 y: attachedBarShape.isBottom ? (attachedBarShape.totalH - attachedBarShape.filletRadius) : attachedBarShape.filletRadius
             }
 
-            // 8. Левый переход у экрана (вогнутая дуга, замыкающая в начало)
+            // 8. Левый переход у экрана (вогнутая дуга — скругление у основания / эффект натяжения, замыкающая в начало)
             PathArc {
                 x: 0
                 y: attachedBarShape.isBottom ? attachedBarShape.totalH : 0

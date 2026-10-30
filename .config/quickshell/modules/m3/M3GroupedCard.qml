@@ -27,6 +27,7 @@ ColumnLayout {
     }
 
     Rectangle {
+        antialiasing: true
         Layout.fillWidth: true
         implicitHeight: cardLayout.implicitHeight + 16
         Layout.preferredHeight: implicitHeight

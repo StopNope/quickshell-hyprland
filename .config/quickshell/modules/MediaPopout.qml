@@ -18,7 +18,8 @@ Item {
     signal closeRequested()
 
     // ── Цвета и оформление (согласованы с Bar.qml) ──
-    readonly property color barColor: root.cfg.surfaceContainer || "#1e2025"
+    readonly property color barColor: root.cfg.bgSurface || "#181920"
+    readonly property color cardColor: root.cfg.surfaceContainer || root.cfg.bgElevated || "#22242e"
     readonly property color borderColor: root.cfg.outlineVariant || "#383b45"
     readonly property bool isAttached: root.cfg.barStyle === "attached" && root.cfg.barPosition === "top"
 
@@ -420,17 +421,51 @@ Item {
         // 1. МОНОЛИТНАЯ ГЕОМЕТРИЯ С СОПРЯЖЕНИЯМИ
         // ==========================================
         Shape {
+            antialiasing: true
             id: attachedShape
             visible: root.isAttached
             width: root.totalW
             height: root.targetH
 
+            layer.enabled: true
+            layer.samples: 4
+            layer.smooth: true
+
             ShapePath {
                 strokeColor: "transparent"
                 strokeWidth: 0
-                fillColor: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity || 1.0)
                 capStyle: ShapePath.RoundCap
                 joinStyle: ShapePath.RoundJoin
+
+                // Выразительный, видимый градиент выпадающего медиаплеера:
+                // У самого бара (сверху) — строго в цвет бара для бесшовного сопряжения,
+                // А книзу плавно переходит в глубокий, насыщенный темный оттенок
+                fillGradient: LinearGradient {
+                    x1: 0; y1: 0
+                    x2: 0; y2: root.targetH
+                    GradientStop {
+                        position: 0.0
+                        color: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity || 1.0)
+                    }
+                    GradientStop {
+                        position: 0.35
+                        color: Qt.rgba(
+                            Math.min(1.0, root.barColor.r * 1.05 + root.cfg.accent.r * 0.03),
+                            Math.min(1.0, root.barColor.g * 1.05 + root.cfg.accent.g * 0.03),
+                            Math.min(1.0, root.barColor.b * 1.05 + root.cfg.accent.b * 0.04),
+                            root.cfg.barOpacity || 1.0
+                        )
+                    }
+                    GradientStop {
+                        position: 1.0
+                        color: Qt.rgba(
+                            Math.min(1.0, root.barColor.r * 1.15 + root.cfg.accent.r * 0.12),
+                            Math.min(1.0, root.barColor.g * 1.15 + root.cfg.accent.g * 0.12),
+                            Math.min(1.0, root.barColor.b * 1.15 + root.cfg.accent.b * 0.15),
+                            root.cfg.barOpacity || 1.0
+                        )
+                    }
+                }
 
                 startX: 0
                 startY: 0
@@ -561,12 +596,36 @@ Item {
         }
 
         Rectangle {
+            antialiasing: true
             id: floatingShape
             visible: !root.isAttached
             width: root.cardW
             height: root.targetH
             radius: root.bR
-            color: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity || 1.0)
+            gradient: Gradient {
+                GradientStop {
+                    position: 0.0
+                    color: Qt.rgba(root.barColor.r, root.barColor.g, root.barColor.b, root.cfg.barOpacity || 1.0)
+                }
+                GradientStop {
+                    position: 0.35
+                    color: Qt.rgba(
+                        Math.min(1.0, root.barColor.r * 1.05 + root.cfg.accent.r * 0.03),
+                        Math.min(1.0, root.barColor.g * 1.05 + root.cfg.accent.g * 0.03),
+                        Math.min(1.0, root.barColor.b * 1.05 + root.cfg.accent.b * 0.04),
+                        root.cfg.barOpacity || 1.0
+                    )
+                }
+                GradientStop {
+                    position: 1.0
+                    color: Qt.rgba(
+                        Math.min(1.0, root.barColor.r * 1.15 + root.cfg.accent.r * 0.12),
+                        Math.min(1.0, root.barColor.g * 1.15 + root.cfg.accent.g * 0.12),
+                        Math.min(1.0, root.barColor.b * 1.15 + root.cfg.accent.b * 0.15),
+                        root.cfg.barOpacity || 1.0
+                    )
+                }
+            }
             border.color: (root.cfg.barBorder === false) ? "transparent" : Qt.rgba(root.borderColor.r, root.borderColor.g, root.borderColor.b, root.cfg.barOpacity || 1.0)
             border.width: (root.cfg.barBorder === false) ? 0 : 1
         }
@@ -609,6 +668,7 @@ Item {
                             readonly property real barHeight: Math.max(3, (rawVal / 100.0) * parent.height)
 
                             Rectangle {
+                                antialiasing: true
                                 anchors.bottom: parent.bottom
                                 width: parent.width
                                 height: parent.barHeight
@@ -635,6 +695,7 @@ Item {
 
                 // 2. Жидкая Волна CAVA (Fluid Wave Visualizer)
                 Canvas {
+                    antialiasing: true
                     id: fluidWaveVis
                     anchors.fill: parent
                     visible: root.visMode === "wave"
@@ -702,6 +763,7 @@ Item {
                     spacing: 8
 
                     Rectangle {
+                        antialiasing: true
                         height: 24
                         implicitWidth: sRow.implicitWidth + 16
                         radius: 12
@@ -735,6 +797,7 @@ Item {
                                 visible: root.isPlaying
 
                                 Rectangle {
+                                    antialiasing: true
                                     width: 2.5; height: 8; radius: 1; color: root.cfg.accent
                                     SequentialAnimation on height {
                                         running: root.isPlaying
@@ -744,6 +807,7 @@ Item {
                                     }
                                 }
                                 Rectangle {
+                                    antialiasing: true
                                     width: 2.5; height: 11; radius: 1; color: root.cfg.accent
                                     SequentialAnimation on height {
                                         running: root.isPlaying
@@ -753,6 +817,7 @@ Item {
                                     }
                                 }
                                 Rectangle {
+                                    antialiasing: true
                                     width: 2.5; height: 5; radius: 1; color: root.cfg.accent
                                     SequentialAnimation on height {
                                         running: root.isPlaying
@@ -769,6 +834,7 @@ Item {
                     Row {
                         spacing: 4
                         Rectangle {
+                            antialiasing: true
                             height: 24
                             implicitWidth: playerTabRow.implicitWidth + 14
                             radius: 12
@@ -803,6 +869,7 @@ Item {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             height: 24
                             implicitWidth: lyricsTabRow.implicitWidth + 14
                             radius: 12
@@ -844,6 +911,7 @@ Item {
 
                     // Кнопка переключения визуализатора (CAVA Спектр / Волна / Выкл)
                     Rectangle {
+                        antialiasing: true
                         width: 24
                         height: 24
                         radius: 12
@@ -871,6 +939,7 @@ Item {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         width: 24
                         height: 24
                         radius: 12
@@ -907,6 +976,7 @@ Item {
 
                         // Фоновая подложка
                         Rectangle {
+                            antialiasing: true
                             anchors.fill: parent
                             radius: 18
                             color: root.cfg.surfaceContainerHighest || "#262933"
@@ -939,6 +1009,7 @@ Item {
                             visible: false
 
                             Rectangle {
+                                antialiasing: true
                                 anchors.fill: parent
                                 radius: 18
                                 color: "black"
@@ -959,6 +1030,7 @@ Item {
 
                         // Рамка со скруглением поверх
                         Rectangle {
+                            antialiasing: true
                             anchors.fill: parent
                             radius: 18
                             color: "transparent"
@@ -1019,6 +1091,7 @@ Item {
                                 }
 
                                 Canvas {
+                                    antialiasing: true
                                     id: wavyCanvas
                                     anchors.fill: parent
 
@@ -1301,6 +1374,7 @@ Item {
 
                     // Предыдущий трек (Previous)
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 42
                         Layout.preferredHeight: 42
                         radius: 21
@@ -1326,6 +1400,7 @@ Item {
 
                     // Кнопка Play/Pause (Главная капсула по центру)
                     Rectangle {
+                        antialiasing: true
                         id: playHeroBtn
                         Layout.preferredWidth: 64
                         Layout.preferredHeight: 42
@@ -1352,6 +1427,7 @@ Item {
 
                     // Следующий трек (Next)
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 42
                         Layout.preferredHeight: 42
                         radius: 21
@@ -1379,6 +1455,7 @@ Item {
 
                     // ЕДИНСТВЕННЫЙ ПОЛНОЦЕННЫЙ СЛАЙДЕР ГРОМКОСТИ MATERIAL 3 (СО SCISSOR-КЛИППИНГОМ, НИКОГДА НЕ СПЛЮЩИВАЕТСЯ!)
                     Rectangle {
+                        antialiasing: true
                         id: volSliderRoot
                         Layout.preferredWidth: 176
                         Layout.preferredHeight: 38
@@ -1431,6 +1508,7 @@ Item {
 
                             // Прямоугольник ПОЛНОЙ ширины с неизменным радиусом 19px!
                             Rectangle {
+                                antialiasing: true
                                 width: volSliderRoot.width
                                 height: volSliderRoot.height
                                 radius: volSliderRoot.radius

@@ -187,6 +187,7 @@ Item {
 
                 // Индикатор оставшегося времени (мягкая линия внизу)
                 Rectangle {
+                    antialiasing: true
                     anchors.left: parent.left
                     anchors.bottom: parent.bottom
                     height: 2
@@ -212,6 +213,7 @@ Item {
                         spacing: 8
 
                         Rectangle {
+                            antialiasing: true
                             width: 26
                             height: 26
                             radius: 13
@@ -258,6 +260,7 @@ Item {
 
                         // Кнопка закрытия карточки
                         Rectangle {
+                            antialiasing: true
                             width: 20
                             height: 20
                             radius: 10

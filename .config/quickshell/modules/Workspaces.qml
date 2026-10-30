@@ -23,6 +23,7 @@ RowLayout {
         model: root.activeWorkspaces
 
         Rectangle {
+            antialiasing: true
             id: dot
             required property int modelData
             readonly property bool isActive: Hyprland.focusedWorkspace && Hyprland.focusedWorkspace.id === modelData

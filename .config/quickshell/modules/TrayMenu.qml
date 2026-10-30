@@ -7,6 +7,7 @@ import Quickshell.Services.SystemTray
 import Quickshell.Io
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -105,6 +106,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 28
                 height: 28
                 radius: 14
@@ -157,6 +159,7 @@ Rectangle {
 
             // Кнопка закрытия
             Rectangle {
+                antialiasing: true
                 width: 24
                 height: 24
                 radius: 12
@@ -181,6 +184,7 @@ Rectangle {
 
         // Тонкий разделитель
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             height: 1
             color: root.cfg.outlineVariant || "#383b45"
@@ -205,6 +209,7 @@ Rectangle {
 
                     // Разделитель
                     Rectangle {
+                        antialiasing: true
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.right: parent.right
@@ -216,6 +221,7 @@ Rectangle {
 
                     // Интерактивный пункт
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         visible: !modelData.isSeparator
                         radius: 8
@@ -306,6 +312,7 @@ Rectangle {
 
         // Тонкий разделитель перед завершением
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             height: 1
             color: root.cfg.outlineVariant || "#383b45"
@@ -313,6 +320,7 @@ Rectangle {
 
         // ================= 3. КНОПКА ЗАВЕРШЕНИЯ ПРИЛОЖЕНИЯ (KILL) =================
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             implicitHeight: 32
             radius: 8

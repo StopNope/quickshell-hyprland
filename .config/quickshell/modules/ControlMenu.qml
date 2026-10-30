@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -244,6 +245,7 @@ Rectangle {
             spacing: 10
 
             Rectangle {
+                antialiasing: true
                 Layout.preferredWidth: 38
                 Layout.preferredHeight: 38
                 radius: 19
@@ -274,6 +276,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.preferredWidth: 36
                 Layout.preferredHeight: 36
                 radius: 18
@@ -291,6 +294,7 @@ Rectangle {
 
         // ================= 2. СЕГМЕНТИРОВАННЫЙ M3 СЕЛЕКТОР ВКЛАДОК =================
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.preferredHeight: 44
             radius: 22
@@ -309,6 +313,7 @@ Rectangle {
                     ]
 
                     Rectangle {
+                        antialiasing: true
                         required property var modelData
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -350,6 +355,7 @@ Rectangle {
 
         // ================= 3. MASTER ПЕРЕКЛЮЧАТЕЛЬ =================
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.preferredHeight: 56
             radius: 20
@@ -379,6 +385,7 @@ Rectangle {
 
                 // M3 Switch
                 Rectangle {
+                    antialiasing: true
                     width: 48
                     height: 26
                     radius: 13
@@ -386,6 +393,7 @@ Rectangle {
                     Behavior on color { ColorAnimation { duration: 180 } }
 
                     Rectangle {
+                        antialiasing: true
                         width: 20
                         height: 20
                         radius: 10
@@ -424,6 +432,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 radius: 20
@@ -452,6 +461,7 @@ Rectangle {
                     Item { Layout.fillHeight: true }
 
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 42
                         radius: 21
@@ -502,6 +512,7 @@ Rectangle {
                 Item { Layout.fillWidth: true }
 
                 Rectangle {
+                    antialiasing: true
                     width: 30
                     height: 30
                     radius: 15
@@ -569,6 +580,7 @@ Rectangle {
                         spacing: 10
 
                         Rectangle {
+                            antialiasing: true
                             Layout.preferredWidth: 34
                             Layout.preferredHeight: 34
                             radius: 17
@@ -604,6 +616,7 @@ Rectangle {
                         }
 
                         Rectangle {
+                            antialiasing: true
                             visible: isConnected || (itemMouse.containsMouse && !isString)
                             Layout.preferredWidth: 92
                             Layout.preferredHeight: 26

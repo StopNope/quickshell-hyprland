@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     property bool active: false
@@ -38,6 +39,7 @@ Rectangle {
 
         // Круглый / сквиркл контейнер иконки
         Rectangle {
+            antialiasing: true
             width: 38
             height: 38
             radius: 19
@@ -79,6 +81,7 @@ Rectangle {
 
         // Кнопка перехода к списку / деталям (Chevron)
         Rectangle {
+            antialiasing: true
             visible: root.hasDetails
             width: 28
             height: 28

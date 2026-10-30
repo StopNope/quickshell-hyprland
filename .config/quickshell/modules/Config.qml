@@ -48,7 +48,7 @@ QtObject {
         { id: "workspaces", name: "Воркспейсы", icon: "󰄯" },
         { id: "clock", name: "Часы", icon: "󰥔" },
         { id: "weather", name: "Погода", icon: "󰖐" },
-        { id: "timer", name: "Помодоро Таймер", icon: "󰄉" },
+        { id: "timer", name: "Таймер", icon: "󰄉" },
         { id: "cpu", name: "Процессор (CPU)", icon: "󰍛" },
         { id: "ram", name: "Память (RAM)", icon: "󰘚" },
         { id: "gpu", name: "Видеокарта (GPU)", icon: "󰢮" },

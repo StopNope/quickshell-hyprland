@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -46,6 +47,7 @@ Rectangle {
         spacing: 12
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: 28
             Layout.preferredHeight: 28
             radius: 14
@@ -71,6 +73,7 @@ Rectangle {
 
         // Полоса уровня громкости
         Rectangle {
+            antialiasing: true
             visible: root.osdType === "volume"
             Layout.fillWidth: true
             Layout.preferredHeight: 8
@@ -78,6 +81,7 @@ Rectangle {
             color: root.cfg.bgPrimary
 
             Rectangle {
+                antialiasing: true
                 width: parent.width * Math.min(1, Math.max(0, root.osdValue / 100))
                 height: parent.height
                 radius: 4

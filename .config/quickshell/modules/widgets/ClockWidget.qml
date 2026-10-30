@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -108,6 +109,7 @@ Rectangle {
 
         // 12-лепестковая форма Pixel Flower со стрелками и изогнутой датой
         Canvas {
+            antialiasing: true
             id: scallopCanvas
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.94
@@ -258,6 +260,7 @@ Rectangle {
 
                 // Секундный чип
                 Rectangle {
+                    antialiasing: true
                     height: 20
                     width: secScallopTxt.implicitWidth + 10
                     radius: 10
@@ -286,6 +289,7 @@ Rectangle {
         visible: root.variant === "numeral"
 
         Canvas {
+            antialiasing: true
             id: numeralCanvas
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.94
@@ -384,6 +388,7 @@ Rectangle {
         visible: root.variant === "clover"
 
         Canvas {
+            antialiasing: true
             id: cloverCanvas
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.94
@@ -481,6 +486,7 @@ Rectangle {
         visible: root.variant === "circle"
 
         Canvas {
+            antialiasing: true
             id: circleCanvas
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.94
@@ -567,6 +573,7 @@ Rectangle {
 
         // Дата-пилюля в отметке 3 часа
         Rectangle {
+            antialiasing: true
             anchors.right: parent.right
             anchors.rightMargin: Math.round(parent.width * 0.14)
             anchors.verticalCenter: parent.verticalCenter
@@ -796,6 +803,7 @@ Rectangle {
 
         // Микро-бейджик даты в правом верхнем углу
         Rectangle {
+            antialiasing: true
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.margins: 14
@@ -835,6 +843,7 @@ Rectangle {
 
             // Мягкая капсула под минуты в стиле M3 tonal pill
             Rectangle {
+                antialiasing: true
                 Layout.alignment: Qt.AlignHCenter
                 height: exprMinTxt.implicitHeight + 8
                 width: exprMinTxt.implicitWidth + 26
@@ -902,6 +911,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 24
                 radius: 12
@@ -934,6 +944,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 24
                 radius: 12
@@ -988,6 +999,7 @@ Rectangle {
                 }
 
                 Canvas {
+                    antialiasing: true
                     id: clockDialCanvas
                     anchors.fill: parent
 
@@ -1073,6 +1085,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true
                     height: 24
                     radius: 12
@@ -1154,6 +1167,7 @@ Rectangle {
 
         // Вертикальный мягкий разделитель
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: 2
             Layout.preferredHeight: Math.round(parent.height * 0.6)
             Layout.alignment: Qt.AlignVCenter
@@ -1179,6 +1193,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 Layout.fillWidth: true
                 radius: 11

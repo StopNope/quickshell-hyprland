@@ -6,6 +6,7 @@ import Quickshell.Services.Mpris
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -87,6 +88,7 @@ Rectangle {
                 Layout.preferredHeight: 46
 
                 Rectangle {
+                    antialiasing: true
                     anchors.fill: parent
                     radius: 12
                     color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.14)
@@ -115,6 +117,7 @@ Rectangle {
                     layer.enabled: true
                     visible: false
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         radius: 12
                         color: "black"
@@ -130,6 +133,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     anchors.fill: parent
                     radius: 12
                     color: "transparent"
@@ -169,6 +173,7 @@ Rectangle {
 
                 // Кнопка Предыдущий трек
                 Rectangle {
+                    antialiasing: true
                     width: 30
                     height: 30
                     radius: 15
@@ -191,6 +196,7 @@ Rectangle {
 
                 // Кнопка Play/Pause: Лаконичный круг (smooth circle) без рваных зубцов
                 Rectangle {
+                    antialiasing: true
                     id: playBtn
                     width: 38
                     height: 38
@@ -207,6 +213,7 @@ Rectangle {
 
                     // Векторная плавная иконка Плей
                     Canvas {
+                        antialiasing: true
                         id: widgetPlayCanvas
                         anchors.fill: parent
                         opacity: root.isPlaying ? 0 : 1
@@ -251,6 +258,7 @@ Rectangle {
 
                     // Векторная плавная иконка Паузы
                     Canvas {
+                        antialiasing: true
                         id: widgetPauseCanvas
                         anchors.fill: parent
                         opacity: root.isPlaying ? 1 : 0
@@ -294,6 +302,7 @@ Rectangle {
 
                 // Кнопка Следующий трек
                 Rectangle {
+                    antialiasing: true
                     width: 30
                     height: 30
                     radius: 15
@@ -343,6 +352,7 @@ Rectangle {
             }
 
             Canvas {
+                antialiasing: true
                 id: dWave
                 anchors.fill: parent
                 property real phase: 0
@@ -499,6 +509,7 @@ Rectangle {
         visible: root.variant === "compact"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: Math.min(parent.height - 8, 48)
             Layout.preferredHeight: Layout.preferredWidth
             radius: 14
@@ -547,6 +558,7 @@ Rectangle {
         RowLayout {
             spacing: 6
             Rectangle {
+                antialiasing: true
                 width: 38
                 height: 38
                 radius: 19
@@ -563,6 +575,7 @@ Rectangle {
                 }
             }
             Rectangle {
+                antialiasing: true
                 width: 32
                 height: 32
                 radius: 16
@@ -593,6 +606,7 @@ Rectangle {
             Layout.alignment: Qt.AlignVCenter
 
             Rectangle {
+                antialiasing: true
                 id: vinylPlatter
                 anchors.fill: parent
                 radius: width / 2
@@ -612,6 +626,7 @@ Rectangle {
 
                 // Бороздки винила
                 Rectangle {
+                    antialiasing: true
                     anchors.centerIn: parent
                     width: parent.width * 0.78
                     height: width
@@ -621,6 +636,7 @@ Rectangle {
                     border.width: 1
                 }
                 Rectangle {
+                    antialiasing: true
                     anchors.centerIn: parent
                     width: parent.width * 0.58
                     height: width
@@ -632,6 +648,7 @@ Rectangle {
 
                 // Центральное яблоко пластинки
                 Rectangle {
+                    antialiasing: true
                     anchors.centerIn: parent
                     width: parent.width * 0.42
                     height: width
@@ -647,6 +664,7 @@ Rectangle {
 
                     // Центральное отверстие
                     Rectangle {
+                        antialiasing: true
                         anchors.centerIn: parent
                         width: 8
                         height: 8
@@ -686,18 +704,21 @@ Rectangle {
             RowLayout {
                 spacing: 8
                 Rectangle {
+                    antialiasing: true
                     width: 32; height: 32; radius: 16
                     color: vnPrevM.containsMouse ? root.cfg.surfaceContainerHigh : "transparent"
                     Text { anchors.centerIn: parent; text: "󰒮"; color: root.cfg.textPrimary; font.pixelSize: 14 }
                     MouseArea { id: vnPrevM; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: if (root.player) root.player.previous() }
                 }
                 Rectangle {
+                    antialiasing: true
                     width: 36; height: 36; radius: 18
                     color: root.cfg.accent
                     Text { anchors.centerIn: parent; text: root.isPlaying ? "󰏤" : "󰐊"; color: root.cfg.accentText; font.pixelSize: 16 }
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: if (root.player) root.player.togglePlaying() }
                 }
                 Rectangle {
+                    antialiasing: true
                     width: 32; height: 32; radius: 16
                     color: vnNextM.containsMouse ? root.cfg.surfaceContainerHigh : "transparent"
                     Text { anchors.centerIn: parent; text: "󰒭"; color: root.cfg.textPrimary; font.pixelSize: 14 }
@@ -717,6 +738,7 @@ Rectangle {
         visible: root.variant === "sleek_capsule"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: 42
             Layout.preferredHeight: 42
             radius: 21
@@ -753,11 +775,13 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 4
                 radius: 2
                 color: root.cfg.surfaceContainerHigh
                 Rectangle {
+                    antialiasing: true
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
@@ -769,6 +793,7 @@ Rectangle {
         }
 
         Rectangle {
+            antialiasing: true
             width: 36
             height: 36
             radius: 18

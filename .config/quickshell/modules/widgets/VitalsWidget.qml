@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -31,6 +32,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 28
                 height: 28
                 radius: 10
@@ -57,6 +59,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 width: hostBadgeText.implicitWidth + 14
                 radius: 11
@@ -82,6 +85,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 24
                 height: 24
                 radius: 8
@@ -100,6 +104,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 id: cpuTrack
                 Layout.fillWidth: true
                 height: 10
@@ -108,6 +113,7 @@ Rectangle {
                 clip: true
 
                 Rectangle {
+                    antialiasing: true
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
@@ -137,6 +143,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 width: 24
                 height: 24
                 radius: 8
@@ -155,6 +162,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 id: ramTrack
                 Layout.fillWidth: true
                 height: 10
@@ -163,6 +171,7 @@ Rectangle {
                 clip: true
 
                 Rectangle {
+                    antialiasing: true
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
@@ -193,6 +202,7 @@ Rectangle {
             visible: root.size !== "S"
 
             Rectangle {
+                antialiasing: true
                 width: 24
                 height: 24
                 radius: 8
@@ -211,6 +221,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 id: gpuTrack
                 Layout.fillWidth: true
                 height: 10
@@ -219,6 +230,7 @@ Rectangle {
                 clip: true
 
                 Rectangle {
+                    antialiasing: true
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
@@ -254,6 +266,7 @@ Rectangle {
 
         // Карточка CPU
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 20
@@ -266,6 +279,7 @@ Rectangle {
                 spacing: 4
 
                 Rectangle {
+                    antialiasing: true
                     Layout.alignment: Qt.AlignHCenter
                     height: 22
                     width: cpuBadge.implicitWidth + 12
@@ -296,6 +310,7 @@ Rectangle {
 
         // Карточка RAM
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 20
@@ -308,6 +323,7 @@ Rectangle {
                 spacing: 4
 
                 Rectangle {
+                    antialiasing: true
                     Layout.alignment: Qt.AlignHCenter
                     height: 22
                     width: ramBadge.implicitWidth + 12
@@ -348,6 +364,7 @@ Rectangle {
 
         // 1. CPU Card
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 24
@@ -364,6 +381,7 @@ Rectangle {
                     Layout.fillWidth: true
                     spacing: 6
                     Rectangle {
+                        antialiasing: true
                         width: 26; height: 26; radius: 13
                         color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
                         Text { anchors.centerIn: parent; text: "󰍛"; color: root.cfg.accent; font.pixelSize: 13 }
@@ -382,6 +400,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true
                     height: 12
                     radius: 6
@@ -389,6 +408,7 @@ Rectangle {
                     clip: true
 
                     Rectangle {
+                        antialiasing: true
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         height: parent.height
@@ -403,6 +423,7 @@ Rectangle {
 
         // 2. RAM Card
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 24
@@ -419,6 +440,7 @@ Rectangle {
                     Layout.fillWidth: true
                     spacing: 6
                     Rectangle {
+                        antialiasing: true
                         width: 26; height: 26; radius: 13
                         color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
                         Text { anchors.centerIn: parent; text: "󰘚"; color: root.cfg.accent; font.pixelSize: 13 }
@@ -437,6 +459,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true
                     height: 12
                     radius: 6
@@ -444,6 +467,7 @@ Rectangle {
                     clip: true
 
                     Rectangle {
+                        antialiasing: true
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         height: parent.height
@@ -458,6 +482,7 @@ Rectangle {
 
         // 3. GPU Card
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 24
@@ -474,6 +499,7 @@ Rectangle {
                     Layout.fillWidth: true
                     spacing: 6
                     Rectangle {
+                        antialiasing: true
                         width: 26; height: 26; radius: 13
                         color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.16)
                         Text { anchors.centerIn: parent; text: "󰢮"; color: root.cfg.accent; font.pixelSize: 13 }
@@ -492,6 +518,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     Layout.fillWidth: true
                     height: 12
                     radius: 6
@@ -499,6 +526,7 @@ Rectangle {
                     clip: true
 
                     Rectangle {
+                        antialiasing: true
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
                         height: parent.height

@@ -17,6 +17,7 @@ Item {
     implicitHeight: 48
 
     Canvas {
+        antialiasing: true
         id: shapeCanvas
         anchors.fill: parent
 

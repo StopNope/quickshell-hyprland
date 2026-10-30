@@ -180,6 +180,7 @@ Item {
 
     // Полупрозрачный фон с затемнением (клик закрывает)
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         color: Qt.rgba(0, 0, 0, 0.45)
         opacity: root.isOpen ? 1 : 0
@@ -193,6 +194,7 @@ Item {
 
     // Минималистичная плавающая карточка переключателя (Windows 11 / Material You)
     Rectangle {
+        antialiasing: true
         id: container
         anchors.centerIn: parent
         width: Math.min(1300, Math.max(500, (root.windowsList.length > 0 ? root.windowsList.length * 242 + 40 : 500)))
@@ -265,6 +267,7 @@ Item {
                         readonly property bool isSelected: index === root.selectedIndex
 
                         Rectangle {
+                            antialiasing: true
                             id: cardRect
                             anchors.fill: parent
                             anchors.topMargin: 6
@@ -295,6 +298,7 @@ Item {
 
                                     // Мини-иконка приложения
                                     Rectangle {
+                                        antialiasing: true
                                         width: 20; height: 20; radius: 5
                                         color: Qt.rgba(0, 0, 0, 0.2)
 
@@ -328,6 +332,7 @@ Item {
 
                                     // Бейдж Воркспейса
                                     Rectangle {
+                                        antialiasing: true
                                         height: 16
                                         width: wsText.implicitWidth + 8
                                         radius: 4
@@ -348,6 +353,7 @@ Item {
 
                                 // 2. Центр: НАСТОЯЩИЙ ПРЕДПРОСМОТР ОКНА
                                 Rectangle {
+                                    antialiasing: true
                                     Layout.fillWidth: true
                                     Layout.fillHeight: true
                                     radius: 10
@@ -373,6 +379,7 @@ Item {
                                         visible: !modelData.thumbPath || modelData.thumbPath.length === 0
 
                                         Rectangle {
+                                            antialiasing: true
                                             anchors.centerIn: parent
                                             width: 44; height: 44; radius: 12
                                             color: Qt.rgba(root.cfg.accent.r, root.cfg.accent.g, root.cfg.accent.b, 0.12)

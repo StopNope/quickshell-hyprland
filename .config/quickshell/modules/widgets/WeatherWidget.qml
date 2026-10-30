@@ -3,6 +3,7 @@ import QtQuick.Layouts
 import ".."
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -96,6 +97,7 @@ Rectangle {
 
         // 1. Органический контур камушка Google Pixel
         Canvas {
+            antialiasing: true
             id: pebbleCanvas
             anchors.centerIn: parent
             width: pebbleWeatherItem.pebbleSize
@@ -154,13 +156,13 @@ Rectangle {
 
             // 2) ЗОЛОТОЕ СОЛНЦЕ GOOGLE PIXEL (внизу слева, рисуется ПОВЕРХ текста)
             Rectangle {
+                antialiasing: true
                 x: Math.round(parent.width * 0.36 - width / 2)
                 y: Math.round(parent.height * 0.65 - height / 2)
                 width: Math.round(parent.width * 0.33)
                 height: width
                 radius: width / 2
                 color: "#ecb40f"
-                antialiasing: true
             }
         }
 
@@ -225,6 +227,7 @@ Rectangle {
 
                     // Золотистый диск солнца Google Pixel
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 34
                         Layout.preferredHeight: 34
                         Layout.alignment: Qt.AlignVCenter
@@ -232,6 +235,7 @@ Rectangle {
                         color: "#fbc02d"
 
                         Rectangle {
+                            antialiasing: true
                             anchors.top: parent.top
                             anchors.left: parent.left
                             anchors.margins: 4
@@ -247,10 +251,12 @@ Rectangle {
                             visible: root.displayDesc.toLowerCase().indexOf("облач") !== -1 || root.displayDesc.toLowerCase().indexOf("пасмур") !== -1
 
                             Rectangle {
+                                antialiasing: true
                                 x: 10; y: 12; width: 24; height: 16; radius: 8
                                 color: "#ffffff"
                             }
                             Rectangle {
+                                antialiasing: true
                                 x: 14; y: 6; width: 16; height: 16; radius: 8
                                 color: "#ffffff"
                             }
@@ -303,6 +309,7 @@ Rectangle {
 
             // ТОНКИЙ ВЕРТИКАЛЬНЫЙ РАЗДЕЛИТЕЛЬ M3
             Rectangle {
+                antialiasing: true
                 Layout.preferredWidth: 1
                 Layout.fillHeight: true
                 Layout.topMargin: 2
@@ -445,6 +452,7 @@ Rectangle {
         visible: root.variant === "pill"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: 44
             Layout.preferredHeight: 44
             radius: 22
@@ -490,6 +498,7 @@ Rectangle {
         visible: root.variant === "compact"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: root.size === "S" ? 44 : 54
             Layout.preferredHeight: Layout.preferredWidth
             radius: Layout.preferredWidth / 2
@@ -517,6 +526,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 width: cityCompactText.implicitWidth + 14
                 radius: 11
@@ -551,6 +561,7 @@ Rectangle {
             spacing: 12
 
             Rectangle {
+                antialiasing: true
                 Layout.preferredWidth: 46
                 Layout.preferredHeight: 46
                 radius: 16
@@ -579,6 +590,7 @@ Rectangle {
                     }
 
                     Rectangle {
+                        antialiasing: true
                         height: 20
                         implicitWidth: detCityTxt.implicitWidth + 12
                         radius: 10
@@ -611,6 +623,7 @@ Rectangle {
             spacing: 6
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 30
                 radius: 12
@@ -626,6 +639,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 30
                 radius: 12
@@ -641,6 +655,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 30
                 radius: 12
@@ -667,6 +682,7 @@ Rectangle {
         visible: root.variant === "pill_strip"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: Math.min(parent.height - 16, 52)
             Layout.preferredHeight: Layout.preferredWidth
             radius: Layout.preferredWidth / 2
@@ -696,6 +712,7 @@ Rectangle {
                 }
 
                 Rectangle {
+                    antialiasing: true
                     height: 22
                     implicitWidth: psBadgeTxt.implicitWidth + 12
                     radius: 11

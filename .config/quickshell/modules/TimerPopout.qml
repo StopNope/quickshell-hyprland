@@ -44,6 +44,7 @@ Item {
 
         // Монолитная геометрия для attached бара
         Shape {
+            antialiasing: true
             visible: root.isAttached
             width: root.totalW
             height: root.targetH
@@ -90,6 +91,7 @@ Item {
         }
 
         Rectangle {
+            antialiasing: true
             visible: !root.isAttached
             width: root.cardW
             height: root.targetH
@@ -116,6 +118,7 @@ Item {
                     spacing: 8
 
                     Rectangle {
+                        antialiasing: true
                         height: 24
                         implicitWidth: titleRow.implicitWidth + 14
                         radius: 12
@@ -133,7 +136,7 @@ Item {
                                 font.pixelSize: 12
                             }
                             Text {
-                                text: "Помодоро Таймер"
+                                text: "Таймер"
                                 color: root.cfg.textPrimary
                                 font.pixelSize: 10
                                 font.bold: true
@@ -145,6 +148,7 @@ Item {
                     Item { Layout.fillWidth: true }
 
                     Rectangle {
+                        antialiasing: true
                         width: 24
                         height: 24
                         radius: 12
@@ -265,6 +269,7 @@ Item {
                     Layout.preferredHeight: 140
 
                     Canvas {
+                        antialiasing: true
                         id: progressCanvas
                         anchors.fill: parent
 
@@ -345,6 +350,7 @@ Item {
 
                     // Сброс
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 40
                         Layout.preferredHeight: 40
                         radius: 20
@@ -368,6 +374,7 @@ Item {
 
                     // Главная Hero-кнопка Старт/Пауза
                     Rectangle {
+                        antialiasing: true
                         Layout.fillWidth: true
                         Layout.preferredHeight: 42
                         radius: 21
@@ -403,6 +410,7 @@ Item {
 
                     // Следующий этап / Пропуск
                     Rectangle {
+                        antialiasing: true
                         Layout.preferredWidth: 40
                         Layout.preferredHeight: 40
                         radius: 20

@@ -17,6 +17,7 @@ Item {
     implicitHeight: 32
 
     Rectangle {
+        antialiasing: true
         id: track
         anchors.fill: parent
         radius: 16
@@ -29,6 +30,7 @@ Item {
 
         // Ползунок (Thumb): 16dp в покое -> 24dp во включенном состоянии
         Rectangle {
+            antialiasing: true
             id: thumb
             width: root.checked ? 24 : 16
             height: width

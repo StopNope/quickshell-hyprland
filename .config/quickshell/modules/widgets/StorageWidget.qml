@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -60,6 +61,7 @@ Rectangle {
             spacing: 10
 
             Rectangle {
+                antialiasing: true
                 width: 36
                 height: 36
                 radius: 12
@@ -95,6 +97,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Rectangle {
+                antialiasing: true
                 height: 24
                 width: typeBadgeText.implicitWidth + 16
                 radius: 12
@@ -139,6 +142,7 @@ Rectangle {
             Item { Layout.fillWidth: true }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 width: pctText.implicitWidth + 14
                 radius: 11
@@ -160,6 +164,7 @@ Rectangle {
 
         // Толстая мягкая капсула прогресс-бара Android 14/15
         Rectangle {
+            antialiasing: true
             id: trackBar
             Layout.fillWidth: true
             height: 14
@@ -168,6 +173,7 @@ Rectangle {
             clip: true
 
             Rectangle {
+                antialiasing: true
                 id: fillIndicator
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -191,6 +197,7 @@ Rectangle {
             spacing: 8
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 width: freeRow.implicitWidth + 14
                 radius: 11
@@ -240,6 +247,7 @@ Rectangle {
             Layout.alignment: Qt.AlignVCenter
 
             Canvas {
+                antialiasing: true
                 id: storageRingCanvas
                 anchors.fill: parent
 
@@ -320,6 +328,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 height: 22
                 Layout.fillWidth: true
                 radius: 11
@@ -353,6 +362,7 @@ Rectangle {
 
         // Левая карточка: Системный раздел
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 18
@@ -365,6 +375,7 @@ Rectangle {
                 spacing: 4
 
                 Rectangle {
+                    antialiasing: true
                     Layout.alignment: Qt.AlignHCenter
                     height: 22
                     implicitWidth: rBadgeTxt.implicitWidth + 14
@@ -393,6 +404,7 @@ Rectangle {
 
         // Правая карточка: Свободное место
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             radius: 18
@@ -405,6 +417,7 @@ Rectangle {
                 spacing: 4
 
                 Rectangle {
+                    antialiasing: true
                     Layout.alignment: Qt.AlignHCenter
                     height: 22
                     implicitWidth: fBadgeTxt.implicitWidth + 14

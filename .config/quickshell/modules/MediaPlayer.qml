@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Services.Mpris
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -95,7 +96,18 @@ Rectangle {
     implicitHeight: root.hasMedia ? 168 : 74
     Behavior on implicitHeight { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
     radius: 28
-    color: root.cfg.bgPrimary
+    gradient: Gradient {
+        GradientStop {
+            position: 0.0
+            color: root.cfg.surfaceContainerHigh || root.cfg.bgElevated
+        }
+        GradientStop {
+            position: 1.0
+            color: root.cfg.surfaceContainer || root.cfg.bgPrimary
+        }
+    }
+    border.color: root.cfg.outlineVariant || root.cfg.borderCol || "#323540"
+    border.width: 1
     clip: true
 
     // ================= СОСТОЯНИЕ 1: АКТИВНЫЙ ТРЕК =================
@@ -125,6 +137,7 @@ Rectangle {
 
                 // Квадратная обложка альбома со скруглением
                 Rectangle {
+                    antialiasing: true
                     Layout.preferredWidth: 52
                     Layout.preferredHeight: 52
                     radius: 16
@@ -196,6 +209,7 @@ Rectangle {
 
                 // Кнопка быстрого переключения стиля полосы: Волна / Обычная
                 Rectangle {
+                    antialiasing: true
                     Layout.preferredWidth: 28
                     Layout.preferredHeight: 28
                     radius: 14
@@ -224,6 +238,7 @@ Rectangle {
 
                 // Кнопка переключения плееров (если их > 1)
                 Rectangle {
+                    antialiasing: true
                     visible: root.players.length > 1
                     Layout.preferredWidth: 28
                     Layout.preferredHeight: 28
@@ -283,6 +298,7 @@ Rectangle {
                     }
 
                     Canvas {
+                        antialiasing: true
                         id: waveCanvas
                         anchors.fill: parent
                         property real phase: 0
@@ -448,6 +464,7 @@ Rectangle {
 
                 // Кнопка: Предыдущий трек
                 Rectangle {
+                    antialiasing: true
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 36
                     radius: 18
@@ -487,6 +504,7 @@ Rectangle {
 
                     // Векторная плавная иконка Плей (Строго центрированный скругленный треугольник)
                     Canvas {
+                        antialiasing: true
                         id: playVectorCanvas
                         anchors.fill: parent
                         opacity: root.isPlaying ? 0 : 1
@@ -524,6 +542,7 @@ Rectangle {
 
                     // Векторная плавная иконка Паузы (Две скругленные полосы Material You)
                     Canvas {
+                        antialiasing: true
                         id: pauseVectorCanvas
                         anchors.fill: parent
                         opacity: root.isPlaying ? 1 : 0
@@ -570,6 +589,7 @@ Rectangle {
 
                 // Кнопка: Следующий трек
                 Rectangle {
+                    antialiasing: true
                     Layout.preferredWidth: 36
                     Layout.preferredHeight: 36
                     radius: 18
@@ -609,6 +629,7 @@ Rectangle {
             spacing: 12
 
             Rectangle {
+                antialiasing: true
                 Layout.preferredWidth: 48
                 Layout.preferredHeight: 48
                 radius: 24

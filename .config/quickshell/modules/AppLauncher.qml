@@ -162,6 +162,7 @@ Item {
 
     // Полупрозрачный фон с затемнением (клик закрывает)
     Rectangle {
+        antialiasing: true
         anchors.fill: parent
         color: Qt.rgba(0, 0, 0, 0.45)
         opacity: root.isOpen ? 1 : 0
@@ -175,6 +176,7 @@ Item {
 
     // Центрированная карточка Spotlight / Launcher (Минималистичный Material You)
     Rectangle {
+        antialiasing: true
         id: launcherCard
         anchors.centerIn: parent
         width: 620
@@ -201,6 +203,7 @@ Item {
 
             // 1. Поисковая строка Material You
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 48
                 radius: 24
@@ -268,6 +271,7 @@ Item {
 
                     // Кнопка очистки поиска
                     Rectangle {
+                        antialiasing: true
                         width: 22; height: 22; radius: 11
                         color: root.cfg.bgElevated
                         visible: searchField.text.length > 0
@@ -392,6 +396,7 @@ Item {
                         readonly property bool isSelected: index === root.selectedIndex
 
                         Rectangle {
+                            antialiasing: true
                             anchors.fill: parent
                             radius: 12
                             color: isSelected 
@@ -410,6 +415,7 @@ Item {
 
                                 // Иконка приложения
                                 Rectangle {
+                                    antialiasing: true
                                     width: 32; height: 32; radius: 8
                                     color: Qt.rgba(0, 0, 0, 0.18)
 
@@ -469,6 +475,7 @@ Item {
 
                                 // Кнопка/индикатор Launch при выборе (ровно по центру, без съезжания)
                                 Rectangle {
+                                    antialiasing: true
                                     id: launchPill
                                     visible: isSelected
                                     Layout.preferredHeight: 24

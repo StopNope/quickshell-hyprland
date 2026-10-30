@@ -113,6 +113,7 @@ Item {
     // 2. ДОК: ПЛАВНО ВЫЕЗЖАЕТ ИЗ САМОГО НИЗА («НАТЯГИВАЕТ ПЛЕНКУ НИЖНЕЙ ГРАНИЦЫ»)
     // =========================================================================
     Rectangle {
+        antialiasing: true
         id: dockCapsule
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
@@ -127,6 +128,7 @@ Item {
         radius: 20
         // Прямоугольник-заглушка снизу, чтобы нижние углы были ровными и сливались с границей экрана
         Rectangle {
+            antialiasing: true
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
@@ -141,6 +143,7 @@ Item {
 
         // Верхний декоративный язычок / мембрана (индикатор вытягивания)
         Rectangle {
+            antialiasing: true
             anchors.top: parent.top
             anchors.topMargin: 2
             anchors.horizontalCenter: parent.horizontalCenter
@@ -196,6 +199,7 @@ Item {
 
                     // Подложка при наведении (чистый Material 3 hover pill, без изменения размера и рывков)
                     Rectangle {
+                        antialiasing: true
                         anchors.fill: parent
                         radius: 14
                         color: iconDelegate.itemHovered ? Qt.rgba(1, 1, 1, 0.12) : "transparent"
@@ -223,6 +227,7 @@ Item {
 
                         // Фоллбэк, если иконка не найдена
                         Rectangle {
+                            antialiasing: true
                             anchors.fill: parent
                             visible: !appImg.visible || appImg.status !== Image.Ready
                             radius: 12
@@ -239,6 +244,7 @@ Item {
 
                     // Индикатор запущенного приложения (Material 3 Pill / Dot)
                     Rectangle {
+                        antialiasing: true
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 2
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -260,6 +266,7 @@ Item {
 
                     // Всплывающая подсказка с названием приложения (Tooltip)
                     Rectangle {
+                        antialiasing: true
                         id: tooltipPill
                         anchors.bottom: parent.top
                         anchors.bottomMargin: 10
@@ -335,6 +342,7 @@ Item {
     // 3. КОНТЕКСТНОЕ МЕНЮ (MATERIAL 3 CONTEXT CARD)
     // =========================================================================
     Rectangle {
+        antialiasing: true
         id: contextMenuCard
         visible: root.contextMenuOpen && root.selectedItem !== null
         opacity: root.contextMenuOpen ? 1.0 : 0.0
@@ -381,6 +389,7 @@ Item {
             }
 
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 1
                 color: Qt.rgba(1, 1, 1, 0.08)
@@ -391,6 +400,7 @@ Item {
                 model: (root.selectedItem && root.selectedItem.running) ? root.selectedItem.windows : []
 
                 Rectangle {
+                    antialiasing: true
                     required property var modelData
                     Layout.fillWidth: true
                     height: 28
@@ -428,6 +438,7 @@ Item {
 
             // Кнопка: Новое окно
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 28
                 radius: 8
@@ -459,6 +470,7 @@ Item {
 
             // Кнопка: Закрепить / Открепить от дока
             Rectangle {
+                antialiasing: true
                 Layout.fillWidth: true
                 height: 28
                 radius: 8
@@ -503,6 +515,7 @@ Item {
 
             // Кнопка: Закрыть (если запущено)
             Rectangle {
+                antialiasing: true
                 visible: root.selectedItem && root.selectedItem.running
                 Layout.fillWidth: true
                 height: 28

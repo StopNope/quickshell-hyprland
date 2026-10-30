@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 
 Rectangle {
+    antialiasing: true
     id: root
 
     required property var cfg
@@ -50,6 +51,7 @@ Rectangle {
         visible: root.variant === "glance_day" || root.variant === "squircle"
 
         Rectangle {
+            antialiasing: true
             anchors.centerIn: parent
             width: Math.min(parent.width, parent.height) * 0.94
             height: width
@@ -110,6 +112,7 @@ Rectangle {
 
             // Мягкий бейдж "Сегодня"
             Rectangle {
+                antialiasing: true
                 height: 24
                 width: todayBadgeLayout.implicitWidth + 16
                 radius: 12
@@ -164,6 +167,7 @@ Rectangle {
 
         // Разделительная линия с очень мягкой прозрачностью
         Rectangle {
+            antialiasing: true
             Layout.fillWidth: true
             height: 1
             color: root.cfg.outlineVariant
@@ -197,6 +201,7 @@ Rectangle {
 
                     // Мягкая органическая пилюля (Capsule / Pill) для текущего дня в стиле Android 14/15
                     Rectangle {
+                        antialiasing: true
                         anchors.centerIn: parent
                         width: Math.min(parent.width - 2, 34)
                         height: Math.min(parent.height - 2, 26)
@@ -245,6 +250,7 @@ Rectangle {
             }
             Item { Layout.fillWidth: true }
             Rectangle {
+                antialiasing: true
                 height: 20
                 implicitWidth: wsTodayTxt.implicitWidth + 12
                 radius: 10
@@ -282,6 +288,7 @@ Rectangle {
                 ]
 
                 Rectangle {
+                    antialiasing: true
                     required property var modelData
                     required property int index
                     Layout.fillWidth: true
@@ -327,6 +334,7 @@ Rectangle {
         visible: root.variant === "minimal_pill"
 
         Rectangle {
+            antialiasing: true
             Layout.preferredWidth: Math.min(parent.height - 8, 70)
             Layout.preferredHeight: Layout.preferredWidth
             radius: 20
@@ -362,6 +370,7 @@ Rectangle {
             }
 
             Rectangle {
+                antialiasing: true
                 height: 20
                 implicitWidth: noEvTxt.implicitWidth + 12
                 radius: 10
