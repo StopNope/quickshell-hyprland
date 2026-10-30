@@ -7,11 +7,12 @@ Item {
 
     required property var cfg
 
-    // 0: Focus (25m), 1: Short Break (5m), 2: Long Break (15m)
+    // 0: Focus (25m), 1: Short Break (5m), 2: Long Break (15m), 3: Custom
     property int currentMode: 0
     property int focusDurationSec: 25 * 60
     property int shortBreakDurationSec: 5 * 60
     property int longBreakDurationSec: 15 * 60
+    property int customDurationSec: 10 * 60
 
     property int remainingSec: focusDurationSec
     property int totalSec: focusDurationSec
@@ -21,16 +22,41 @@ Item {
     readonly property string modeName: {
         if (currentMode === 0) return "Фокус"
         if (currentMode === 1) return "Перерыв"
-        return "Длинный отдых"
+        if (currentMode === 2) return "Длинный отдых"
+        return "Свое время"
     }
 
     readonly property string modeIcon: {
         if (currentMode === 0) return "󰄉"
         if (currentMode === 1) return "󰾪"
-        return "󰒲"
+        if (currentMode === 2) return "󰒲"
+        return "󱎫"
     }
 
     readonly property real progressRatio: totalSec > 0 ? (1.0 - (remainingSec / totalSec)) : 0.0
+
+    function setCustomMinutes(mins) {
+        let m = Math.max(1, Math.min(180, mins))
+        customDurationSec = m * 60
+        if (currentMode === 3) {
+            totalSec = customDurationSec
+            remainingSec = customDurationSec
+            isRunning = false
+        }
+    }
+
+    function addMinutes(deltaMins) {
+        if (currentMode === 3) {
+            let newMins = Math.max(1, Math.min(180, Math.round(customDurationSec / 60) + deltaMins))
+            setCustomMinutes(newMins)
+        } else {
+            // Если в обычном режиме, переключаем на свое время с текущим + дельта
+            let base = isRunning ? remainingSec : totalSec
+            let newM = Math.max(1, Math.min(180, Math.round(base / 60) + deltaMins))
+            currentMode = 3
+            setCustomMinutes(newM)
+        }
+    }
 
     function formatTime(sec) {
         if (!sec || isNaN(sec) || sec < 0) return "00:00"
@@ -47,7 +73,8 @@ Item {
         isRunning = false
         if (currentMode === 0) remainingSec = totalSec = focusDurationSec
         else if (currentMode === 1) remainingSec = totalSec = shortBreakDurationSec
-        else remainingSec = totalSec = longBreakDurationSec
+        else if (currentMode === 2) remainingSec = totalSec = longBreakDurationSec
+        else remainingSec = totalSec = customDurationSec
     }
 
     function setMode(m) {
@@ -55,7 +82,8 @@ Item {
         isRunning = false
         if (m === 0) totalSec = remainingSec = focusDurationSec
         else if (m === 1) totalSec = remainingSec = shortBreakDurationSec
-        else totalSec = remainingSec = longBreakDurationSec
+        else if (m === 2) totalSec = remainingSec = longBreakDurationSec
+        else totalSec = remainingSec = customDurationSec
     }
 
     function nextCycle() {

@@ -46,9 +46,7 @@ Item {
         selectedCategory = "All"
         selectedIndex = 0
         applyFilter()
-        if (allApps.length === 0) {
-            fetchAppsProc.running = true
-        }
+        fetchAppsProc.running = true
         searchField.forceActiveFocus()
     }
 

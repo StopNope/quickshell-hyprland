@@ -20,7 +20,7 @@ Item {
     readonly property real cardW: 340
     readonly property real fR: 24
     readonly property real bR: 28
-    readonly property real targetH: 330
+    readonly property real targetH: 366
     readonly property real totalW: isAttached ? (cardW + 2 * fR) : cardW
 
     implicitWidth: totalW
@@ -167,16 +167,17 @@ Item {
                     }
                 }
 
-                // Пресеты режимов (Фокус, Перерыв, Отдых)
+                // Пресеты режимов (Фокус, Перерыв, Отдых, Свое)
                 RowLayout {
                     Layout.fillWidth: true
-                    spacing: 6
+                    spacing: 5
 
                     Repeater {
                         model: [
-                            { id: 0, label: "25м Фокус", icon: "󰄉" },
-                            { id: 1, label: "5м Перерыв", icon: "󰾪" },
-                            { id: 2, label: "15м Отдых", icon: "󰒲" }
+                            { id: 0, label: "25м", icon: "󰄉" },
+                            { id: 1, label: "5м", icon: "󰾪" },
+                            { id: 2, label: "15м", icon: "󰒲" },
+                            { id: 3, label: "Своё", icon: "󱎫" }
                         ]
 
                         delegate: Rectangle {
@@ -190,7 +191,7 @@ Item {
 
                             Row {
                                 anchors.centerIn: parent
-                                spacing: 4
+                                spacing: 3
                                 Text {
                                     text: modelData.icon
                                     color: isCur ? (root.cfg.accentText || "#ffffff") : root.cfg.textMuted
@@ -211,6 +212,48 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 hoverEnabled: true
                                 onClicked: root.timerState.setMode(modelData.id)
+                            }
+                        }
+                    }
+                }
+
+                // Быстрое добавление / убавление минут (+1м, +5м, +10м)
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+
+                    Repeater {
+                        model: [
+                            { label: "-5м", delta: -5 },
+                            { label: "-1м", delta: -1 },
+                            { label: "+1м", delta: 1 },
+                            { label: "+5м", delta: 5 },
+                            { label: "+10м", delta: 10 }
+                        ]
+
+                        delegate: Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 24
+                            radius: 12
+                            color: qmMouse.containsMouse ? (root.cfg.surfaceContainerHighest || "#353844") : (root.cfg.surfaceContainerLowest || "#181a20")
+                            border.color: qmMouse.containsMouse ? root.cfg.accent : (root.cfg.outlineVariant || "#2e313c")
+                            border.width: 1
+
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.label
+                                color: qmMouse.containsMouse ? root.cfg.accent : root.cfg.textPrimary
+                                font.pixelSize: 9
+                                font.bold: true
+                                font.family: root.cfg.fontFamily
+                            }
+
+                            MouseArea {
+                                id: qmMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+                                onClicked: root.timerState.addMinutes(modelData.delta)
                             }
                         }
                     }

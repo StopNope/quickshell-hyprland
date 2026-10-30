@@ -12,9 +12,9 @@ Item {
 
     signal workspaceSelected(int wsId)
 
-    readonly property real slotSize: isVertical ? 22 : 24
-    readonly property real slotSpacing: 6
-    readonly property real pacmanSize: 22
+    readonly property real slotSize: isVertical ? 18 : 18
+    readonly property real slotSpacing: 4
+    readonly property real pacmanSize: 16
 
     readonly property int activeIdx: {
         if (!activeWorkspaces || activeWorkspaces.length === 0) return 0
@@ -94,7 +94,7 @@ Item {
                 Rectangle {
                     anchors.centerIn: parent
                     visible: !slotItem.isActive
-                    width: slotItem.isPowerPellet ? 7 : 5
+                    width: slotItem.isPowerPellet ? 6 : 4
                     height: width
                     radius: width / 2
                     color: pMouse.containsMouse ? root.cfg.accent : root.dotColor
@@ -109,8 +109,8 @@ Item {
                     id: ghostCanvas
                     anchors.centerIn: parent
                     visible: !slotItem.isActive && (slotItem.index % 2 === 1)
-                    width: 14
-                    height: 14
+                    width: 11
+                    height: 11
                     opacity: slotItem.isActive ? 0.0 : (pMouse.containsMouse ? 1.0 : 0.75)
 
                     onPaint: {

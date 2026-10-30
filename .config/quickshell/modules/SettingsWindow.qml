@@ -801,7 +801,7 @@ Rectangle {
                                     icon: "󰄯"
                                     title: "Скругление углов бара"
                                     subtitle: "Радиус углов формы панели: " + root.cfg.barRadius + " px"
-                                    showDivider: false
+                                    showDivider: true
 
                                     RowLayout {
                                         spacing: 8
@@ -827,6 +827,108 @@ Rectangle {
                                             MouseArea {
                                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                                                 onClicked: { root.cfg.barRadius = Math.min(28, root.cfg.barRadius + 2); root.cfg.save() }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Скругление капсул модулей (островков)
+                                M3SettingsRow {
+                                    icon: "󰘖"
+                                    title: "Скругление капсул модулей"
+                                    subtitle: "Форма фоновых плашек модулей: " + (root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) + " px"
+                                    showDivider: true
+
+                                    RowLayout {
+                                        spacing: 8
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    let cur = root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16
+                                                    root.cfg.barModuleRadius = Math.max(0, cur - 2)
+                                                    root.cfg.save()
+                                                }
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 68; radius: 16
+                                            color: root.cfg.surfaceContainerLowest || "#181a20"
+                                            border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: (root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16) + " px"
+                                                color: root.cfg.accent
+                                                font.bold: true
+                                                font.pixelSize: 11
+                                                font.family: "Fredoka"
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    let cur = root.cfg.barModuleRadius !== undefined ? root.cfg.barModuleRadius : 16
+                                                    root.cfg.barModuleRadius = Math.min(24, cur + 2)
+                                                    root.cfg.save()
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                // Расстояние между модулями
+                                M3SettingsRow {
+                                    icon: "󰅪"
+                                    title: "Отступ между модулями"
+                                    subtitle: "Расстояние между блоками бара: " + (root.cfg.barBubbleSpacing || 8) + " px"
+                                    showDivider: false
+
+                                    RowLayout {
+                                        spacing: 8
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "−"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    let cur = root.cfg.barBubbleSpacing || 8
+                                                    root.cfg.barBubbleSpacing = Math.max(2, cur - 2)
+                                                    root.cfg.save()
+                                                }
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 68; radius: 16
+                                            color: root.cfg.surfaceContainerLowest || "#181a20"
+                                            border.color: root.cfg.outlineVariant || "#323540"; border.width: 1
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: (root.cfg.barBubbleSpacing || 8) + " px"
+                                                color: root.cfg.accent
+                                                font.bold: true
+                                                font.pixelSize: 11
+                                                font.family: "Fredoka"
+                                            }
+                                        }
+                                        Rectangle {
+                                            height: 32; width: 32; radius: 16
+                                            color: root.cfg.surfaceContainerHighest || "#353842"
+                                            Text { anchors.centerIn: parent; text: "+"; color: root.cfg.textPrimary; font.bold: true; font.pixelSize: 14 }
+                                            MouseArea {
+                                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    let cur = root.cfg.barBubbleSpacing || 8
+                                                    root.cfg.barBubbleSpacing = Math.min(24, cur + 2)
+                                                    root.cfg.save()
+                                                }
                                             }
                                         }
                                     }

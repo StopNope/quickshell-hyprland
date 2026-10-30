@@ -82,7 +82,7 @@ Item {
     readonly property bool isVertical: cfg.barPosition === "left" || cfg.barPosition === "right"
     property int barWidth: cfg.barWidth
     property int barHeight: Math.max(26, Math.min(60, cfg.barHeight))
-    property real barRadius: Math.min(cfg.barRadius, barHeight / 2)
+    property real barRadius: Math.max(0, Math.min(cfg.barRadius, barHeight))
     property color barColor: cfg.bgSurface
     property color borderColor: cfg.borderCol
 
@@ -328,7 +328,7 @@ Item {
         id: modWorkspaces
         Item {
             implicitWidth: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? pacmanWs.implicitWidth : dotRow.implicitWidth
-            implicitHeight: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? pacmanWs.implicitHeight : 24
+            implicitHeight: (root.cfg.workspaceStyle === "arcade" || root.cfg.workspaceStyle === "pacman") ? pacmanWs.implicitHeight : 18
 
             PacmanWorkspaces {
                 id: pacmanWs
@@ -1629,9 +1629,8 @@ Item {
         readonly property bool isBottom: root.cfg.barPosition === "bottom"
         readonly property real totalW: width
         readonly property real totalH: height
-        readonly property real maxCornerR: Math.min(root.barRadius, totalH * 0.48)
-        readonly property real barRad: Math.max(0, maxCornerR)
-        readonly property real filletRadius: Math.min(14, Math.max(8, totalH - barRad - 1))
+        readonly property real barRad: Math.max(0, Math.min(root.barRadius, totalH - 6))
+        readonly property real filletRadius: Math.max(4, Math.min(14, totalH - barRad - 1))
 
         width: mainCapsule.width + filletRadius * 2
         height: mainCapsule.height
